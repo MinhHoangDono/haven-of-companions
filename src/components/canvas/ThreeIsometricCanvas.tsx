@@ -38,7 +38,6 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   const characterHandlesRef = useRef<Map<string, CharacterMeshHandle>>(new Map());
   const interactivePropsRef = useRef<InteractivePropRef[]>([]);
   const waterMeshRef = useRef<THREE.Mesh | null>(null);
-  const waveFoamsRef = useRef<THREE.Mesh[]>([]);
   const boatGroupRef = useRef<THREE.Group | null>(null);
   const largeShipRef = useRef<THREE.Group | null>(null);
   const lighthouseLightRef = useRef<THREE.PointLight | null>(null);
@@ -96,7 +95,6 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     const {
       interactiveProps,
       waterMesh,
-      waveFoamMeshes,
       boatGroup,
       largeShipGroup,
       lighthouseBeaconLight,
@@ -104,7 +102,6 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
     interactivePropsRef.current = interactiveProps;
     waterMeshRef.current = waterMesh;
-    waveFoamsRef.current = waveFoamMeshes;
     boatGroupRef.current = boatGroup;
     largeShipRef.current = largeShipGroup;
     lighthouseLightRef.current = lighthouseBeaconLight;
@@ -124,6 +121,19 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     const spellEffects = new SpellEffect3D(scene);
     spellEffectsRef.current = spellEffects;
 
+    // Waypoint Destination Marker Ring
+    const waypointGeo = new THREE.RingGeometry(0.28, 0.44, 24);
+    const waypointMat = new THREE.MeshBasicMaterial({
+      color: 0xffd700,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+    });
+    const waypointMesh = new THREE.Mesh(waypointGeo, waypointMat);
+    waypointMesh.rotation.x = -Math.PI / 2;
+    waypointMesh.position.y = 0.05;
+    scene.add(waypointMesh);
+    let waypointTimer = 0;
     onInitSpellCaster?.((effectType, charId) => {
       const handle = handles.get(charId);
       const origin = handle ? handle.group.position.clone() : new THREE.Vector3(0, 0.8, 0);
@@ -141,6 +151,20 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
             const char = charactersRef.current.find((c) => c.id === hit.id);
             if (char) {
               onSelectCharacterRef.current(char);
+            }
+          } else if (hit.type === 'ground') {
+            // Tap-to-Move for active selected character!
+            if (selectedCharIdRef.current) {
+              const activeHandle = handles.get(selectedCharIdRef.current);
+              if (activeHandle) {
+                activeHandle.moveTo(hit.point.x, hit.point.z);
+
+                // Position and trigger pulsing golden waypoint ring
+                waypointMesh.position.set(hit.point.x, activeHandle.baseY + 0.02, hit.point.z);
+                waypointMat.opacity = 0.95;
+                waypointMesh.scale.setScalar(1.2);
+                waypointTimer = 1.0;
+              }
             }
           } else {
             // Interactive Prop tapped!
@@ -224,26 +248,19 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
       // Update lighting flicker
       lighting.update(currentTime);
-      // Animate dynamic 3D ocean wave swell
+      // Animate dynamic 3D ocean wave swell (smooth low-poly water with normals)
       if (waterMeshRef.current) {
         const posAttr = waterMeshRef.current.geometry.attributes.position;
         const tSec = currentTime * 0.0015;
         for (let i = 0; i < posAttr.count; i++) {
           const vx = posAttr.getX(i);
           const vy = posAttr.getY(i);
-          const waveZ = Math.sin(vx * 0.8 + tSec * 2.2) * 0.08 + Math.cos(vy * 1.1 + tSec * 1.8) * 0.06;
+          const waveZ = Math.sin(vx * 0.7 + tSec * 2.0) * 0.09 + Math.cos(vy * 0.9 + tSec * 1.5) * 0.07;
           posAttr.setZ(i, waveZ);
         }
         posAttr.needsUpdate = true;
+        waterMeshRef.current.geometry.computeVertexNormals();
       }
-
-      // Animate rolling shoreline wavefoam
-      waveFoamsRef.current.forEach((foam, idx) => {
-        const cycle = (currentTime * 0.0006 + idx * 0.33) % 1.0;
-        foam.position.z = 2.8 + cycle * 2.4;
-        (foam.material as THREE.MeshBasicMaterial).opacity = Math.sin(cycle * Math.PI) * 0.55;
-      });
-
       // Animate Large Galleon ship oceanic roll
       if (largeShipRef.current) {
         largeShipRef.current.position.y = -0.15 + Math.sin(currentTime * 0.0014) * 0.06;
@@ -263,12 +280,20 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
         lighthouseLightRef.current.position.x = 7.2 + Math.cos(bAngle) * 0.8;
         lighthouseLightRef.current.position.z = 4.8 + Math.sin(bAngle) * 0.8;
       }
-      // Update character models (breathing bob & hop progress)
+      // Animate waypoint destination marker
+      if (waypointTimer > 0) {
+        waypointTimer -= minInterval / 1000;
+        waypointMat.opacity = Math.max(0, waypointTimer * 0.95);
+        waypointMesh.scale.setScalar(1.0 + waypointTimer * 0.25);
+      }
+
+      // Update character models (walking, idle wandering, breathing, hop progress)
+      const dt = minInterval / 1000;
       handles.forEach((handle) => {
         const charData = charactersRef.current.find((c) => c.id === handle.id);
         const isSelected = handle.id === selectedCharIdRef.current;
         const hop = charData?.hopProgress || 0;
-        handle.update(currentTime, isSelected, hop);
+        handle.update(dt, currentTime, isSelected, hop);
       });
 
       // Render 3D Scene

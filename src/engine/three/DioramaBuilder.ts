@@ -10,7 +10,6 @@ export interface InteractivePropRef {
 export interface DioramaElements {
   interactiveProps: InteractivePropRef[];
   waterMesh: THREE.Mesh;
-  waveFoamMeshes: THREE.Mesh[];
   boatGroup: THREE.Group;
   largeShipGroup: THREE.Group;
   lighthouseGroup: THREE.Group;
@@ -94,11 +93,12 @@ export class DioramaBuilder {
     });
 
     const matWater = new THREE.MeshStandardMaterial({
-      color: 0x2288a6,
-      roughness: 0.15,
+      color: 0x1c7e9e,
+      roughness: 0.1,
       metalness: 0.2,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.88,
+      flatShading: true,
     });
 
     // --- 1. Base Diorama Foundation & Island Pedestal ---
@@ -307,26 +307,9 @@ export class DioramaBuilder {
     waterMesh.receiveShadow = true;
     dioramaGroup.add(waterMesh);
 
-    // 5. Rolling Shoreline Wavefoam strips
-    const waveFoamMeshes: THREE.Mesh[] = [];
-    [-0.4, 0.9, 2.3].forEach((offsetZ, i) => {
-      const foamGeo = new THREE.PlaneGeometry(18.0, 0.45);
-      const foamMat = new THREE.MeshBasicMaterial({
-        color: 0xe6ffff,
-        transparent: true,
-        opacity: 0.55 - i * 0.12,
-      });
-      const foam = new THREE.Mesh(foamGeo, foamMat);
-      foam.rotation.x = -Math.PI / 2;
-      foam.position.set(0, -0.03, 3.4 + offsetZ);
-      dioramaGroup.add(foam);
-      waveFoamMeshes.push(foam);
-    });
-
     return {
       interactiveProps,
       waterMesh,
-      waveFoamMeshes,
       boatGroup,
       largeShipGroup,
       lighthouseGroup,

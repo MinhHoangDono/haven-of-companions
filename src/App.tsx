@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Sparkles, Users, RotateCcw, RotateCw } from 'lucide-react';
+import { RotateCcw, RotateCw } from 'lucide-react';
 import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
 import { Character, CharacterSignatureAbility } from './types/character';
 import { allCharacters } from './data/charactersData';
@@ -158,26 +158,6 @@ export const App: React.FC = () => {
     }, 3200);
   }, [selectedCharacter]);
 
-  const handlePartyReunionFeast = useCallback(() => {
-    audioManager.playCelebrationCheer();
-
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate([40, 60, 40, 100]);
-    }
-
-    // Wave hop all 9 friends!
-    setCharacters((prev) =>
-      prev.map((c, i) => ({ ...c, hopProgress: 0.01 + (i % 3) * 0.1 }))
-    );
-
-    // Center camera on Town Square Plaza
-    controlsRef.current?.panTo(1.5, -1.5);
-
-    setCelebrationToast('🍻 Hội Ngộ Tri Kỷ: Tất cả 9 người bạn đang tề tựu reo vui mừng ngày hội!');
-    setTimeout(() => {
-      setCelebrationToast(null);
-    }, 4500);
-  }, []);
 
   const handleToast = useCallback(() => {
     audioManager.playToast();
@@ -243,17 +223,6 @@ export const App: React.FC = () => {
           title="Xoay góc nhìn 45° sang phải"
         >
           <RotateCw className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="absolute bottom-24 right-4 z-20 pointer-events-auto">
-        <button
-          onClick={handlePartyReunionFeast}
-          className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-amber-600 via-fantasy-gold to-amber-500 text-ink-900 font-bold text-xs tracking-wider uppercase shadow-[0_4px_20px_rgba(223,166,66,0.45)] hover:scale-105 active:scale-95 transition-all border border-yellow-200"
-          title="Tề tựu tất cả 9 người bạn trong ngày hội Làng Tri Kỷ"
-        >
-          <Sparkles className="w-4 h-4 text-ink-950 animate-spin" />
-          <span className="hidden sm:inline">Hội Ngộ</span> 9 Tri Kỷ
-          <Users className="w-4 h-4 text-ink-950" />
         </button>
       </div>
 

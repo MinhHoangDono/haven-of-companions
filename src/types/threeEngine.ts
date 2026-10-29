@@ -11,7 +11,7 @@ export interface ScreenPoint {
   y: number;
 }
 
-export type InteractiveTargetType = 'character' | 'stew_pot' | 'sea_bell' | 'fireworks_mortar' | 'tea_pavilion';
+export type InteractiveTargetType = 'character' | 'stew_pot' | 'sea_bell' | 'fireworks_mortar' | 'tea_pavilion' | 'ground';
 
 export interface InteractiveHit {
   id: string;

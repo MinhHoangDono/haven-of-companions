@@ -1,6 +1,7 @@
 import React from 'react';
 import { Character } from '../../types/character';
 import { Sparkles, Wine, X, Shield, Trees, Compass } from 'lucide-react';
+import { CharacterPreview3D } from './CharacterPreview3D';
 
 interface CharacterModalProps {
   character: Character | null;
@@ -75,6 +76,9 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
             </p>
           </div>
         </div>
+
+        {/* 3D Interactive Character Model Viewport */}
+        <CharacterPreview3D character={character} />
 
         {/* RPG Stat Bars */}
         <div className="bg-ink-800/80 border border-paper-800/60 rounded-2xl p-3.5 mb-4 shadow-inner">

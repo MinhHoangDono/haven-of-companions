@@ -8,8 +8,9 @@ export interface CharacterMeshHandle {
   pedestalMesh: THREE.Mesh;
   nameplateSprite: THREE.Sprite;
   baseY: number;
-  update: (time: number, isSelected: boolean, hopProgress: number) => void;
+  update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => void;
   getHeadWorldPosition: () => THREE.Vector3;
+  moveTo: (x: number, z: number) => void;
 }
 
 export class CharacterMeshBuilder {
@@ -177,6 +178,14 @@ export class CharacterMeshBuilder {
     hitMesh.userData = { interactiveId: character.id, interactiveType: 'character' };
     group.add(hitMesh);
 
+    const homeX = posX;
+    const homeZ = posZ;
+    let targetX = posX;
+    let targetZ = posZ;
+    let isMoving = false;
+    let walkCycle = 0;
+    let idleTimer = Math.random() * 5.0;
+
     return {
       id: character.id,
       character,
@@ -184,15 +193,55 @@ export class CharacterMeshBuilder {
       pedestalMesh,
       nameplateSprite,
       baseY,
-      update: (time: number, isSelected: boolean, hopProgress: number) => {
-        // Breathing bob
-        const bob = Math.sin(time * 0.003 + posX) * 0.04;
-        let hop = 0;
-        if (hopProgress > 0) {
-          hop = Math.sin(hopProgress * Math.PI) * 0.45;
-        }
+      moveTo: (x: number, z: number) => {
+        targetX = THREE.MathUtils.clamp(x, -7.5, 7.5);
+        targetZ = THREE.MathUtils.clamp(z, -7.5, 6.5);
+        isMoving = true;
+      },
+      update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => {
+        if (isMoving) {
+          const dx = targetX - group.position.x;
+          const dz = targetZ - group.position.z;
+          const dist = Math.hypot(dx, dz);
 
-        group.position.y = baseY + bob + hop;
+          if (dist > 0.08) {
+            const speed = 2.4;
+            const step = Math.min(dist, speed * dt);
+            group.position.x += (dx / dist) * step;
+            group.position.z += (dz / dist) * step;
+            group.rotation.y = Math.atan2(dx, dz);
+
+            walkCycle += dt * 12;
+            const stepBob = Math.abs(Math.sin(walkCycle)) * 0.08;
+            group.position.y = baseY + stepBob;
+          } else {
+            isMoving = false;
+            group.position.x = targetX;
+            group.position.z = targetZ;
+            group.rotation.y = rotationY;
+          }
+        } else {
+          // Breathing bob
+          const bob = Math.sin(time * 0.003 + homeX) * 0.04;
+          let hop = 0;
+          if (hopProgress > 0) {
+            hop = Math.sin(hopProgress * Math.PI) * 0.45;
+          }
+          group.position.y = baseY + bob + hop;
+
+          // Ambient village wandering (only if not selected and idle for > 8s)
+          if (!isSelected) {
+            idleTimer += dt;
+            if (idleTimer > 9.0 + Math.random() * 5.0) {
+              idleTimer = 0;
+              const wanderAngle = Math.random() * Math.PI * 2;
+              const wanderDist = 0.5 + Math.random() * 0.6;
+              targetX = homeX + Math.cos(wanderAngle) * wanderDist;
+              targetZ = homeZ + Math.sin(wanderAngle) * wanderDist;
+              isMoving = true;
+            }
+          }
+        }
 
         // Pedestal glow pulse
         const pulse = Math.sin(time * 0.005) * 0.15;
@@ -219,7 +268,7 @@ export class CharacterMeshBuilder {
   /**
    * Helper that dispatches to the correct class humanoid model
    */
-  private static buildClassModel(id: string, group: THREE.Group): THREE.Mesh | null {
+  public static buildClassModel(id: string, group: THREE.Group): THREE.Mesh | null {
     switch (id) {
       case 'anh-thi-druid':
         return this.buildDruid(group);

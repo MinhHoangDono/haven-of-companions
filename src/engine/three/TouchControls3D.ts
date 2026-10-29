@@ -257,6 +257,18 @@ export class TouchControls3D {
       }
     }
 
+    // Check if tapped ground plane
+    const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.2);
+    const groundHit = new THREE.Vector3();
+    if (this.raycaster.ray.intersectPlane(groundPlane, groundHit)) {
+      this.callbacks.onTap?.({
+        id: 'ground',
+        type: 'ground',
+        point: groundHit,
+      });
+      return;
+    }
+
     this.callbacks.onTap?.(null);
   }
 
