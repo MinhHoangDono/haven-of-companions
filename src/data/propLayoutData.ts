@@ -14,7 +14,7 @@ export interface PropInstanceDef {
 }
 
 /**
- * Creates a cozy wooden boat pier row with smaller, neatly proportioned 1.0x scale segments
+ * Creates a cozy wooden boat pier row with neatly proportioned 1.0x scale segments
  */
 function createPierRow(startX: number, startY: number, startZ: number, count: number): PropInstanceDef[] {
   const row: PropInstanceDef[] = [];
@@ -24,37 +24,25 @@ function createPierRow(startX: number, startY: number, startZ: number, count: nu
       pack: 'environment',
       pos: [startX, startY, startZ + i * 2.8],
       rot: [0, 0, 0],
-      scale: 1.0, // Smaller, cozy boat dock scale
+      scale: 1.0,
     });
   }
   return row;
 }
 
 /**
- * 70x70 Comprehensive World Layout with Minecraft Voxel Block Alignments:
- * - Highlands Mountain Range (NW): Y = 3.5 to 4.5
- * - Sunspire Village Quarters (NE & Center): Y = 1.5 (All grass blocks, no road boxes!)
- * - Vast Deep Ocean Bay (SW): Y = 0.05 to 0.5
- * - Outer Lighthouse Promontory (SE): Y = 1.5
+ * 70x70 World Core Architectural Anchors
+ * Strictly situated on level, non-mountainous ground with verified clearance:
+ * - Village buildings sit at flat lowlands (Y = 1.5), completely clear of mountains and boulders
+ * - Highlands campsite sits at Y = 3.5
+ * - Ocean fleet floats at Y = 0.1
+ * - Lighthouse tower sits at Y = 1.5
+ * (All scattered nature, trees, and rocks are handled dynamically by ProceduralPropDistributor)
  */
 export const DIORAMA_PROPS: PropInstanceDef[] = [
   // ==========================================
-  // ZONE 1: HIGHLANDS MOUNTAIN RANGE (NW)
+  // ZONE 1: HIGHLANDS CAMPSITE (NW)
   // ==========================================
-  // Mountain Peaks & Alpine Slopes
-  { asset: 'mountain_A_grass_trees.gltf', pack: 'props', pos: [-24.0, 4.5, -24.0], scale: 3.5 },
-  { asset: 'mountain_B_grass_trees.gltf', pack: 'props', pos: [-18.0, 4.5, -28.0], rot: [0, 1.2, 0], scale: 3.2 },
-  { asset: 'mountain_A_grass_trees.gltf', pack: 'props', pos: [-28.0, 4.5, -16.0], rot: [0, -0.8, 0], scale: 3.0 },
-
-  // Dense Pine Forests
-  { asset: 'trees_A_large.gltf', pack: 'props', pos: [-14.5, 3.5, -18.5], scale: 4.8 },
-  { asset: 'trees_A_large.gltf', pack: 'props', pos: [-20.0, 3.5, -12.0], rot: [0, 0.7, 0], scale: 5.0 },
-  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [-10.5, 2.5, -14.0], scale: 4.2 },
-  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [-7.5, 2.5, -8.0], rot: [0, 1.5, 0], scale: 4.0 },
-  { asset: 'tree_single_A.gltf', pack: 'props', pos: [-16.0, 3.5, -8.5], scale: 4.5 },
-  { asset: 'tree_single_A.gltf', pack: 'props', pos: [-5.0, 2.5, -10.5], scale: 3.8 },
-
-  // Campsite & Outdoors Feasting
   { asset: 'tent.gltf', pack: 'props', pos: [-18.5, 3.5, -14.0], rot: [0, 0.4, 0], scale: 2.2 },
   { asset: 'resource_lumber.gltf', pack: 'props', pos: [-13.0, 3.5, -12.0], scale: 2.0 },
   { asset: 'weaponrack.gltf', pack: 'props', pos: [-16.5, 3.5, -17.0], rot: [0, 1.57, 0], scale: 1.8 },
@@ -62,16 +50,11 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'barrel.gltf', pack: 'props', pos: [-14.0, 3.5, -16.8], scale: 1.8 },
   { asset: 'target.gltf', pack: 'props', pos: [-10.0, 2.5, -17.0], rot: [0, -0.4, 0], scale: 2.0 },
 
-  // Highlands Small Rocks & Grass Patches
-  { asset: 'rock_single_A.gltf', pack: 'props', pos: [-11.0, 3.5, -11.0], scale: 2.2 },
-  { asset: 'rock_single_B.gltf', pack: 'props', pos: [-17.0, 3.5, -10.5], scale: 1.8 },
-  { asset: 'patch-grass-foliage.glb', pack: 'environment', pos: [-14.0, 3.5, -13.0], scale: 2.5 },
-  { asset: 'patch-grass.glb', pack: 'environment', pos: [-12.0, 2.5, -7.5], scale: 2.2 },
-
   // ==========================================
-  // ZONE 2: SUNSPIRE VILLAGE (All Grass Tiles / Blocks, No Road Boxes!)
+  // ZONE 2: SUNSPIRE VILLAGE BUILDINGS (NE & Center)
+  // (Flat ground Y = 1.5, zero rock overlap)
   // ==========================================
-  // Grand Tavern & Guildhall Courtyard (North Quarter)
+  // Grand Tavern & Guildhall Courtyard
   { asset: 'building_tavern_yellow.gltf', pack: 'props', pos: [1.5, 1.5, -16.5], rot: [0, 0.2, 0], scale: 4.8 },
   { asset: 'barrel.gltf', pack: 'props', pos: [5.2, 1.5, -14.2], scale: 1.8 },
   { asset: 'barrel.gltf', pack: 'props', pos: [5.6, 1.5, -13.5], scale: 1.6 },
@@ -85,41 +68,17 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'building_home_B_yellow.gltf', pack: 'props', pos: [24.0, 1.5, -5.0], rot: [0, -0.5, 0], scale: 3.8 },
   { asset: 'building_blacksmith_yellow.gltf', pack: 'props', pos: [11.0, 1.5, -23.0], rot: [0, 0.0, 0], scale: 4.5 },
 
-  // Sacred Cathedral & Church Grounds (Far North-East)
+  // Sacred Cathedral & Church Grounds
   { asset: 'building_church_yellow.gltf', pack: 'props', pos: [25.0, 1.5, -23.0], rot: [0, -0.2, 0], scale: 5.2 },
   { asset: 'resource_stone.gltf', pack: 'props', pos: [20.5, 1.5, -23.5], scale: 2.2 },
 
-  // Hillside Scenic Windmill (East Village Ridge)
+  // Hillside Scenic Windmill
   { asset: 'building_windmill_yellow.gltf', pack: 'props', pos: [30.0, 1.5, -14.0], rot: [0, -0.8, 0], scale: 4.8 },
 
-  // Market Square Stalls & Bazaar Quarter (Surrounded by Grass Blocks)
+  // Market Square Stalls & Bazaar Quarter
   { asset: 'building_market_yellow.gltf', pack: 'props', pos: [1.2, 1.5, -8.5], rot: [0, 1.57, 0], scale: 2.8 },
   { asset: 'building_market_yellow.gltf', pack: 'props', pos: [9.5, 1.5, -8.5], rot: [0, -1.57, 0], scale: 2.8 },
   { asset: 'building_market_yellow.gltf', pack: 'props', pos: [9.5, 1.5, -13.5], rot: [0, -1.57, 0], scale: 2.8 },
-
-  // Village Greenery, Grassy Lawns & Flowerbed Patches
-  { asset: 'patch-grass.glb', pack: 'environment', pos: [18.0, 1.5, -13.0], scale: 3.0 },
-  { asset: 'patch-grass-foliage.glb', pack: 'environment', pos: [13.0, 1.5, -10.0], scale: 2.5 },
-  { asset: 'grass-patch.glb', pack: 'environment', pos: [21.0, 1.5, -8.0], scale: 2.8 },
-  { asset: 'patch-grass-foliage.glb', pack: 'environment', pos: [23.5, 1.5, -17.0], scale: 2.6 },
-  { asset: 'grass.glb', pack: 'environment', pos: [8.5, 1.5, -4.5], scale: 2.2 },
-  { asset: 'grass-plant.glb', pack: 'environment', pos: [2.5, 1.5, -4.5], scale: 2.0 },
-  { asset: 'patch-grass.glb', pack: 'environment', pos: [27.0, 1.5, -11.0], scale: 2.6 },
-
-  // Village Small Roadside Rocks & Stone Borders
-  { asset: 'rock_single_A.gltf', pack: 'props', pos: [8.5, 1.5, -3.2], scale: 1.5 },
-  { asset: 'rock_single_B.gltf', pack: 'props', pos: [14.0, 1.5, -3.2], scale: 1.6 },
-  { asset: 'rock_single_C.gltf', pack: 'props', pos: [20.0, 1.5, -3.2], scale: 1.4 },
-  { asset: 'rock_single_D.gltf', pack: 'props', pos: [2.0, 1.5, -3.2], scale: 1.5 },
-  { asset: 'rock_single_E.gltf', pack: 'props', pos: [4.0, 1.5, -11.0], scale: 1.4 },
-  { asset: 'rocks-a.glb', pack: 'environment', pos: [17.5, 1.5, -15.5], scale: 1.6 },
-  { asset: 'rocks-b.glb', pack: 'environment', pos: [12.0, 1.5, -8.0], scale: 1.5 },
-
-  // Village Shade Trees & Gardens
-  { asset: 'tree_single_A.gltf', pack: 'props', pos: [18.0, 1.5, -16.5], scale: 4.2 },
-  { asset: 'tree_single_A.gltf', pack: 'props', pos: [11.5, 1.5, -15.0], scale: 4.0 },
-  { asset: 'tree_single_A.gltf', pack: 'props', pos: [28.0, 1.5, -8.0], scale: 4.5 },
-  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [28.0, 1.5, -19.0], scale: 4.2 },
 
   // ==========================================
   // ZONE 3: VAST DEEP OCEAN BAY (SW)
@@ -140,43 +99,11 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   // Cozy Narrow Boardwalk Pier Platform Walkway (Scale: 1.0)
   ...createPierRow(-2.5, 0.5, 5.5, 6),
 
-  // Coastal Beach Palms & Shallows Rocks
-  { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [-10.5, 0.5, 4.5], rot: [0, 0.6, 0], scale: 2.2 },
-  { asset: 'palm-straight.glb', pack: 'environment', pos: [-16.0, 0.5, 4.8], rot: [0, -0.3, 0], scale: 2.0 },
-  { asset: 'palm-bend.glb', pack: 'environment', pos: [1.5, 0.5, 5.0], rot: [0, 1.2, 0], scale: 2.0 },
-  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [-12.5, 0.2, 7.5], scale: 2.0 },
-  { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [-8.0, 0.1, 9.0], scale: 1.8 },
-  { asset: 'rocks-sand-c.glb', pack: 'environment', pos: [-19.0, 0.1, 8.5], scale: 2.2 },
-
   // ==========================================
-  // ZONE 4: OUTER LIGHTHOUSE PROMONTORY (SE: Green cape with rocks & grass blocks!)
+  // ZONE 4: OUTER LIGHTHOUSE PROMONTORY (SE)
   // ==========================================
-  // Massive Stone Lighthouse Beacon
   { asset: 'tower-complete-large.glb', pack: 'environment', pos: [24.0, 1.5, 20.0], scale: 2.5 },
   { asset: 'tower-watch.glb', pack: 'environment', pos: [18.0, 1.5, 24.0], scale: 2.0 },
   { asset: 'structure-fence.glb', pack: 'environment', pos: [20.0, 1.5, 14.0], rot: [0, 1.57, 0], scale: 1.4 },
   { asset: 'flag-high.glb', pack: 'environment', pos: [26.0, 1.5, 15.0], scale: 2.0 },
-
-  // Lush Green Coastal Grass Variety on the Promontory
-  { asset: 'patch-grass.glb', pack: 'environment', pos: [18.0, 1.5, 16.0], scale: 2.8 },
-  { asset: 'patch-grass-foliage.glb', pack: 'environment', pos: [21.5, 1.5, 17.5], scale: 2.6 },
-  { asset: 'grass-patch.glb', pack: 'environment', pos: [26.5, 1.5, 18.0], scale: 2.5 },
-  { asset: 'patch-grass.glb', pack: 'environment', pos: [21.0, 1.5, 23.0], scale: 2.7 },
-  { asset: 'grass-plant.glb', pack: 'environment', pos: [16.5, 1.5, 20.0], scale: 2.2 },
-  { asset: 'grass.glb', pack: 'environment', pos: [27.0, 1.5, 23.0], scale: 2.0 },
-  { asset: 'patch-sand-foliage.glb', pack: 'environment', pos: [24.0, 1.5, 25.5], scale: 2.2 },
-
-  // Small Rocks & Coastal Boulders on the Promontory
-  { asset: 'rocks-a.glb', pack: 'environment', pos: [16.0, 1.5, 15.0], scale: 1.8 },
-  { asset: 'rocks-b.glb', pack: 'environment', pos: [27.0, 1.5, 14.5], scale: 1.7 },
-  { asset: 'rocks-c.glb', pack: 'environment', pos: [19.0, 1.5, 26.0], scale: 2.0 },
-  { asset: 'rock_single_A.gltf', pack: 'props', pos: [21.0, 1.5, 19.5], scale: 1.6 },
-  { asset: 'rock_single_C.gltf', pack: 'props', pos: [26.0, 1.5, 21.5], scale: 1.5 },
-  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [29.0, 0.5, 22.0], scale: 2.2 },
-  { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [30.0, 0.5, 16.0], scale: 2.0 },
-
-  // Tropical Cape Palms
-  { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [16.5, 1.5, 17.5], rot: [0, 0.4, 0], scale: 2.2 },
-  { asset: 'palm-straight.glb', pack: 'environment', pos: [28.5, 1.5, 17.5], scale: 2.0 },
-  { asset: 'palm-bend.glb', pack: 'environment', pos: [25.0, 1.5, 26.0], rot: [0, -0.6, 0], scale: 2.2 },
 ];

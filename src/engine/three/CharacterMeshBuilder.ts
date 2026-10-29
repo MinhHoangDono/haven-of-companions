@@ -306,13 +306,11 @@ export class CharacterMeshBuilder {
       }
     });
 
-    const originalHomeX = config.posX;
-    const originalHomeZ = config.posZ;
-    let targetX = originalHomeX;
-    let targetZ = originalHomeZ;
+    let currentSpotX = config.posX;
+    let currentSpotZ = config.posZ;
+    let targetX = currentSpotX;
+    let targetZ = currentSpotZ;
     let isMoving = false;
-    let isAwayFromHome = false;
-    let returnHomeTimer = 0;
     let idleTimer = Math.random() * 5.0;
     let turnTimer = Math.random() * 4.0;
     let targetHeading = config.rotationY;
@@ -335,10 +333,10 @@ export class CharacterMeshBuilder {
         const validPos = passabilityGrid.clampToWalkable(x, z);
         targetX = validPos.x;
         targetZ = validPos.z;
+        currentSpotX = validPos.x; // Permanently updates their spot so they stay where guided!
+        currentSpotZ = validPos.z;
         targetHeading = Math.atan2(targetX - group.position.x, targetZ - group.position.z);
         isMoving = true;
-        isAwayFromHome = true;
-        returnHomeTimer = 10.0; // Stay at the new place for 10 seconds, then return home!
       },
       update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => {
         // Update skeletal animation mixer
@@ -375,11 +373,19 @@ export class CharacterMeshBuilder {
 
             // Strictly verify next step is walkable land or pier; avoid water / non-tile
             if (passabilityGrid.isWalkable(nextX, nextZ)) {
-              group.position.x = nextX;
-              group.position.z = nextZ;
-              targetHeading = Math.atan2(dx, dz);
-              currentBaseY = passabilityGrid.getElevationAt(nextX, nextZ);
-              group.position.y = currentBaseY;
+              const targetElev = passabilityGrid.getElevationAt(nextX, nextZ);
+              const stepHeight = targetElev - currentBaseY;
+
+              // Step climbing envelope: max 0.65m up, max 1.10m down (prevents cliff walking)
+              if (stepHeight <= 0.65 && stepHeight >= -1.10) {
+                group.position.x = nextX;
+                group.position.z = nextZ;
+                targetHeading = Math.atan2(dx, dz);
+                currentBaseY = THREE.MathUtils.lerp(currentBaseY, targetElev, Math.min(1.0, dt * 12.0));
+                group.position.y = currentBaseY;
+              } else {
+                isMoving = false;
+              }
             } else {
               isMoving = false;
             }
@@ -387,12 +393,13 @@ export class CharacterMeshBuilder {
             isMoving = false;
             group.position.x = targetX;
             group.position.z = targetZ;
-            currentBaseY = passabilityGrid.getElevationAt(targetX, targetZ);
+            const targetElev = passabilityGrid.getElevationAt(targetX, targetZ);
+            currentBaseY = THREE.MathUtils.lerp(currentBaseY, targetElev, Math.min(1.0, dt * 12.0));
             group.position.y = currentBaseY;
           }
         } else {
           // Subtle breathing bob
-          const bob = Math.sin(time * 0.003 + originalHomeX) * 0.02;
+          const bob = Math.sin(time * 0.003 + config.posX) * 0.02;
           let hop = 0;
           if (hopProgress > 0) {
             hop = Math.sin(hopProgress * Math.PI) * 0.45;
@@ -403,44 +410,29 @@ export class CharacterMeshBuilder {
           if (isSelected) {
             // When selected, gently face south-southeast towards the isometric camera
             targetHeading = Math.PI * 0.25;
-            if (isAwayFromHome) {
-              returnHomeTimer = 10.0;
-            }
           } else {
-            // If moved to a different place by the player, wait a while and then return back to their old place!
-            if (isAwayFromHome) {
-              returnHomeTimer -= dt;
-              if (returnHomeTimer <= 0) {
-                isAwayFromHome = false;
-                targetX = originalHomeX;
-                targetZ = originalHomeZ;
-                targetHeading = Math.atan2(originalHomeX - group.position.x, originalHomeZ - group.position.z);
-                isMoving = true;
-              }
-            } else {
-              // Natural occasional gaze shifts (turning left/right looking around the village)
-              turnTimer += dt;
-              if (turnTimer > 4.5 + Math.random() * 4.0) {
-                turnTimer = 0;
-                targetHeading = config.rotationY + (Math.random() - 0.5) * 1.4;
-              }
+            // Natural occasional gaze shifts (turning left/right looking around the village)
+            turnTimer += dt;
+            if (turnTimer > 4.5 + Math.random() * 4.0) {
+              turnTimer = 0;
+              targetHeading = targetHeading + (Math.random() - 0.5) * 1.2;
+            }
 
-              // Ambient village wandering strictly on walkable dry land around original home
-              idleTimer += dt;
-              if (idleTimer > 8.0 + Math.random() * 4.0) {
-                idleTimer = 0;
-                for (let attempt = 0; attempt < 8; attempt++) {
-                  const wanderAngle = Math.random() * Math.PI * 2;
-                  const wanderDist = 0.5 + Math.random() * 1.0;
-                  const tryX = originalHomeX + Math.cos(wanderAngle) * wanderDist;
-                  const tryZ = originalHomeZ + Math.sin(wanderAngle) * wanderDist;
-                  if (passabilityGrid.isWalkable(tryX, tryZ)) {
-                    targetX = tryX;
-                    targetZ = tryZ;
-                    targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
-                    isMoving = true;
-                    break;
-                  }
+            // Ambient village wandering strictly on walkable dry land around their current spot
+            idleTimer += dt;
+            if (idleTimer > 8.0 + Math.random() * 4.0) {
+              idleTimer = 0;
+              for (let attempt = 0; attempt < 8; attempt++) {
+                const wanderAngle = Math.random() * Math.PI * 2;
+                const wanderDist = 0.5 + Math.random() * 1.0;
+                const tryX = currentSpotX + Math.cos(wanderAngle) * wanderDist;
+                const tryZ = currentSpotZ + Math.sin(wanderAngle) * wanderDist;
+                if (passabilityGrid.isWalkable(tryX, tryZ)) {
+                  targetX = tryX;
+                  targetZ = tryZ;
+                  targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
+                  isMoving = true;
+                  break;
                 }
               }
             }

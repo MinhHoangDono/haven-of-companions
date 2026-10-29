@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v4.4.0] - 2026-10-30
+
+### Added
+- **Procedural Prop Distributor (`ProceduralPropDistributor.ts`)**: Built a deterministic Poisson-disk sampling generator scattering vegetation, rocks, and environmental assets across the $70 \times 70$ world with guaranteed minimum spacing ($r_{\text{min}}$) and automated ground elevation snapping (`VoxelTerrainBuilder.getTopElevation`).
+- **De-centralized Biome Scattering**:
+  - **Highlands Forest & Mountains (NW)**: Expanded scattering bounds across $X \in [-34, -6], Z \in [-34, -5]$ with wide $11.0\text{m}$ spacing between mountain peaks and $6.2\text{m}$ spacing between large pines, eliminating unnatural corner clustering.
+  - **Lighthouse Promontory (SE)**: Evenly distributed coastal palms, beach rocks, and sea grass across $X \in [14, 34], Z \in [5, 33]$ with wide $6.8\text{m}$ spacing to keep the stone lighthouse approach scenic and open.
+- **Strict Building & House Anti-Overlap Clearance**: Established multi-meter exclusion zones around all village cottages, tavern, cathedral, blacksmith, windmill, and market stalls, strictly preventing rocks, mountains, or trees from spawning inside or overlapping any home.
+- **Interactive 3D Coordinate Inspector (`InspectorBar.tsx`)**: Added in-engine inspector HUD allowing developers to tap anywhere on the 3D diorama to reveal exact world coordinates, block type, and elevation with one-tap copy functionality.
+
+### Fixed
+- **Character Sinking & Raycast Parallax (`TouchControls3D.ts`)**: Replaced flat $Y = 0.2$ ground plane raycast with a two-pass terrain elevation re-projection, eliminating the $4.7\text{m}$ horizontal isometric parallax error on elevated hills.
+- **Cliff Penetration & Abrupt Elevation Snaps (`CharacterMeshBuilder.ts`)**: Implemented step height boundary checks ($\Delta Y \le 0.65\text{m}$, $\Delta Y \ge -1.10\text{m}$) preventing companions from walking off sheer cliffs or through vertical rock faces, coupled with exponential vertical LERP damping for smooth elevation gliding.
+
+---
+
 ## [v4.3.0] - 2026-10-30
 
 ### Added

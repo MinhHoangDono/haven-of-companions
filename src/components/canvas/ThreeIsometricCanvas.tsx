@@ -15,11 +15,13 @@ interface ThreeIsometricCanvasProps {
   selectedCharId: string | null;
   timeOfDay: TimeOfDay;
   weather: WeatherType;
+  isInspectorActive?: boolean;
   onSelectCharacter: (char: Character) => void;
   onInteractProp: (propType: string, position: THREE.Vector3) => void;
   onCameraUpdate?: (screenPositions: Map<string, { x: number; y: number }>) => void;
   onInitControls?: (controls: TouchControls3D) => void;
   onInitSpellCaster?: (castFn: (effectType: CharacterSignatureAbility['effectType'], charId: string) => void) => void;
+  onInspectHit?: (hit: InteractiveHit | null) => void;
 }
 
 export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
@@ -27,11 +29,13 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   selectedCharId,
   timeOfDay,
   weather,
+  isInspectorActive,
   onSelectCharacter,
   onInteractProp,
   onCameraUpdate,
   onInitControls,
   onInitSpellCaster,
+  onInspectHit,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const controlsRef = useRef<TouchControls3D | null>(null);
@@ -43,9 +47,11 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   const largeShipRef = useRef<THREE.Group | null>(null);
   const lighthouseLightRef = useRef<THREE.PointLight | null>(null);
   const spellEffectsRef = useRef<SpellEffect3D | null>(null);
+  const gridHelperRef = useRef<THREE.GridHelper | null>(null);
+  const boxHelperRef = useRef<THREE.BoxHelper | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
   const charactersRef = useRef(characters);
   charactersRef.current = characters;
-
   const selectedCharIdRef = useRef(selectedCharId);
   selectedCharIdRef.current = selectedCharId;
 
@@ -58,6 +64,12 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   const onCameraUpdateRef = useRef(onCameraUpdate);
   onCameraUpdateRef.current = onCameraUpdate;
 
+  const isInspectorActiveRef = useRef(isInspectorActive);
+  isInspectorActiveRef.current = isInspectorActive;
+
+  const onInspectHitRef = useRef(onInspectHit);
+  onInspectHitRef.current = onInspectHit;
+
   // React to TimeOfDay changes
   useEffect(() => {
     lightingRef.current?.setTimeOfDay(timeOfDay);
@@ -68,14 +80,23 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     // Weather effects handled in scene
   }, [weather]);
 
+  // React to Inspector Mode toggle
+  useEffect(() => {
+    if (gridHelperRef.current) {
+      gridHelperRef.current.visible = !!isInspectorActive;
+    }
+    if (!isInspectorActive && boxHelperRef.current && sceneRef.current) {
+      sceneRef.current.remove(boxHelperRef.current);
+      boxHelperRef.current = null;
+    }
+  }, [isInspectorActive]);
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     // 1. Three.js Scene, Camera & Renderer
     const scene = new THREE.Scene();
-
-    // 32-degree low-FOV perspective camera gives the ideal tactical DOS2 isometric view
+    sceneRef.current = scene;
     const aspect = window.innerWidth / window.innerHeight;
     const camera = new THREE.PerspectiveCamera(32, aspect, 0.1, 100);
 
@@ -135,6 +156,13 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     waypointMesh.position.y = 0.05;
     scene.add(waypointMesh);
     let waypointTimer = 0;
+
+    // 3D Grid Helper for Inspector Mode
+    const gridHelper = new THREE.GridHelper(32, 32, 0xdfa642, 0x555555);
+    gridHelper.position.y = 0.05;
+    gridHelper.visible = !!isInspectorActive;
+    scene.add(gridHelper);
+    gridHelperRef.current = gridHelper;
     onInitSpellCaster?.((effectType, charId) => {
       const handle = handles.get(charId);
       const origin = handle ? handle.group.position.clone() : new THREE.Vector3(0, 0.8, 0);
@@ -146,6 +174,20 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       renderer.domElement,
       {
         onTap: (hit: InteractiveHit | null) => {
+          if (isInspectorActiveRef.current) {
+            onInspectHitRef.current?.(hit);
+            if (hit && sceneRef.current) {
+              const clickedObj = sceneRef.current.getObjectByProperty('uuid', hit.id) || handles.get(hit.id)?.group;
+              if (clickedObj) {
+                if (boxHelperRef.current) sceneRef.current.remove(boxHelperRef.current);
+                const newBox = new THREE.BoxHelper(clickedObj as THREE.Object3D, 0xdfa642);
+                sceneRef.current.add(newBox);
+                boxHelperRef.current = newBox;
+              }
+            }
+            return;
+          }
+
           if (!hit) return;
 
           if (hit.type === 'character') {

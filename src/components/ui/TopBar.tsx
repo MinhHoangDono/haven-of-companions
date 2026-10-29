@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, Sunrise, Sunset, Volume2, VolumeX, CloudFog } from 'lucide-react';
+import { Sun, Moon, Sunrise, Sunset, Volume2, VolumeX, CloudFog, Crosshair } from 'lucide-react';
 
 export type TimeOfDay = 'dawn' | 'day' | 'sunset' | 'night';
 export type WeatherType = 'clear' | 'mist' | 'rain';
@@ -8,18 +8,22 @@ interface TopBarProps {
   timeOfDay: TimeOfDay;
   weather: WeatherType;
   isMuted: boolean;
+  isInspectorActive?: boolean;
   onToggleTimeOfDay: () => void;
   onToggleWeather: () => void;
   onToggleMute: () => void;
+  onToggleInspector?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
   timeOfDay,
   weather,
   isMuted,
+  isInspectorActive,
   onToggleTimeOfDay,
   onToggleWeather,
   onToggleMute,
+  onToggleInspector,
 }) => {
   const getTimeIcon = () => {
     switch (timeOfDay) {
@@ -85,6 +89,22 @@ export const TopBar: React.FC<TopBarProps> = ({
             {weather === 'mist' ? 'Mist' : 'Clear'}
           </span>
         </button>
+
+        {/* Inspector Toggle Button */}
+        {onToggleInspector && (
+          <button
+            onClick={onToggleInspector}
+            className={`flex items-center gap-1.5 backdrop-blur-md border px-2.5 py-1.5 rounded-full text-xs font-sans font-medium active:scale-95 transition-all shadow-md ${
+              isInspectorActive
+                ? 'bg-fantasy-gold border-fantasy-gold text-ink-950 font-bold shadow-[0_0_15px_rgba(223,166,66,0.5)]'
+                : 'bg-ink-900/85 border-paper-800/60 text-paper-100'
+            }`}
+            title="Toggle 3D Coordinate & Object Inspector"
+          >
+            <Crosshair className="w-4 h-4 text-fantasy-gold" />
+            <span className="text-[11px]">Tọa Độ</span>
+          </button>
+        )}
 
         {/* Audio Toggle */}
         <button

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { assetLoader } from './GLTFAssetLoader';
 import { DIORAMA_PROPS, PropInstanceDef } from '../../data/propLayoutData';
+import { ProceduralPropDistributor } from './ProceduralPropDistributor';
 import { InteractivePropRef } from './DioramaBuilder';
-
 export class PropPlacementManager {
   /**
    * Spawns all declared diorama props asynchronously into the parent group.
@@ -13,7 +13,10 @@ export class PropPlacementManager {
   ): Promise<InteractivePropRef[]> {
     const interactiveRefs: InteractivePropRef[] = [];
 
-    for (const def of DIORAMA_PROPS) {
+    const proceduralProps = ProceduralPropDistributor.generateWorldProps(1337);
+    const allProps = [...DIORAMA_PROPS, ...proceduralProps];
+
+    for (const def of allProps) {
       const fullPath = `/assets/models/${def.pack}/${def.asset}`;
       const { scene: propScene } = await assetLoader.loadModel(fullPath, false);
 

@@ -1,7 +1,9 @@
+import { InspectorBar } from './components/ui/InspectorBar';
 import React, { useCallback, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
 import { Character, CharacterSignatureAbility } from './types/character';
+import { InteractiveHit } from './types/threeEngine';
 import { allCharacters } from './data/charactersData';
 import { TouchControls3D } from './engine/three/TouchControls3D';
 import { CHARACTER_CONFIGS } from './engine/three/CharacterMeshBuilder';
@@ -20,6 +22,8 @@ export const App: React.FC = () => {
   const [isCasting, setIsCasting] = useState(false);
   const [celebrationToast, setCelebrationToast] = useState<string | null>(null);
   const [, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
+  const [isInspectorActive, setIsInspectorActive] = useState(false);
+  const [inspectorHit, setInspectorHit] = useState<InteractiveHit | null>(null);
 
   // TopBar state
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
@@ -166,9 +170,14 @@ export const App: React.FC = () => {
         timeOfDay={timeOfDay}
         weather={weather}
         isMuted={isMuted}
+        isInspectorActive={isInspectorActive}
         onToggleTimeOfDay={handleToggleTimeOfDay}
         onToggleWeather={handleToggleWeather}
         onToggleMute={handleToggleMute}
+        onToggleInspector={() => {
+          setIsInspectorActive((prev) => !prev);
+          setInspectorHit(null);
+        }}
       />
 
       {/* Main 3D Three.js Isometric Canvas with all 9 friends */}
@@ -177,12 +186,29 @@ export const App: React.FC = () => {
         selectedCharId={selectedCharId}
         timeOfDay={timeOfDay}
         weather={weather}
+        isInspectorActive={isInspectorActive}
         onSelectCharacter={handleSelectCharacter}
         onInteractProp={handleInteractProp}
         onCameraUpdate={handleCameraUpdate}
         onInitControls={handleInitControls}
         onInitSpellCaster={handleInitSpellCaster}
+        onInspectHit={setInspectorHit}
       />
+
+      {/* 3D Inspector Call-Out HUD Bar */}
+      {isInspectorActive && (
+        <InspectorBar
+          activeHit={inspectorHit}
+          onClose={() => {
+            setInspectorHit(null);
+            setIsInspectorActive(false);
+          }}
+          onToast={(msg: string) => {
+            setCelebrationToast(msg);
+            setTimeout(() => setCelebrationToast(null), 3000);
+          }}
+        />
+      )}
 
       {/* Celebratory Banner Toast */}
       {celebrationToast && (
