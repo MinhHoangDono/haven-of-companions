@@ -31,26 +31,26 @@ export interface CharacterModelConfig {
 }
 
 export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
-  // 1. Huỳnh Trần Anh Thi – The Wilderness Druid (Highlands Hearth)
+  // 1. Huỳnh Trần Anh Thi – The Wilderness Druid (Highlands Hearth Campsite)
   'anh-thi-druid': {
     model: 'Mage.glb',
-    scale: 0.72,
-    posX: -6.5,
-    posZ: -6.8,
-    baseY: 2.4,
+    scale: 0.65,
+    posX: -14.5,
+    posZ: -15.0,
+    baseY: 2.8,
     rotationY: Math.PI * 0.3,
     emoji: '🌿',
     accentColor: '#38d976',
     pedestalColor: 0x22ee66,
     mainWeapon: 'staff.gltf',
   },
-  // 2. Lê Nguyễn Phương Quỳnh – The Elven Ranger (Highlands Overlook)
+  // 2. Lê Nguyễn Phương Quỳnh – The Elven Ranger (Highlands Overlook Ridge)
   'phuong-quynh-ranger': {
     model: 'Ranger.glb',
-    scale: 0.72,
-    posX: -8.5,
-    posZ: -4.5,
-    baseY: 2.4,
+    scale: 0.65,
+    posX: -18.5,
+    posZ: -11.0,
+    baseY: 2.8,
     rotationY: Math.PI * 0.45,
     emoji: '🏹',
     accentColor: '#69db7c',
@@ -61,10 +61,10 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   // 3. Trần Nguyễn Trâm Anh – The Lore Bard (Town Square Stage)
   'tram-anh-bard': {
     model: 'Rogue.glb',
-    scale: 0.72,
-    posX: 4.2,
-    posZ: -6.5,
-    baseY: 0.95,
+    scale: 0.65,
+    posX: 6.5,
+    posZ: -12.5,
+    baseY: 1.0,
     rotationY: -Math.PI * 0.65,
     emoji: '🪕',
     accentColor: '#f06595',
@@ -74,47 +74,47 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   // 4. Nguyễn Khải Vạn – The Pyromancy Sorcerer (Mortar Battery)
   'khai-van-sorcerer': {
     model: 'Mage.glb',
-    scale: 0.72,
-    posX: 7.5,
-    posZ: -3.2,
-    baseY: 0.95,
+    scale: 0.65,
+    posX: 14.0,
+    posZ: -6.5,
+    baseY: 1.0,
     rotationY: -Math.PI * 0.5,
     emoji: '🔥',
     accentColor: '#ff922b',
     pedestalColor: 0xfd7e14,
     mainWeapon: 'spellbook_open.gltf',
   },
-  // 5. Nguyễn Trần Thảo Uyên – Cleric of the Light (Plaza Steps)
+  // 5. Nguyễn Trần Thảo Uyên – Cleric of the Light (Plaza Fountain Steps)
   'thao-uyen-cleric': {
     model: 'Knight.glb',
-    scale: 0.72,
-    posX: 2.2,
-    posZ: -1.8,
-    baseY: 0.95,
+    scale: 0.65,
+    posX: 4.5,
+    posZ: -3.5,
+    baseY: 1.0,
     rotationY: Math.PI * 0.25,
     emoji: '✨',
     accentColor: '#ffd43b',
     pedestalColor: 0xfcc419,
     offhandWeapon: 'shield_badge_color.gltf',
   },
-  // 6. Nguyễn Thị Ngọc Hà – Way of the Kensei Monk (Tatami Pavilion)
+  // 6. Nguyễn Thị Ngọc Hà – Way of the Kensei Monk (Tatami Tea Pavilion)
   'ngoc-ha-monk': {
     model: 'Barbarian.glb',
-    scale: 0.72,
-    posX: 2.5,
-    posZ: 4.2,
+    scale: 0.65,
+    posX: 4.5,
+    posZ: 7.5,
     baseY: 0.25,
     rotationY: -Math.PI * 0.75,
     emoji: '🥋',
     accentColor: '#20c997',
     pedestalColor: 0x12b886,
   },
-  // 7. Phạm Trần Thanh Phương – The Ronin / Paladin (Harbor Gate)
+  // 7. Phạm Trần Thanh Phương – The Ronin / Paladin (Harbor Gatehouse Armory)
   'thanh-phuong-paladin': {
     model: 'Knight.glb',
-    scale: 0.75,
-    posX: -1.8,
-    posZ: 4.5,
+    scale: 0.68,
+    posX: -3.5,
+    posZ: 8.5,
     baseY: 0.25,
     rotationY: Math.PI * 0.15,
     emoji: '🛡️',
@@ -123,12 +123,12 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     mainWeapon: 'sword_2handed_color.gltf',
     offhandWeapon: 'shield_square_color.gltf',
   },
-  // 8. Phạm Xuân Minh – Swashbuckler Rogue (Boardwalk Pier)
+  // 8. Phạm Xuân Minh – Swashbuckler Rogue (Deepwater Boardwalk Pier)
   'xuan-minh-rogue': {
     model: 'Rogue_Hooded.glb',
-    scale: 0.72,
-    posX: -1.0,
-    posZ: 7.5,
+    scale: 0.65,
+    posX: -2.0,
+    posZ: 14.5,
     baseY: 0.25,
     rotationY: Math.PI * 0.5,
     emoji: '🗡️',
@@ -136,13 +136,13 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     pedestalColor: 0xfa5252,
     mainWeapon: 'dagger.gltf',
   },
-  // 9. Lâm Anh Thư – The Ocean Cleric (Lighthouse Promontory)
+  // 9. Lâm Anh Thư – The Ocean Cleric (Outer Lighthouse Cape Promontory)
   'anh-thu-cleric': {
     model: 'Mage.glb',
-    scale: 0.72,
-    posX: 8.2,
-    posZ: 6.2,
-    baseY: 0.85,
+    scale: 0.65,
+    posX: 16.5,
+    posZ: 12.5,
+    baseY: 1.2,
     rotationY: -Math.PI * 0.3,
     emoji: '🌊',
     accentColor: '#22b8cf',
@@ -151,6 +151,30 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   },
 };
 
+// Cached animation clips shared across all KayKit Rig_Medium avatars
+let cachedIdleClip: THREE.AnimationClip | null = null;
+let cachedWalkClip: THREE.AnimationClip | null = null;
+
+async function ensureAnimationsLoaded(): Promise<{ idle: THREE.AnimationClip | null; walk: THREE.AnimationClip | null }> {
+  if (cachedIdleClip && cachedWalkClip) {
+    return { idle: cachedIdleClip, walk: cachedWalkClip };
+  }
+
+  const [generalRes, movementRes] = await Promise.all([
+    assetLoader.loadModel('/assets/models/characters/Rig_Medium_General.glb', false),
+    assetLoader.loadModel('/assets/models/characters/Rig_Medium_MovementBasic.glb', false),
+  ]);
+
+  if (generalRes.animations.length > 0) {
+    cachedIdleClip = generalRes.animations.find((a) => a.name === 'Idle_A') || generalRes.animations[0];
+  }
+  if (movementRes.animations.length > 0) {
+    cachedWalkClip = movementRes.animations.find((a) => a.name === 'Walking_A') || movementRes.animations[0];
+  }
+
+  return { idle: cachedIdleClip, walk: cachedWalkClip };
+}
+
 export class CharacterMeshBuilder {
   public static buildCharacter(character: Character, scene: THREE.Scene): CharacterMeshHandle {
     const group = new THREE.Group();
@@ -158,10 +182,10 @@ export class CharacterMeshBuilder {
 
     const config = CHARACTER_CONFIGS[character.id] || {
       model: 'Knight.glb',
-      scale: 0.72,
+      scale: 0.65,
       posX: 0,
       posZ: 0,
-      baseY: 0.95,
+      baseY: 1.0,
       rotationY: 0,
       emoji: '⚔️',
       accentColor: '#ffd700',
@@ -215,12 +239,21 @@ export class CharacterMeshBuilder {
     hitMesh.userData = { interactiveId: character.id, interactiveType: 'character' };
     group.add(hitMesh);
 
-    // 4. Asynchronously Load KayKit Adventurer Model and Attach Weapon Sockets
+    // 4. Animation State Machine Variables
+    let mixer: THREE.AnimationMixer | null = null;
+    let activeAction: THREE.AnimationAction | null = null;
+    let idleAction: THREE.AnimationAction | null = null;
+    let walkAction: THREE.AnimationAction | null = null;
     let headBone: THREE.Object3D | null = null;
+
     const avatarGroup = new THREE.Group();
     group.add(avatarGroup);
 
-    assetLoader.loadModel(`/assets/models/characters/${config.model}`, true).then(({ scene: avatarScene }) => {
+    // 5. Asynchronously Load Model, Weapons & Setup Animation Mixer
+    Promise.all([
+      assetLoader.loadModel(`/assets/models/characters/${config.model}`, true),
+      ensureAnimationsLoaded(),
+    ]).then(([{ scene: avatarScene }, anims]) => {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
       avatarGroup.add(avatarScene);
 
@@ -230,29 +263,41 @@ export class CharacterMeshBuilder {
       const leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l');
       const chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine');
 
-      // Attach mainhand weapon
+      // Bind AnimationMixer to eliminate T-Pose!
+      mixer = new THREE.AnimationMixer(avatarScene);
+
+      if (anims.idle) {
+        idleAction = mixer.clipAction(anims.idle);
+        idleAction.play();
+        activeAction = idleAction;
+      }
+      if (anims.walk) {
+        walkAction = mixer.clipAction(anims.walk);
+      }
+
+      // Attach mainhand weapon to right hand socket
       if (config.mainWeapon && rightHand) {
         assetLoader.loadModel(`/assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
-          weapon.scale.set(0.85, 0.85, 0.85);
+          weapon.scale.set(0.9, 0.9, 0.9);
           weapon.rotation.x = Math.PI / 2;
           rightHand.add(weapon);
         });
       }
 
-      // Attach offhand weapon / shield
+      // Attach offhand weapon / shield to left hand socket
       if (config.offhandWeapon && leftHand) {
         assetLoader.loadModel(`/assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
-          shield.scale.set(0.85, 0.85, 0.85);
+          shield.scale.set(0.9, 0.9, 0.9);
           shield.rotation.y = Math.PI;
           leftHand.add(shield);
         });
       }
 
-      // Attach back accessory (quiver)
+      // Attach back accessory (quiver) to chest/spine
       if (config.backAccessory && chest) {
         assetLoader.loadModel(`/assets/models/characters/${config.backAccessory}`, false).then(({ scene: accessory }) => {
-          accessory.scale.set(0.85, 0.85, 0.85);
-          accessory.position.set(0, 0, -0.2);
+          accessory.scale.set(0.9, 0.9, 0.9);
+          accessory.position.set(0, 0, -0.18);
           accessory.rotation.y = Math.PI;
           chest.add(accessory);
         });
@@ -264,7 +309,6 @@ export class CharacterMeshBuilder {
     let targetX = homeX;
     let targetZ = homeZ;
     let isMoving = false;
-    let walkCycle = 0;
     let idleTimer = Math.random() * 5.0;
 
     return {
@@ -275,13 +319,28 @@ export class CharacterMeshBuilder {
       nameplateSprite,
       baseY: currentBaseY,
       moveTo: (x: number, z: number) => {
-        // Enforce walkability: blocks walking into deep ocean water or cliffs!
+        // Enforce passability: blocks walking into deep ocean water or off cliffs
         const validPos = passabilityGrid.clampToWalkable(x, z);
         targetX = validPos.x;
         targetZ = validPos.z;
         isMoving = true;
       },
       update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => {
+        // Update skeletal animation mixer
+        if (mixer) {
+          mixer.update(dt);
+
+          if (isMoving && walkAction && activeAction !== walkAction) {
+            activeAction?.fadeOut(0.2);
+            walkAction.reset().fadeIn(0.2).play();
+            activeAction = walkAction;
+          } else if (!isMoving && idleAction && activeAction !== idleAction) {
+            activeAction?.fadeOut(0.25);
+            idleAction.reset().fadeIn(0.25).play();
+            activeAction = idleAction;
+          }
+        }
+
         if (isMoving) {
           const dx = targetX - group.position.x;
           const dz = targetZ - group.position.z;
@@ -296,10 +355,7 @@ export class CharacterMeshBuilder {
 
             // Dynamically adjust height to terrain elevation
             currentBaseY = passabilityGrid.getElevationAt(group.position.x, group.position.z);
-
-            walkCycle += dt * 12;
-            const stepBob = Math.abs(Math.sin(walkCycle)) * 0.08;
-            group.position.y = currentBaseY + stepBob;
+            group.position.y = currentBaseY;
           } else {
             isMoving = false;
             group.position.x = targetX;
@@ -309,15 +365,15 @@ export class CharacterMeshBuilder {
             group.position.y = currentBaseY;
           }
         } else {
-          // Breathing bob
-          const bob = Math.sin(time * 0.003 + homeX) * 0.035;
+          // Subtle breathing bob
+          const bob = Math.sin(time * 0.003 + homeX) * 0.02;
           let hop = 0;
           if (hopProgress > 0) {
             hop = Math.sin(hopProgress * Math.PI) * 0.45;
           }
           group.position.y = currentBaseY + bob + hop;
 
-          // Ambient village wandering on walkable terrain only
+          // Ambient village wandering on walkable terrain
           if (!isSelected) {
             idleTimer += dt;
             if (idleTimer > 9.0 + Math.random() * 5.0) {
@@ -347,7 +403,7 @@ export class CharacterMeshBuilder {
           headPos.y += 0.45;
         } else {
           group.getWorldPosition(headPos);
-          headPos.y += 2.1;
+          headPos.y += 2.0;
         }
         return headPos;
       },
@@ -355,25 +411,35 @@ export class CharacterMeshBuilder {
   }
 
   /**
-   * Helper used by CharacterPreview3D.tsx to render the 3D model inside the sheet modal
+   * Helper used by CharacterPreview3D.tsx to render animated model in sheet modal
    */
-  public static buildClassModel(charId: string, group: THREE.Group): void {
+  public static buildClassModel(charId: string, group: THREE.Group): { update: (dt: number) => void } {
     const config = CHARACTER_CONFIGS[charId] || {
       model: 'Knight.glb',
-      scale: 0.72,
+      scale: 0.65,
       mainWeapon: 'sword_2handed_color.gltf',
     };
 
-    assetLoader.loadModel(`/assets/models/characters/${config.model}`, true).then(({ scene: avatarScene }) => {
+    let mixer: THREE.AnimationMixer | null = null;
+
+    Promise.all([
+      assetLoader.loadModel(`/assets/models/characters/${config.model}`, true),
+      ensureAnimationsLoaded(),
+    ]).then(([{ scene: avatarScene }, anims]) => {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
       group.add(avatarScene);
+
+      mixer = new THREE.AnimationMixer(avatarScene);
+      if (anims.idle) {
+        mixer.clipAction(anims.idle).play();
+      }
 
       const rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r');
       const leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l');
 
       if (config.mainWeapon && rightHand) {
         assetLoader.loadModel(`/assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
-          weapon.scale.set(0.85, 0.85, 0.85);
+          weapon.scale.set(0.9, 0.9, 0.9);
           weapon.rotation.x = Math.PI / 2;
           rightHand.add(weapon);
         });
@@ -381,12 +447,18 @@ export class CharacterMeshBuilder {
 
       if (config.offhandWeapon && leftHand) {
         assetLoader.loadModel(`/assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
-          shield.scale.set(0.85, 0.85, 0.85);
+          shield.scale.set(0.9, 0.9, 0.9);
           shield.rotation.y = Math.PI;
           leftHand.add(shield);
         });
       }
     });
+
+    return {
+      update: (dt: number) => {
+        if (mixer) mixer.update(dt);
+      },
+    };
   }
 
   /**

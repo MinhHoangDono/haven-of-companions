@@ -75,7 +75,7 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
     rimRing.position.y = 0.085;
     const charMeshGroup = new THREE.Group();
     rotGroup.add(charMeshGroup);
-    CharacterMeshBuilder.buildClassModel(character.id, charMeshGroup);
+    const previewHandle = CharacterMeshBuilder.buildClassModel(character.id, charMeshGroup);
     // 4. Touch & Mouse 360-degree rotation handling
     let isDragging = false;
     let prevX = 0;
@@ -108,15 +108,14 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
 
     // 5. Render Loop with gentle idle bob & rotation
     let rafId = 0;
-    let startTime = performance.now();
+    let lastFrameTime = performance.now();
 
     const animate = (currentTime: number) => {
       rafId = requestAnimationFrame(animate);
 
-      const elapsed = (currentTime - startTime) * 0.001;
-
-      // Subtle breathing bob
-      charMeshGroup.position.y = Math.sin(elapsed * 2.8) * 0.025;
+      const dt = Math.min((currentTime - lastFrameTime) * 0.001, 0.1);
+      lastFrameTime = currentTime;
+      previewHandle.update(dt);
 
       // Rotation inertia & auto-rotation
       if (isDragging) {

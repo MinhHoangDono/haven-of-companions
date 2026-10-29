@@ -4,14 +4,17 @@ import path from 'path';
 const ROOT = process.cwd();
 const KAYKIT_CHAR_SRC = path.join(ROOT, 'KayKit_Adventurers_2.0_FREE/Characters/gltf');
 const KAYKIT_WEAPON_SRC = path.join(ROOT, 'KayKit_Adventurers_2.0_FREE/Assets/gltf');
+const KAYKIT_TEXTURES_SRC = path.join(ROOT, 'KayKit_Adventurers_2.0_FREE/Textures');
+const KAYKIT_ANIM_SRC = path.join(ROOT, 'KayKit_Adventurers_2.0_FREE/Animations/gltf/Rig_Medium');
 const KAYKIT_MED_SRC = path.join(ROOT, 'KayKit_Medieval_Hexagon_Pack_1.0_FREE/KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf');
 const KENNEY_PIRATE_SRC = path.join(ROOT, 'kenney_pirate-kit/Models/GLB format');
 
 const CHAR_DEST = path.join(ROOT, 'public/assets/models/characters');
 const PROPS_DEST = path.join(ROOT, 'public/assets/models/props');
 const ENV_DEST = path.join(ROOT, 'public/assets/models/environment');
+const ENV_TEX_DEST = path.join(ENV_DEST, 'Textures');
 
-[CHAR_DEST, PROPS_DEST, ENV_DEST].forEach((dir) => {
+[CHAR_DEST, PROPS_DEST, ENV_DEST, ENV_TEX_DEST].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -54,7 +57,26 @@ console.log('2. Ingesting KayKit Weapon Accessories...');
   copyIfExists(KAYKIT_WEAPON_SRC, CHAR_DEST, `${base}.bin`);
 });
 
-console.log('3. Ingesting KayKit Medieval Buildings & Nature...');
+console.log('3. Ingesting KayKit Character Textures (Required by weapons and props)...');
+[
+  'knight_texture.png',
+  'mage_texture.png',
+  'ranger_texture.png',
+  'rogue_texture.png',
+  'barbarian_texture.png'
+].forEach((t) => {
+  copyIfExists(KAYKIT_TEXTURES_SRC, CHAR_DEST, t);
+});
+
+console.log('4. Ingesting KayKit Rig_Medium Animations...');
+[
+  'Rig_Medium_General.glb',
+  'Rig_Medium_MovementBasic.glb'
+].forEach((a) => {
+  copyIfExists(KAYKIT_ANIM_SRC, CHAR_DEST, a);
+});
+
+console.log('5. Ingesting KayKit Medieval Buildings & Nature...');
 const medBuildings = [
   'building_tavern_yellow',
   'building_home_A_yellow',
@@ -87,17 +109,25 @@ medProps.forEach((p) => {
   copyIfExists(path.join(KAYKIT_MED_SRC, 'decoration/props'), PROPS_DEST, `${p}.bin`);
 });
 
-// Also copy the shared texture for KayKit Medieval
-const texSrc = path.join(ROOT, 'KayKit_Medieval_Hexagon_Pack_1.0_FREE/KayKit_Medieval_Hexagon_Pack_1.0_FREE/Textures/hexagons_medieval.png');
-if (fs.existsSync(texSrc)) {
-  fs.copyFileSync(texSrc, path.join(PROPS_DEST, 'hexagons_medieval.png'));
-  console.log('  ✓ hexagons_medieval.png');
-}
+// KayKit Medieval texture
+copyIfExists(
+  path.join(ROOT, 'KayKit_Medieval_Hexagon_Pack_1.0_FREE/KayKit_Medieval_Hexagon_Pack_1.0_FREE/Textures'),
+  PROPS_DEST,
+  'hexagons_medieval.png'
+);
 
-console.log('4. Ingesting Kenney Pirate Ships, Lighthouse & Docks...');
+console.log('6. Ingesting Kenney Pirate Ships, Lighthouse, Docks & Textures...');
+// Colormap texture for Kenney GLBs
+copyIfExists(
+  path.join(KENNEY_PIRATE_SRC, 'Textures'),
+  ENV_TEX_DEST,
+  'colormap.png'
+);
+
 const pirateAssets = [
   'ship-pirate-large.glb',
   'ship-medium.glb',
+  'ship-wreck.glb',
   'boat-row-large.glb',
   'boat-row-small.glb',
   'tower-complete-large.glb',
@@ -123,4 +153,4 @@ const pirateAssets = [
 ];
 pirateAssets.forEach((p) => copyIfExists(KENNEY_PIRATE_SRC, ENV_DEST, p));
 
-console.log('Ingestion script execution complete.');
+console.log('Asset Ingestion Complete.');

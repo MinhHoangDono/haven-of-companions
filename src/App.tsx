@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   const [characters, setCharacters] = useState<Character[]>(allCharacters);
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCasting, setIsCasting] = useState(false);
   const [screenPositions, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const [celebrationToast, setCelebrationToast] = useState<string | null>(null);
 
@@ -116,11 +117,11 @@ export const App: React.FC = () => {
   const handleTriggerAbility = useCallback(() => {
     if (!selectedCharacter) return;
     setIsModalOpen(false);
+    setIsCasting(true);
     const effectType = selectedCharacter.signatureAbility.effectType;
     audioManager.playAbility(effectType);
     // 3D visual particle explosion at character position!
     castSpellRef.current?.(effectType, selectedCharacter.id);
-
     // Trigger spring hop
     setCharacters((prev) =>
       prev.map((c) => (c.id === selectedCharacter.id ? { ...c, hopProgress: 0.01 } : c))
@@ -130,16 +131,12 @@ export const App: React.FC = () => {
     setCelebrationToast(`✨ ${selectedCharacter.nickname} thi triển [${selectedCharacter.signatureAbility.name}]!`);
     setTimeout(() => {
       setCelebrationToast(null);
+      setIsCasting(false);
     }, 3200);
   }, [selectedCharacter]);
 
 
-  const handleToast = useCallback(() => {
-    audioManager.playToast();
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate([15, 30, 15]);
-    }
-  }, []);
+
 
 
   const activeBubbleScreenPos = selectedCharId ? screenPositions.get(selectedCharId) : null;
@@ -177,8 +174,8 @@ export const App: React.FC = () => {
       )}
 
 
-      {/* In-World Floating Speech Bubble */}
-      {selectedCharacter && activeBubbleScreenPos && !isModalOpen && (
+      {/* In-World Floating Speech Bubble (Closed when modal open or cast active) */}
+      {selectedCharacter && activeBubbleScreenPos && !isModalOpen && !isCasting && (
         <SpeechBubble
           character={selectedCharacter}
           screenPos={activeBubbleScreenPos}
@@ -205,7 +202,6 @@ export const App: React.FC = () => {
           character={selectedCharacter}
           onClose={() => setIsModalOpen(false)}
           onTriggerAbility={handleTriggerAbility}
-          onToast={handleToast}
         />
       )}
     </div>

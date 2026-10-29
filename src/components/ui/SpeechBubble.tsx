@@ -84,7 +84,7 @@ export const SpeechBubble: React.FC<SpeechBubbleProps> = ({
           <div className="flex items-center gap-1">
             {/* Signature ability button */}
             <button
-              onClick={onTriggerAbility}
+              onClick={() => { onTriggerAbility(); onClose(); }}
               className="flex items-center gap-1 text-[10px] font-sans font-semibold bg-fantasy-gold text-ink-900 px-2.5 py-1 rounded-lg shadow-sm active:scale-95 transition-all"
               title={character.signatureAbility.name}
             >

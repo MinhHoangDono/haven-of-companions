@@ -13,6 +13,7 @@ Welcome to the technical and operational documentation for **Haven of Companions
 | [**Character & Lore Registry**](./character-registry.md) | Game Designers & Content Writers | Domain specifications for all 9 friends: real-life inspirations, factions, stat distributions, dialogues, and ability hooks. |
 | [**Asset Remodeling Blueprint**](./remodeling-guide.md) | 3D Artists & Frontend Developers | Step-by-step implementation guide for loading and attaching the 3D Kenney and KayKit low-poly GLBs (`kenney_blocky-characters_20`, `kenney_pirate-kit`). |
 | [**Project Progress & Verification**](./PROJECT_PROGRESS.md) | Project Managers & Stakeholders | Detailed audit of delivered phases, verified acceptance criteria, and mobile benchmark results. |
+| [**Environmental & VFX Animation Guide**](./environmental-animation-vfx-guide.md) | 3D Developers & Technical Artists | Drop-in copy-paste shaders, open-source resources, and formulas for ocean water, cartoon fire, wind foliage, 9-hero fantasy spell VFX, and dynamic weather. |
 
 ---
 

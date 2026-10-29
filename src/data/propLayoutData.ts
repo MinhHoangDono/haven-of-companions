@@ -14,15 +14,15 @@ export interface PropInstanceDef {
 }
 
 /**
- * Helper to generate straight wooden boardwalk pier segments in one line
+ * Helper to generate straight wooden boardwalk pier segments across the expanded bay
  */
 export function createPierRow(
   startX: number,
   startZ: number,
   count: number,
   axis: 'x' | 'z',
-  step: number = 2.0,
-  elevation: number = 0.2
+  step: number = 2.4,
+  elevation: number = 0.25
 ): PropInstanceDef[] {
   const row: PropInstanceDef[] = [];
   for (let i = 0; i < count; i++) {
@@ -35,85 +35,116 @@ export function createPierRow(
         axis === 'z' ? startZ + i * step : startZ,
       ],
       rot: [0, axis === 'x' ? Math.PI / 2 : 0, 0],
+      scale: 1.5,
     });
   }
   return row;
 }
 
 /**
- * Master declarative layout for the 24x24 diorama.
- * Copy and paste rows to instantly add or duplicate objects!
+ * Master declarative layout for the 50x50 diorama world.
+ * Buildings and trees are scaled to authentic RPG proportions (~4-5x height of characters).
  */
 export const DIORAMA_PROPS: PropInstanceDef[] = [
   // ==========================================
-  // ZONE 1: HIGHLAND MOUNTAIN PLATEAU (NW)
+  // ZONE 1: HIGHLAND MOUNTAIN RANGE (NW: X: -25 to -4, Z: -25 to 0)
   // ==========================================
-  // KayKit Alpine Mountain Crags & High Pine Forest
-  { asset: 'mountain_A_grass_trees.gltf', pack: 'props', pos: [-10.5, 2.4, -10.5], scale: 1.35 },
-  { asset: 'mountain_B_grass_trees.gltf', pack: 'props', pos: [-5.5, 2.4, -11.0], scale: 1.2 },
-  { asset: 'trees_A_large.gltf', pack: 'props', pos: [-8.5, 2.4, -6.5], scale: 1.2 },
-  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [-4.2, 2.4, -9.5], scale: 1.1 },
-  { asset: 'tree_single_A.gltf', pack: 'props', pos: [-3.0, 2.4, -5.2], scale: 1.0 },
+  // Towering Alpine Peaks & Mountain Escarpments
+  { asset: 'mountain_A_grass_trees.gltf', pack: 'props', pos: [-20.5, 3.6, -20.5], scale: 3.5 },
+  { asset: 'mountain_B_grass_trees.gltf', pack: 'props', pos: [-12.5, 3.2, -22.0], scale: 3.2 },
+  { asset: 'mountain_A_grass_trees.gltf', pack: 'props', pos: [-22.0, 3.0, -12.5], scale: 3.0 },
 
-  // Campsite Tent & Clutter
-  { asset: 'tent.gltf', pack: 'props', pos: [-7.5, 2.4, -8.0], rot: [0, Math.PI * 0.25, 0], scale: 1.2 },
-  { asset: 'resource_lumber.gltf', pack: 'props', pos: [-6.2, 2.4, -8.8], rot: [0, -0.4, 0] },
-  { asset: 'weaponrack.gltf', pack: 'props', pos: [-8.8, 2.4, -7.5], rot: [0, Math.PI * 0.5, 0] },
-  { asset: 'barrel.gltf', pack: 'props', pos: [-6.5, 2.4, -7.2] },
-  { asset: 'crate_open.gltf', pack: 'props', pos: [-6.0, 2.4, -6.8], rot: [0, 0.3, 0] },
+  // Dense Pine Forests (Scale 5.0 - 5.8 gives 5m tall pine canopy!)
+  { asset: 'trees_A_large.gltf', pack: 'props', pos: [-18.5, 2.8, -14.5], scale: 5.5 },
+  { asset: 'trees_A_large.gltf', pack: 'props', pos: [-11.0, 2.8, -16.5], scale: 5.2 },
+  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [-7.5, 2.4, -18.5], scale: 4.8 },
+  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [-16.0, 2.8, -6.5], scale: 4.5 },
+  { asset: 'tree_single_A.gltf', pack: 'props', pos: [-5.5, 1.8, -6.0], scale: 4.2 },
+  { asset: 'tree_single_A.gltf', pack: 'props', pos: [-9.5, 2.4, -4.5], scale: 4.0 },
 
-  // Kenney Watchtower Overlook
-  { asset: 'tower-watch.glb', pack: 'environment', pos: [-10.5, 2.4, -4.5], rot: [0, Math.PI * 0.35, 0], scale: 1.1 },
+  // Campsite Tents & Lumber Works
+  { asset: 'tent.gltf', pack: 'props', pos: [-16.5, 2.8, -17.5], rot: [0, Math.PI * 0.25, 0], scale: 2.6 },
+  { asset: 'resource_lumber.gltf', pack: 'props', pos: [-13.5, 2.8, -17.8], rot: [0, -0.4, 0], scale: 2.2 },
+  { asset: 'weaponrack.gltf', pack: 'props', pos: [-17.5, 2.8, -13.5], rot: [0, Math.PI * 0.5, 0], scale: 2.0 },
+  { asset: 'crate_open.gltf', pack: 'props', pos: [-12.5, 2.8, -14.0], rot: [0, 0.3, 0], scale: 1.8 },
+  { asset: 'barrel.gltf', pack: 'props', pos: [-13.8, 2.8, -14.2], scale: 1.8 },
 
-  // ==========================================
-  // ZONE 2: SUNSPIRE TOWN SQUARE & PLAZA (NE)
-  // ==========================================
-  // KayKit Medieval Buildings
-  { asset: 'building_tavern_yellow.gltf', pack: 'props', pos: [5.5, 1.0, -8.5], rot: [0, -Math.PI * 0.15, 0], scale: 1.25 },
-  { asset: 'building_church_yellow.gltf', pack: 'props', pos: [9.2, 1.0, -6.5], rot: [0, -Math.PI * 0.25, 0], scale: 1.2 },
-  { asset: 'building_home_A_yellow.gltf', pack: 'props', pos: [2.5, 1.0, -9.5], rot: [0, Math.PI * 0.1, 0], scale: 1.1 },
-  { asset: 'building_home_B_yellow.gltf', pack: 'props', pos: [-0.8, 1.0, -9.2], rot: [0, Math.PI * 0.2, 0], scale: 1.05 },
-  { asset: 'building_market_yellow.gltf', pack: 'props', pos: [4.2, 1.0, -3.8], rot: [0, Math.PI * 0.4, 0], scale: 1.15 },
-  { asset: 'building_blacksmith_yellow.gltf', pack: 'props', pos: [8.5, 1.0, -1.8], rot: [0, -Math.PI * 0.45, 0], scale: 1.1 },
-  { asset: 'building_windmill_yellow.gltf', pack: 'props', pos: [10.5, 1.0, -9.8], rot: [0, -Math.PI * 0.5, 0], scale: 1.15 },
-
-  // Plaza Clutter & Chests
-  { asset: 'chest.glb', pack: 'environment', pos: [3.2, 1.0, -4.5], rot: [0, 0.4, 0] },
-  { asset: 'barrel.gltf', pack: 'props', pos: [5.0, 1.0, -4.2] },
-  { asset: 'barrel.gltf', pack: 'props', pos: [4.8, 1.0, -4.6] },
+  // Kenney Highland Watchtower Overlook
+  { asset: 'tower-watch.glb', pack: 'environment', pos: [-21.5, 3.6, -7.5], rot: [0, Math.PI * 0.35, 0], scale: 2.0 },
 
   // ==========================================
-  // ZONE 3: COASTAL BAY & HARBOR (SW)
+  // ZONE 2: SUNSPIRE TOWN SQUARE & VILLAGE DISTRICTS (NE: X: -3 to 25, Z: -25 to 2)
   // ==========================================
-  // Kenney Flagship Pirate Galleon in Deep Water
-  { asset: 'ship-pirate-large.glb', pack: 'environment', pos: [-6.5, -0.15, 8.5], rot: [0, Math.PI * 0.35, 0], scale: 1.3 },
-  // Coastal Trader vessel
-  { asset: 'ship-medium.glb', pack: 'environment', pos: [-9.5, -0.15, 6.0], rot: [0, Math.PI * 0.2, 0], scale: 1.0 },
-  // Moored Fishing Skiff at Pier
-  { asset: 'boat-row-large.glb', pack: 'environment', pos: [-1.2, -0.15, 6.8], rot: [0, -0.2, 0] },
+  // 1. Guildhall & Tavern District
+  { asset: 'building_tavern_yellow.gltf', pack: 'props', pos: [9.5, 1.0, -15.5], rot: [0, -Math.PI * 0.15, 0], scale: 4.8 },
+  { asset: 'barrel.gltf', pack: 'props', pos: [7.2, 1.0, -13.8], scale: 1.8 },
+  { asset: 'barrel.gltf', pack: 'props', pos: [7.6, 1.0, -14.2], scale: 1.8 },
 
-  // Coastal Defense Cannon Battery
-  { asset: 'cannon-mobile.glb', pack: 'environment', pos: [-1.5, 0.2, 3.8], rot: [0, Math.PI * 0.7, 0] },
-  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-1.8, 0.2, 3.4] },
+  // 2. Cathedral of Hope & Sun Sanctuary
+  { asset: 'building_church_yellow.gltf', pack: 'props', pos: [19.0, 1.0, -17.5], rot: [0, -Math.PI * 0.25, 0], scale: 5.2 },
+
+  // 3. Residential Quarter (Cottages)
+  { asset: 'building_home_A_yellow.gltf', pack: 'props', pos: [3.5, 1.0, -19.5], rot: [0, Math.PI * 0.1, 0], scale: 4.2 },
+  { asset: 'building_home_B_yellow.gltf', pack: 'props', pos: [-1.5, 1.0, -17.5], rot: [0, Math.PI * 0.25, 0], scale: 4.0 },
+  { asset: 'building_home_A_yellow.gltf', pack: 'props', pos: [14.5, 1.0, -21.0], rot: [0, -0.2, 0], scale: 4.0 },
+
+  // 4. Market Street Quarter
+  { asset: 'building_market_yellow.gltf', pack: 'props', pos: [8.5, 1.0, -7.5], rot: [0, Math.PI * 0.4, 0], scale: 2.8 },
+  { asset: 'building_market_yellow.gltf', pack: 'props', pos: [2.5, 1.0, -7.5], rot: [0, Math.PI * 0.35, 0], scale: 2.8 },
+  { asset: 'building_blacksmith_yellow.gltf', pack: 'props', pos: [16.5, 1.0, -9.5], rot: [0, -Math.PI * 0.45, 0], scale: 4.0 },
+  { asset: 'chest.glb', pack: 'environment', pos: [6.8, 1.0, -8.5], rot: [0, 0.4, 0], scale: 1.5 },
+
+  // 5. Hillside Windmill
+  { asset: 'building_windmill_yellow.gltf', pack: 'props', pos: [21.5, 1.0, -7.5], rot: [0, -Math.PI * 0.5, 0], scale: 4.8 },
+
+  // Plaza Trees
+  { asset: 'trees_A_medium.gltf', pack: 'props', pos: [-1.5, 1.0, -7.5], scale: 4.5 },
+  { asset: 'tree_single_A.gltf', pack: 'props', pos: [12.5, 1.0, -1.5], scale: 4.0 },
+
+  // ==========================================
+  // ZONE 3: VAST OCEAN BAY (SW: X: -25 to 6, Z: 2 to 25)
+  // ==========================================
+  // Flagship Pirate Galleon in Deep Water
+  { asset: 'ship-pirate-large.glb', pack: 'environment', pos: [-12.5, -0.3, 16.5], rot: [0, Math.PI * 0.35, 0], scale: 2.2 },
+
+  // Moored Merchant Coastal Trader
+  { asset: 'ship-medium.glb', pack: 'environment', pos: [-18.5, -0.3, 11.5], rot: [0, Math.PI * 0.15, 0], scale: 1.8 },
+
+  // Sunken Shipwreck on the Outer Reef
+  { asset: 'ship-wreck.glb', pack: 'environment', pos: [-21.5, -0.3, 21.0], rot: [0.1, Math.PI * 0.45, -0.15], scale: 1.8 },
+
+  // Moored Fishing Skiffs
+  { asset: 'boat-row-large.glb', pack: 'environment', pos: [-2.5, -0.15, 11.5], rot: [0, -0.2, 0], scale: 1.4 },
+  { asset: 'boat-row-small.glb', pack: 'environment', pos: [-5.0, -0.15, 15.0], rot: [0, 0.5, 0], scale: 1.3 },
+
+  // Harbor Coastal Defense Battery
+  { asset: 'cannon-mobile.glb', pack: 'environment', pos: [-3.5, 0.25, 6.5], rot: [0, Math.PI * 0.7, 0], scale: 1.6 },
+  { asset: 'cannon.glb', pack: 'environment', pos: [-6.5, 0.25, 5.5], rot: [0, Math.PI * 0.65, 0], scale: 1.5 },
+  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-3.8, 0.25, 6.0], scale: 1.5 },
 
   // Tropical Shoreline Palms
-  { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [-8.5, 0.15, 2.5], rot: [0, 1.2, 0], scale: 1.2 },
-  { asset: 'palm-straight.glb', pack: 'environment', pos: [-4.2, 0.15, 1.8], scale: 1.0 },
-  { asset: 'palm-bend.glb', pack: 'environment', pos: [-9.8, 0.15, 4.5], rot: [0, -0.8, 0], scale: 1.1 },
+  { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [-15.5, 0.2, 4.5], rot: [0, 1.2, 0], scale: 2.4 },
+  { asset: 'palm-straight.glb', pack: 'environment', pos: [-9.5, 0.2, 3.5], scale: 2.0 },
+  { asset: 'palm-bend.glb', pack: 'environment', pos: [-19.5, 0.2, 7.5], rot: [0, -0.8, 0], scale: 2.2 },
+  { asset: 'palm-straight.glb', pack: 'environment', pos: [1.5, 0.2, 3.5], scale: 1.8 },
 
-  // Boardwalk Pier Walkway (Connects beach to water)
-  ...createPierRow(-1.0, 4.0, 4, 'z', 1.8, 0.2),
+  // Long Boardwalk Pier Walkway Network
+  ...createPierRow(-2.0, 5.0, 6, 'z', 2.4, 0.25),
 
   // ==========================================
-  // ZONE 4: LIGHTHOUSE PROMONTORY (SE)
+  // ZONE 4: OUTER LIGHTHOUSE PROMONTORY (SE: X: 7 to 25, Z: 2 to 25)
   // ==========================================
-  // Kenney Coastal Stone Beacon Lighthouse
-  { asset: 'tower-complete-large.glb', pack: 'environment', pos: [8.5, 0.85, 7.5], scale: 1.35 },
-  { asset: 'flag-pirate.glb', pack: 'environment', pos: [8.5, 4.85, 7.5] },
+  // Majestic Stone Coastal Beacon Lighthouse (Scale 2.4 gives 12m towering beacon!)
+  { asset: 'tower-complete-large.glb', pack: 'environment', pos: [16.5, 1.25, 14.5], scale: 2.4 },
+  { asset: 'flag-pirate.glb', pack: 'environment', pos: [16.5, 8.5, 14.5], scale: 2.0 },
 
-  // Wave-breaker Reef Boulders protecting harbor entrance
-  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [6.5, 0.0, 9.5], scale: 1.5 },
-  { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [10.5, 0.0, 6.0], scale: 1.3 },
-  { asset: 'rocks-sand-c.glb', pack: 'environment', pos: [8.0, 0.0, 10.8], scale: 1.4 },
-  { asset: 'palm-straight.glb', pack: 'environment', pos: [7.2, 0.85, 6.2], scale: 0.9 },
+  // Wave-Breaker Reef Boulders
+  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [12.5, 0.0, 18.5], scale: 3.2 },
+  { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [20.5, 0.0, 12.0], scale: 2.8 },
+  { asset: 'rocks-sand-c.glb', pack: 'environment', pos: [15.0, 0.0, 22.0], scale: 3.0 },
+  { asset: 'rocks-a.glb', pack: 'environment', pos: [8.5, 0.0, 19.5], scale: 2.5 },
+
+  // Promontory Tropical Palms
+  { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [14.2, 1.25, 10.5], rot: [0, 0.4, 0], scale: 2.2 },
+  { asset: 'palm-straight.glb', pack: 'environment', pos: [19.5, 1.25, 11.5], scale: 2.0 },
 ];

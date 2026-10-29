@@ -1,20 +1,18 @@
 import React from 'react';
 import { Character } from '../../types/character';
-import { Sparkles, Wine, X, Shield, Trees, Compass } from 'lucide-react';
+import { Sparkles, X, Shield, Trees, Compass } from 'lucide-react';
 import { CharacterPreview3D } from './CharacterPreview3D';
 
 interface CharacterModalProps {
   character: Character | null;
   onClose: () => void;
   onTriggerAbility: () => void;
-  onToast: () => void;
 }
 
 export const CharacterModal: React.FC<CharacterModalProps> = ({
   character,
   onClose,
   onTriggerAbility,
-  onToast,
 }) => {
   if (!character) return null;
 
@@ -30,19 +28,17 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-auto bg-black/60 backdrop-blur-sm animate-fade-in">
-      {/* Click outside backdrop to close */}
-      <div className="absolute inset-0" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex sm:items-center items-stretch justify-center pointer-events-auto bg-black/75 backdrop-blur-md animate-fade-in p-0 sm:p-4">
+      {/* Click outside backdrop to close on desktop */}
+      <div className="absolute inset-0 hidden sm:block" onClick={onClose} />
 
-      {/* Slide-up bottom sheet drawer */}
-      <div className="relative w-full max-w-lg bg-ink-900 border-t-2 border-paper-800 rounded-t-3xl shadow-2xl p-5 pb-safe max-h-[85vh] overflow-y-auto transform transition-transform duration-300">
-        {/* Drag handle */}
-        <div className="w-12 h-1 bg-paper-800 rounded-full mx-auto mb-4" />
-
+      {/* Modal Box: Full screen on phone, centered modal card on web */}
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-xl bg-ink-900 border-0 sm:border sm:border-paper-800/80 rounded-none sm:rounded-3xl shadow-2xl p-4 sm:p-6 overflow-y-auto flex flex-col pt-safe pb-safe">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-ink-800 border border-paper-800 text-paper-200/70 hover:text-paper-100 active:scale-95 transition-all"
+          className="absolute top-4 sm:top-5 right-4 sm:right-5 p-2 rounded-full bg-ink-800/90 border border-paper-800 text-paper-200/70 hover:text-paper-100 active:scale-95 transition-all z-10"
+          title="Đóng bảng nhân vật"
         >
           <X className="w-4 h-4" />
         </button>
@@ -76,10 +72,21 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
             </p>
           </div>
         </div>
+        {/* Primary Skill Cast Button (Positioned at the top above 360 view) */}
+        <button
+          onClick={() => {
+            onTriggerAbility();
+            onClose();
+          }}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-sans font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-[0_4px_16px_rgba(223,166,66,0.35)] active:scale-95 transition-all mb-3.5 hover:brightness-105 border border-yellow-200 shrink-0"
+          title={`Thi triển kỹ năng đặc trưng ${character.signatureAbility.name}`}
+        >
+          <Sparkles className="w-4 h-4 text-ink-950 shrink-0" />
+          <span className="truncate">Thi triển: {character.signatureAbility.name}</span>
+        </button>
 
         {/* 3D Interactive Character Model Viewport */}
         <CharacterPreview3D character={character} />
-
         {/* RPG Stat Bars */}
         <div className="bg-ink-800/80 border border-paper-800/60 rounded-2xl p-3.5 mb-4 shadow-inner">
           <h3 className="text-xs font-serif font-bold tracking-wider uppercase text-fantasy-gold mb-2.5">
@@ -115,28 +122,6 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
           <p className="text-xs font-sans text-ink-800 leading-relaxed italic">
             "{character.bio}"
           </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2.5">
-          <button
-            onClick={() => {
-              onTriggerAbility();
-              onClose();
-            }}
-            className="flex items-center justify-center gap-1.5 bg-fantasy-gold text-ink-900 font-sans font-bold text-xs py-2.5 px-3 rounded-xl active:scale-95 transition-all shadow-md min-w-0"
-          >
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">{character.signatureAbility.name}</span>
-          </button>
-
-          <button
-            onClick={onToast}
-            className="flex items-center justify-center gap-1.5 bg-ink-800 border border-paper-800 text-paper-100 font-sans font-semibold text-xs py-2.5 px-3 rounded-xl hover:bg-ink-700 active:scale-95 transition-all shadow-md"
-          >
-            <Wine className="w-3.5 h-3.5 text-amber-300" />
-            <span>Raise a Toast</span>
-          </button>
         </div>
       </div>
     </div>
