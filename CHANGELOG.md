@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v4.3.0] - 2026-10-30
+
+### Added
+- **Minecraft-Style Voxel Terrain System (`VoxelTerrainBuilder.ts`)**: Built a modular voxel terrain engine composed of $1\text{m} \times 1\text{m} \times 1\text{m}$ instanced cube blocks rendered via `THREE.InstancedMesh` for high-performance 60 FPS mobile WebGL rendering (<10 draw calls total for thousands of blocks).
+- **Custom Procedural Pixel-Art Block Textures**:
+  - **Grass Block**: Vibrant emerald RPG green top (`matGrassTop`), classic Minecraft jagged grass drip overhang with dirt on 4 sides (`matGrassSide`), and rich brown soil on the bottom (`matDirt`).
+  - **Dirt Block**: Earthy brown soil with gravel texture for exposed subsurface cliff columns.
+  - **Sand Block**: Warm sunny beach sand with subtle golden grain pixels along the shoreline.
+  - **Stone Block**: Mountain cobblestone rock with chiseled pixel variation for high peaks.
+  - **Wood Plank Block**: Oak planks with horizontal seams and nail accents for the harbor dock.
+- **Smooth Organic Topography**: Replaced rigid rectangular terrain tiers with continuous mathematical heightfields featuring an organic twin-peak mountain range (NW), gentle rolling green village meadows (Center/NE), a natural curving serpentine coastline, a curved sea cape promontory (SE), and deep ocean seabed trenches (SW).
+- **Voxel-Driven Passability & Navigation (`passabilityMap.ts`)**: Integrated the 2D passability grid directly with `VoxelTerrainBuilder`, querying block heights and types for seamless tap-to-move waypoint pathfinding and natural elevation stepping.
+
+### Changed
+- **Clean Voxel Ground & Road Removal**: Removed all artificial monolithic road boxes (`mainAvenue`, `marketLane`, `churchAvenue`, `dirtLane1/2`, curbs) and the large foundation slab in favor of continuous, natural green grass blocks.
+- **Aligned Prop & Character Heights**: Calibrated all companion spawn points in `CharacterMeshBuilder.ts` and declarative prop definitions in `propLayoutData.ts` to rest naturally on the top surface of the voxel blocks ($Y = \text{topY} + 0.5$).
+- **PWA Service Worker Cache**: Bumped service worker cache name to `haven-companions-v4.3` in `public/sw.js`.
+
+---
+
+## [v4.2.0] - 2026-10-30
+
+### Added
+- **70x70 World Expansion**: Expanded diorama surface area to $70 \times 70$ ($4,900\text{ m}^2$ footprint on $X, Z \in [-35, 35]$), providing expansive space for village quarters, coastal bays, mountain trails, and the lighthouse cape.
+- **Deep Ocean Basin & Continental Shelf**: Deepened ocean basin floor down to $Y = -3.2\text{m}$ with a dark ocean trench floor (`matDeepSeabed`) and stepped continental shelf, granting over $3.3\text{m}$ of realistic water clearance under ship hulls.
+- **KayKit Skeletal Animation System**: Integrated `Rig_Medium_General.glb` and `Rig_Medium_MovementBasic.glb` using `THREE.AnimationMixer`, enabling all 9 companions to smoothly transition between relaxed adventurer `Idle_A` and walking `Walking_A` during movement.
+- **Weapon & Character Textures**: Ingested class texture maps (`knight_texture.png`, `mage_texture.png`, `ranger_texture.png`, `rogue_texture.png`, `barbarian_texture.png`) for full PBR weapon rendering.
+- **Kenney Pirate Colormap**: Restored missing `colormap.png` in `public/assets/models/environment/Textures/`, restoring vibrant colors to the pirate galleon, lighthouse, rowboats, palm trees, and coastal rocks.
+
+### Changed
+- **Tactical RPG Scale Rebalancing (`propLayoutData.ts`)**: Rescaled KayKit medieval buildings ($4.0\times – 4.2\times$ for cottages, $4.8\times$ for tavern/guildhall, $5.2\times$ for cathedral, $4.8\times$ for windmill), expanded central town fountain to $3.2\text{m}$ radius, rescaled pine forests to $4.8\times – 5.5\times$, and normalized character heights to $1.65\text{m}$ ($0.65\times$).
+- **Narrow Cozy Boat Dock**: Reduced pier width to $1.8\text{m}$ (down from $3.2\text{m}$) and scaled segments to $1.0\times$ for an authentic fishing harbor scale.
+- **Camera Orbit Range (`TouchControls3D.ts`)**: Expanded pan bounds to `[-34, 34]` and zoom distance range to `[14, 85]` for panoramic landscape views.
+
+---
+
 ## [v4.1.0] - 2026-10-30
 
 ### Added
