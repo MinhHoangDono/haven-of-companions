@@ -15,9 +15,9 @@ export class TouchControls3D {
 
   // Camera Target (center point the camera orbits / looks at)
   public target = new THREE.Vector3(0, 0.8, 0);
-  public distance = 26; // Distance from target
-  public minDistance = 12;
-  public maxDistance = 45;
+  public distance = 18; // Closer default so characters and tactical details are prominent
+  public minDistance = 9;
+  public maxDistance = 32;
 
   // Touch tracking
   private pointers = new Map<number, { x: number; y: number }>();

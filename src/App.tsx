@@ -36,9 +36,9 @@ export const App: React.FC = () => {
     if (!controlsRef.current) return;
 
     if (char.id === 'anh-thi-druid') {
-      controlsRef.current.panTo(-3.5, -4.0);
+      controlsRef.current.panTo(-2.8, -3.0);
     } else {
-      controlsRef.current.panTo(3.2, 1.8);
+      controlsRef.current.panTo(0.5, 2.4);
     }
   }, []);
 

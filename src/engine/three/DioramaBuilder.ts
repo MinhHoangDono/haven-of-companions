@@ -125,7 +125,7 @@ export class DioramaBuilder {
       { x: -6.5, z: -6.5, s: 1.2 },
       { x: -5.5, z: -2.0, s: 0.9 },
       { x: -1.5, z: -6.0, s: 1.1 },
-      { x: -2.5, z: -3.5, s: 0.8 },
+      { x: -6.0, z: -3.2, s: 0.8 },
     ];
     pinePositions.forEach((pt) => {
       const tree = this.buildPineTree(matDarkWood, matPineNeedles, pt.s);
