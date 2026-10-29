@@ -38,7 +38,10 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   const characterHandlesRef = useRef<Map<string, CharacterMeshHandle>>(new Map());
   const interactivePropsRef = useRef<InteractivePropRef[]>([]);
   const waterMeshRef = useRef<THREE.Mesh | null>(null);
+  const waveFoamsRef = useRef<THREE.Mesh[]>([]);
   const boatGroupRef = useRef<THREE.Group | null>(null);
+  const largeShipRef = useRef<THREE.Group | null>(null);
+  const lighthouseLightRef = useRef<THREE.PointLight | null>(null);
   const spellEffectsRef = useRef<SpellEffect3D | null>(null);
   const charactersRef = useRef(characters);
   charactersRef.current = characters;
@@ -89,12 +92,22 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
     container.appendChild(renderer.domElement);
 
-    // 2. Build 3-Tiered Village Diorama
-    const { interactiveProps, waterMesh, boatGroup } = DioramaBuilder.buildDiorama(scene);
+    // 2. Build 3-Tiered Village Diorama with Coastal Expansion
+    const {
+      interactiveProps,
+      waterMesh,
+      waveFoamMeshes,
+      boatGroup,
+      largeShipGroup,
+      lighthouseBeaconLight,
+    } = DioramaBuilder.buildDiorama(scene);
+
     interactivePropsRef.current = interactiveProps;
     waterMeshRef.current = waterMesh;
+    waveFoamsRef.current = waveFoamMeshes;
     boatGroupRef.current = boatGroup;
-
+    largeShipRef.current = largeShipGroup;
+    lighthouseLightRef.current = lighthouseBeaconLight;
     // 3. Build Character 3D Avatars (Thi & Thanh Phương)
     const handles = new Map<string, CharacterMeshHandle>();
     charactersRef.current.forEach((char) => {
@@ -211,12 +224,45 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
       // Update lighting flicker
       lighting.update(currentTime);
-      // Animate gentle water wave & boat bobbing
+      // Animate dynamic 3D ocean wave swell
+      if (waterMeshRef.current) {
+        const posAttr = waterMeshRef.current.geometry.attributes.position;
+        const tSec = currentTime * 0.0015;
+        for (let i = 0; i < posAttr.count; i++) {
+          const vx = posAttr.getX(i);
+          const vy = posAttr.getY(i);
+          const waveZ = Math.sin(vx * 0.8 + tSec * 2.2) * 0.08 + Math.cos(vy * 1.1 + tSec * 1.8) * 0.06;
+          posAttr.setZ(i, waveZ);
+        }
+        posAttr.needsUpdate = true;
+      }
+
+      // Animate rolling shoreline wavefoam
+      waveFoamsRef.current.forEach((foam, idx) => {
+        const cycle = (currentTime * 0.0006 + idx * 0.33) % 1.0;
+        foam.position.z = 2.8 + cycle * 2.4;
+        (foam.material as THREE.MeshBasicMaterial).opacity = Math.sin(cycle * Math.PI) * 0.55;
+      });
+
+      // Animate Large Galleon ship oceanic roll
+      if (largeShipRef.current) {
+        largeShipRef.current.position.y = -0.15 + Math.sin(currentTime * 0.0014) * 0.06;
+        largeShipRef.current.rotation.z = -0.15 + Math.sin(currentTime * 0.0011) * 0.04;
+        largeShipRef.current.rotation.x = Math.cos(currentTime * 0.0013) * 0.025;
+      }
+
+      // Animate small rowboat bobbing
       if (boatGroupRef.current) {
         boatGroupRef.current.position.y = -0.15 + Math.sin(currentTime * 0.002) * 0.05;
         boatGroupRef.current.rotation.z = Math.sin(currentTime * 0.0018) * 0.03;
       }
 
+      // Animate Lighthouse rotating beacon beam
+      if (lighthouseLightRef.current) {
+        const bAngle = currentTime * 0.0025;
+        lighthouseLightRef.current.position.x = 7.2 + Math.cos(bAngle) * 0.8;
+        lighthouseLightRef.current.position.z = 4.8 + Math.sin(bAngle) * 0.8;
+      }
       // Update character models (breathing bob & hop progress)
       handles.forEach((handle) => {
         const charData = charactersRef.current.find((c) => c.id === handle.id);

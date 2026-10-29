@@ -7,12 +7,18 @@ export interface InteractivePropRef {
   position: THREE.Vector3;
 }
 
+export interface DioramaElements {
+  interactiveProps: InteractivePropRef[];
+  waterMesh: THREE.Mesh;
+  waveFoamMeshes: THREE.Mesh[];
+  boatGroup: THREE.Group;
+  largeShipGroup: THREE.Group;
+  lighthouseGroup: THREE.Group;
+  lighthouseBeaconLight: THREE.PointLight;
+}
+
 export class DioramaBuilder {
-  public static buildDiorama(scene: THREE.Scene): {
-    interactiveProps: InteractivePropRef[];
-    waterMesh: THREE.Mesh;
-    boatGroup: THREE.Group;
-  } {
+  public static buildDiorama(scene: THREE.Scene): DioramaElements {
     const dioramaGroup = new THREE.Group();
     scene.add(dioramaGroup);
 
@@ -273,20 +279,59 @@ export class DioramaBuilder {
       position: seaBell.position.clone(),
     });
 
-    // Moored Wooden Fishing Skiff
+    // 1. Moored Wooden Fishing Skiff (Rowboat)
     const boatGroup = this.buildBoat(matDarkWood, matWoodTimber, matPlasterWall);
     boatGroup.position.set(2.8, -0.15, 5.5);
     dioramaGroup.add(boatGroup);
 
-    // 3D Water Plane
-    const waterGeo = new THREE.PlaneGeometry(16.5, 6);
+    // 2. Large Medieval Galleon / Caravel Ship (Bigger Boat!)
+    const largeShipGroup = this.buildLargeGalleon(matDarkWood, matWoodTimber, matPlasterWall, matGoldMetal);
+    largeShipGroup.position.set(-3.2, -0.15, 6.0);
+    largeShipGroup.rotation.y = -0.15;
+    dioramaGroup.add(largeShipGroup);
+
+    // 3. Coastal Stone Lighthouse with Rotating Beacon Light
+    const { group: lighthouseGroup, beaconLight: lighthouseBeaconLight } = this.buildLighthouse(
+      matRockCliff,
+      matRoofSlate,
+      matGoldMetal
+    );
+    lighthouseGroup.position.set(7.2, 0.15, 4.8);
+    dioramaGroup.add(lighthouseGroup);
+
+    // 4. Subdivided 3D Water Plane for dynamic ocean waves
+    const waterGeo = new THREE.PlaneGeometry(19.0, 8.5, 48, 24);
     const waterMesh = new THREE.Mesh(waterGeo, matWater);
     waterMesh.rotation.x = -Math.PI / 2;
-    waterMesh.position.set(0, -0.05, 5.5);
+    waterMesh.position.set(0, -0.06, 5.5);
     waterMesh.receiveShadow = true;
     dioramaGroup.add(waterMesh);
 
-    return { interactiveProps, waterMesh, boatGroup };
+    // 5. Rolling Shoreline Wavefoam strips
+    const waveFoamMeshes: THREE.Mesh[] = [];
+    [-0.4, 0.9, 2.3].forEach((offsetZ, i) => {
+      const foamGeo = new THREE.PlaneGeometry(18.0, 0.45);
+      const foamMat = new THREE.MeshBasicMaterial({
+        color: 0xe6ffff,
+        transparent: true,
+        opacity: 0.55 - i * 0.12,
+      });
+      const foam = new THREE.Mesh(foamGeo, foamMat);
+      foam.rotation.x = -Math.PI / 2;
+      foam.position.set(0, -0.03, 3.4 + offsetZ);
+      dioramaGroup.add(foam);
+      waveFoamMeshes.push(foam);
+    });
+
+    return {
+      interactiveProps,
+      waterMesh,
+      waveFoamMeshes,
+      boatGroup,
+      largeShipGroup,
+      lighthouseGroup,
+      lighthouseBeaconLight,
+    };
   }
 
   // --- Sub-mesh Builders ---
@@ -623,5 +668,164 @@ export class DioramaBuilder {
     group.add(sail);
 
     return group;
+  }
+
+  private static buildLargeGalleon(
+    woodDark: THREE.Material,
+    woodPlank: THREE.Material,
+    sailMat: THREE.Material,
+    goldMat: THREE.Material
+  ): THREE.Group {
+    const group = new THREE.Group();
+
+    // Hull
+    const hullGeo = new THREE.BoxGeometry(1.8, 1.1, 4.2);
+    const hull = new THREE.Mesh(hullGeo, woodDark);
+    hull.position.y = 0.55;
+    hull.castShadow = true;
+    hull.receiveShadow = true;
+    group.add(hull);
+
+    // Tapered Bow wedge
+    const bowGeo = new THREE.ConeGeometry(1.0, 1.8, 4);
+    const bow = new THREE.Mesh(bowGeo, woodDark);
+    bow.position.set(0, 0.55, 2.7);
+    bow.rotation.x = -Math.PI / 2;
+    bow.rotation.y = Math.PI / 4;
+    bow.scale.set(1.1, 1.0, 0.7);
+    bow.castShadow = true;
+    group.add(bow);
+
+    // Bowsprit spar
+    const bowspritGeo = new THREE.CylinderGeometry(0.04, 0.05, 1.8, 6);
+    const bowsprit = new THREE.Mesh(bowspritGeo, woodDark);
+    bowsprit.position.set(0, 0.9, 3.6);
+    bowsprit.rotation.x = Math.PI / 4;
+    group.add(bowsprit);
+
+    // Raised Sterncastle
+    const sternGeo = new THREE.BoxGeometry(1.9, 0.95, 1.6);
+    const stern = new THREE.Mesh(sternGeo, woodPlank);
+    stern.position.set(0, 1.35, -1.3);
+    stern.castShadow = true;
+    group.add(stern);
+
+    // Stern cabin windows
+    const winMat = new THREE.MeshBasicMaterial({ color: 0xffea88 });
+    const cabinWin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 0.08), winMat);
+    cabinWin.position.set(0, 1.35, -2.12);
+    group.add(cabinWin);
+
+    // Deck Railings
+    [-0.92, 0.92].forEach((rx) => {
+      const railGeo = new THREE.BoxGeometry(0.06, 0.35, 3.6);
+      const rail = new THREE.Mesh(railGeo, woodDark);
+      rail.position.set(rx, 1.15, 0.2);
+      group.add(rail);
+    });
+
+    // Main Mast (Center)
+    const mainMast = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4.4, 8), woodDark);
+    mainMast.position.set(0, 2.7, 0.2);
+    mainMast.castShadow = true;
+    group.add(mainMast);
+
+    const mainYard = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.4, 6), woodDark);
+    mainYard.rotation.z = Math.PI / 2;
+    mainYard.position.set(0, 2.9, 0.2);
+    group.add(mainYard);
+
+    const mainSail = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.7), sailMat);
+    mainSail.position.set(0, 2.9, 0.3);
+    mainSail.rotation.y = 0.08;
+    group.add(mainSail);
+
+    const nest = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.3, 8), woodDark);
+    nest.position.set(0, 4.1, 0.2);
+    group.add(nest);
+
+    // Fore Mast (Front)
+    const foreMast = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 3.4, 8), woodDark);
+    foreMast.position.set(0, 2.2, 1.8);
+    foreMast.castShadow = true;
+    group.add(foreMast);
+
+    const foreSail = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.3), sailMat);
+    foreSail.position.set(0, 2.3, 1.9);
+    group.add(foreSail);
+
+    // Figurehead on bow
+    const figurehead = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), goldMat);
+    figurehead.position.set(0, 1.05, 3.4);
+    group.add(figurehead);
+
+    return group;
+  }
+
+  private static buildLighthouse(
+    stoneMat: THREE.Material,
+    slateMat: THREE.Material,
+    goldMat: THREE.Material
+  ): { group: THREE.Group; beaconLight: THREE.PointLight } {
+    const group = new THREE.Group();
+
+    // Rocky Pedestal Base
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.8, 0.8, 10), stoneMat);
+    base.position.y = 0.4;
+    base.castShadow = true;
+    base.receiveShadow = true;
+    group.add(base);
+
+    // Tapered Stone Tower Shaft
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.3, 3.8, 12), stoneMat);
+    tower.position.y = 2.7;
+    tower.castShadow = true;
+    tower.receiveShadow = true;
+    group.add(tower);
+
+    // Red Masonry Stripes
+    const stripeMat = new THREE.MeshStandardMaterial({ color: 0xa83232, roughness: 0.7 });
+    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(1.08, 1.15, 0.5, 12), stripeMat);
+    stripe.position.y = 2.8;
+    group.add(stripe);
+
+    // Observation Balcony
+    const balcony = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.2, 14), stoneMat);
+    balcony.position.y = 4.7;
+    group.add(balcony);
+
+    const railing = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.03, 6, 20), new THREE.MeshBasicMaterial({ color: 0x222222 }));
+    railing.rotation.x = Math.PI / 2;
+    railing.position.y = 4.95;
+    group.add(railing);
+
+    // Glass Lantern Room
+    const lanternMat = new THREE.MeshStandardMaterial({
+      color: 0xfff3a0,
+      emissive: 0xffcc33,
+      emissiveIntensity: 1.2,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.9, 8), lanternMat);
+    lantern.position.y = 5.25;
+    group.add(lantern);
+
+    // Conical Slate Roof & Spire
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.85, 10), slateMat);
+    roof.position.y = 6.1;
+    roof.castShadow = true;
+    group.add(roof);
+
+    const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.8, 6), goldMat);
+    spire.position.y = 6.8;
+    group.add(spire);
+
+    // Active Rotating Beacon Point Light
+    const beaconLight = new THREE.PointLight(0xffea66, 3.5, 20, 1.4);
+    beaconLight.position.set(0, 5.3, 0);
+    group.add(beaconLight);
+
+    return { group, beaconLight };
   }
 }

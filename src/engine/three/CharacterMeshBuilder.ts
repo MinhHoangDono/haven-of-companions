@@ -83,11 +83,12 @@ export class CharacterMeshBuilder {
         break;
 
       // 6. Nguyễn Thị Ngọc Hà – Way of the Kensei Monk (Tatami Pavilion)
+      // 6. Nguyễn Thị Ngọc Hà – Way of the Kensei Monk (Seaside Pier by the Waves)
       case 'ngoc-ha-monk':
-        posX = 5.2;
-        posZ = 0.8;
-        baseY = 0.25;
-        rotationY = -Math.PI * 0.75;
+        posX = -0.5;
+        posZ = 4.8;
+        baseY = 0.15;
+        rotationY = -Math.PI * 0.2;
         emoji = '🥋';
         accentColor = '#20c997';
         pedestalColor = 0x12b886;
@@ -115,12 +116,12 @@ export class CharacterMeshBuilder {
         pedestalColor = 0xfa5252;
         break;
 
-      // 9. Lâm Anh Thư – Ocean Cleric (Tide Shrine)
+      // 9. Lâm Anh Thư – Ocean Cleric (Tidal Rocks in Ocean Surf)
       case 'anh-thu-cleric':
-        posX = 5.5;
-        posZ = 3.6;
-        baseY = 0.25;
-        rotationY = -Math.PI * 0.5;
+        posX = 5.0;
+        posZ = 5.2;
+        baseY = 0.05;
+        rotationY = -Math.PI * 0.45;
         emoji = '🌊';
         accentColor = '#22b8cf';
         pedestalColor = 0x15aabf;
