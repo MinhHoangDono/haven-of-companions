@@ -39,7 +39,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: -15.0,
     posZ: -14.0,
-    baseY: 3.0,
+    baseY: 3.5,
     rotationY: Math.PI * 0.3,
     emoji: '🌿',
     accentColor: '#38d976',
@@ -52,7 +52,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: -19.0,
     posZ: -10.0,
-    baseY: 3.0,
+    baseY: 3.5,
     rotationY: Math.PI * 0.45,
     emoji: '🏹',
     accentColor: '#69db7c',
@@ -66,7 +66,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: 3.5,
     posZ: -13.0,
-    baseY: 1.05,
+    baseY: 1.5,
     rotationY: -Math.PI * 0.65,
     emoji: '🪕',
     accentColor: '#f06595',
@@ -79,7 +79,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: 13.0,
     posZ: -2.5,
-    baseY: 1.05,
+    baseY: 1.5,
     rotationY: -Math.PI * 0.5,
     emoji: '🔥',
     accentColor: '#ff922b',
@@ -92,7 +92,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: 3.8,
     posZ: -2.5,
-    baseY: 1.05,
+    baseY: 1.5,
     rotationY: Math.PI * 0.25,
     emoji: '✨',
     accentColor: '#ffd43b',
@@ -105,7 +105,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: 6.5,
     posZ: 7.5,
-    baseY: 0.25,
+    baseY: 0.5,
     rotationY: -Math.PI * 0.75,
     emoji: '🥋',
     accentColor: '#20c997',
@@ -117,7 +117,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.68,
     posX: -2.5,
     posZ: 6.0,
-    baseY: 0.25,
+    baseY: 0.5,
     rotationY: Math.PI * 0.15,
     emoji: '🛡️',
     accentColor: '#4dabf7',
@@ -131,7 +131,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: -2.5,
     posZ: 16.5,
-    baseY: 0.25,
+    baseY: 0.5,
     rotationY: Math.PI * 0.5,
     emoji: '🗡️',
     accentColor: '#ff6b6b',
@@ -144,7 +144,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
     scale: 0.65,
     posX: 21.0,
     posZ: 18.0,
-    baseY: 1.45,
+    baseY: 1.5,
     rotationY: -Math.PI * 0.3,
     emoji: '🌊',
     accentColor: '#22b8cf',
@@ -306,11 +306,13 @@ export class CharacterMeshBuilder {
       }
     });
 
-    let homeX = config.posX;
-    let homeZ = config.posZ;
-    let targetX = homeX;
-    let targetZ = homeZ;
+    const originalHomeX = config.posX;
+    const originalHomeZ = config.posZ;
+    let targetX = originalHomeX;
+    let targetZ = originalHomeZ;
     let isMoving = false;
+    let isAwayFromHome = false;
+    let returnHomeTimer = 0;
     let idleTimer = Math.random() * 5.0;
     let turnTimer = Math.random() * 4.0;
     let targetHeading = config.rotationY;
@@ -333,10 +335,10 @@ export class CharacterMeshBuilder {
         const validPos = passabilityGrid.clampToWalkable(x, z);
         targetX = validPos.x;
         targetZ = validPos.z;
-        homeX = targetX;
-        homeZ = targetZ;
         targetHeading = Math.atan2(targetX - group.position.x, targetZ - group.position.z);
         isMoving = true;
+        isAwayFromHome = true;
+        returnHomeTimer = 10.0; // Stay at the new place for 10 seconds, then return home!
       },
       update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => {
         // Update skeletal animation mixer
@@ -390,7 +392,7 @@ export class CharacterMeshBuilder {
           }
         } else {
           // Subtle breathing bob
-          const bob = Math.sin(time * 0.003 + homeX) * 0.02;
+          const bob = Math.sin(time * 0.003 + originalHomeX) * 0.02;
           let hop = 0;
           if (hopProgress > 0) {
             hop = Math.sin(hopProgress * Math.PI) * 0.45;
@@ -401,29 +403,44 @@ export class CharacterMeshBuilder {
           if (isSelected) {
             // When selected, gently face south-southeast towards the isometric camera
             targetHeading = Math.PI * 0.25;
-          } else {
-            // Natural occasional gaze shifts (turning left/right looking around the village)
-            turnTimer += dt;
-            if (turnTimer > 4.5 + Math.random() * 4.0) {
-              turnTimer = 0;
-              targetHeading = config.rotationY + (Math.random() - 0.5) * 1.4;
+            if (isAwayFromHome) {
+              returnHomeTimer = 10.0;
             }
+          } else {
+            // If moved to a different place by the player, wait a while and then return back to their old place!
+            if (isAwayFromHome) {
+              returnHomeTimer -= dt;
+              if (returnHomeTimer <= 0) {
+                isAwayFromHome = false;
+                targetX = originalHomeX;
+                targetZ = originalHomeZ;
+                targetHeading = Math.atan2(originalHomeX - group.position.x, originalHomeZ - group.position.z);
+                isMoving = true;
+              }
+            } else {
+              // Natural occasional gaze shifts (turning left/right looking around the village)
+              turnTimer += dt;
+              if (turnTimer > 4.5 + Math.random() * 4.0) {
+                turnTimer = 0;
+                targetHeading = config.rotationY + (Math.random() - 0.5) * 1.4;
+              }
 
-            // Ambient village wandering strictly on walkable dry land
-            idleTimer += dt;
-            if (idleTimer > 8.0 + Math.random() * 4.0) {
-              idleTimer = 0;
-              for (let attempt = 0; attempt < 8; attempt++) {
-                const wanderAngle = Math.random() * Math.PI * 2;
-                const wanderDist = 0.5 + Math.random() * 1.0;
-                const tryX = group.position.x + Math.cos(wanderAngle) * wanderDist;
-                const tryZ = group.position.z + Math.sin(wanderAngle) * wanderDist;
-                if (passabilityGrid.isWalkable(tryX, tryZ)) {
-                  targetX = tryX;
-                  targetZ = tryZ;
-                  targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
-                  isMoving = true;
-                  break;
+              // Ambient village wandering strictly on walkable dry land around original home
+              idleTimer += dt;
+              if (idleTimer > 8.0 + Math.random() * 4.0) {
+                idleTimer = 0;
+                for (let attempt = 0; attempt < 8; attempt++) {
+                  const wanderAngle = Math.random() * Math.PI * 2;
+                  const wanderDist = 0.5 + Math.random() * 1.0;
+                  const tryX = originalHomeX + Math.cos(wanderAngle) * wanderDist;
+                  const tryZ = originalHomeZ + Math.sin(wanderAngle) * wanderDist;
+                  if (passabilityGrid.isWalkable(tryX, tryZ)) {
+                    targetX = tryX;
+                    targetZ = tryZ;
+                    targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
+                    isMoving = true;
+                    break;
+                  }
                 }
               }
             }
