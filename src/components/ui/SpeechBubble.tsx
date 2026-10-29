@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Character } from '../../types/character';
-import { CameraState, BASE_TILE } from '../../types/engine';
-import { gridToScreen } from '../../engine/isometric';
 import { Sparkles, MessageCircle, ArrowRight } from 'lucide-react';
 
 interface SpeechBubbleProps {
   character: Character;
-  camera: CameraState;
+  screenPos: { x: number; y: number };
   onOpenDetails: () => void;
   onClose: () => void;
   onTriggerAbility: () => void;
@@ -14,7 +12,7 @@ interface SpeechBubbleProps {
 
 export const SpeechBubble: React.FC<SpeechBubbleProps> = ({
   character,
-  camera,
+  screenPos,
   onOpenDetails,
   onClose,
   onTriggerAbility,
@@ -40,14 +38,8 @@ export const SpeechBubble: React.FC<SpeechBubbleProps> = ({
     return () => clearInterval(timer);
   }, [currentQuote]);
 
-  // Compute screen coordinates for speech bubble tail
-  const elev = character.gridPos.elevation;
-  const screenPos = gridToScreen({ x: character.gridPos.x, y: character.gridPos.y, elevation: elev }, camera, BASE_TILE);
-
-  const z = camera.zoom;
   const bubbleX = screenPos.x;
-  const bubbleY = screenPos.y + (BASE_TILE.height / 2) * z - 48 * z;
-
+  const bubbleY = screenPos.y - 12;
   return (
     <div
       className="absolute z-20 pointer-events-auto transform -translate-x-1/2 -translate-y-full transition-transform duration-75 select-none"

@@ -1,35 +1,21 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { IsometricCanvas } from './components/canvas/IsometricCanvas';
-import { CameraState, ScreenCoord, Viewport, BASE_TILE } from './types/engine';
+import * as THREE from 'three';
+import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
 import { Character } from './types/character';
-import { villageMap } from './data/villageMapData';
 import { pilotCharacters } from './data/charactersData';
-import { renderTile } from './engine/tileRenderer';
-import { EntityPipeline, RenderableEntity } from './engine/entityPipeline';
-import { TouchController } from './engine/touchController';
+import { TouchControls3D } from './engine/three/TouchControls3D';
 import { TopBar, TimeOfDay, WeatherType } from './components/ui/TopBar';
 import { CharacterCarousel } from './components/ui/CharacterCarousel';
 import { SpeechBubble } from './components/ui/SpeechBubble';
 import { CharacterModal } from './components/ui/CharacterModal';
-import { renderLightingPass } from './engine/lighting';
-import { ParticleSystem } from './engine/particles';
 import { audioManager } from './audio/audioManager';
 
 export const App: React.FC = () => {
-  const controllerRef = useRef<TouchController | null>(null);
-  const particleSystemRef = useRef<ParticleSystem>(new ParticleSystem());
+  const controlsRef = useRef<TouchControls3D | null>(null);
   const [characters, setCharacters] = useState<Character[]>(pilotCharacters);
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cameraState, setCameraState] = useState<CameraState>({
-    x: window.innerWidth / 2,
-    y: window.innerHeight * 0.35,
-    zoom: 1.0,
-    targetX: window.innerWidth / 2,
-    targetY: window.innerHeight * 0.35,
-    targetZoom: 1.0,
-    isPanning: false,
-  });
+  const [screenPositions, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
 
   // TopBar state
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
@@ -38,27 +24,22 @@ export const App: React.FC = () => {
 
   const selectedCharacter = characters.find((c) => c.id === selectedCharId) || null;
 
-  const handleInitController = useCallback((controller: TouchController) => {
-    controllerRef.current = controller;
+  const handleInitControls = useCallback((controls: TouchControls3D) => {
+    controlsRef.current = controls;
   }, []);
 
-  const handleCameraChange = useCallback((cam: CameraState) => {
-    setCameraState({ ...cam });
+  const handleCameraUpdate = useCallback((positions: Map<string, { x: number; y: number }>) => {
+    setScreenPositions(new Map(positions));
   }, []);
 
   const panToCharacter = useCallback((char: Character) => {
-    if (!controllerRef.current) return;
-    const elev = char.gridPos.elevation;
-    const currentZoom = controllerRef.current.getCamera().zoom;
+    if (!controlsRef.current) return;
 
-    // Center in world coordinates
-    const worldX = (char.gridPos.x - char.gridPos.y) * (BASE_TILE.width / 2);
-    const worldY = (char.gridPos.x + char.gridPos.y) * (BASE_TILE.height / 2) - elev * (BASE_TILE.height / 2);
-
-    const targetCamX = window.innerWidth / 2 - worldX * currentZoom;
-    const targetCamY = window.innerHeight * 0.45 - worldY * currentZoom;
-
-    controllerRef.current.panTo(targetCamX, targetCamY);
+    if (char.id === 'anh-thi-druid') {
+      controlsRef.current.panTo(-3.5, -4.0);
+    } else {
+      controlsRef.current.panTo(3.2, 1.8);
+    }
   }, []);
 
   const handleSelectCharacter = useCallback((char: Character) => {
@@ -73,20 +54,31 @@ export const App: React.FC = () => {
     panToCharacter(char);
   }, [panToCharacter]);
 
-  const handleTap = useCallback((screenPos: ScreenCoord) => {
+  const handleInteractProp = useCallback((propType: string, _position: THREE.Vector3) => {
     audioManager.playTap();
-    if (!controllerRef.current) return;
-    const camera = controllerRef.current.getCamera();
 
-    // Raycast character
-    const hitChar = EntityPipeline.raycastCharacters(screenPos, characters, camera, BASE_TILE);
-
-    if (hitChar) {
-      handleSelectCharacter(hitChar);
-    } else {
-      setSelectedCharId(null);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(25);
     }
-  }, [characters, handleSelectCharacter]);
+
+    if (propType === 'stew_pot') {
+      audioManager.playAbility('nature_bloom');
+      // Hop Thi
+      setCharacters((prev) =>
+        prev.map((c) => (c.id === 'anh-thi-druid' ? { ...c, hopProgress: 0.01 } : c))
+      );
+    } else if (propType === 'sea_bell') {
+      audioManager.playAbility('water_slash');
+      // Hop Thanh Phương
+      setCharacters((prev) =>
+        prev.map((c) => (c.id === 'thanh-phuong-paladin' ? { ...c, hopProgress: 0.01 } : c))
+      );
+    } else if (propType === 'fireworks_mortar') {
+      audioManager.playAbility('firework_burst');
+    } else if (propType === 'tea_pavilion') {
+      audioManager.playToast();
+    }
+  }, []);
 
   const handleToggleTimeOfDay = useCallback(() => {
     audioManager.playTap();
@@ -110,18 +102,12 @@ export const App: React.FC = () => {
     const effectType = selectedCharacter.signatureAbility.effectType;
     audioManager.playAbility(effectType);
 
-    // Trigger visual particle explosion
-    particleSystemRef.current.triggerAbilityBurst(
-      selectedCharacter.gridPos.x,
-      selectedCharacter.gridPos.y,
-      effectType
-    );
-
     // Trigger spring hop
     setCharacters((prev) =>
       prev.map((c) => (c.id === selectedCharacter.id ? { ...c, hopProgress: 0.01 } : c))
     );
   }, [selectedCharacter]);
+
   const handleToast = useCallback(() => {
     audioManager.playToast();
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
@@ -129,54 +115,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const renderFrame = useCallback((
-    ctx: CanvasRenderingContext2D,
-    camera: CameraState,
-    viewport: Viewport,
-    time: number,
-    deltaTime: number
-  ) => {
-    // 1. Render map tiles
-    for (const tile of villageMap.tiles) {
-      renderTile(ctx, tile, camera, BASE_TILE, time);
-    }
-
-    // 2. Advance hop progress
-    setCharacters((prev) => {
-      let changed = false;
-      const next = prev.map((c) => {
-        if (c.hopProgress !== undefined && c.hopProgress > 0) {
-          changed = true;
-          const nextProg = c.hopProgress + deltaTime / 320;
-          return nextProg >= 1 ? { ...c, hopProgress: 0 } : { ...c, hopProgress: nextProg };
-        }
-        return c;
-      });
-      return changed ? next : prev;
-    });
-
-    // 3. Render combined Y-sorted entities (props + characters)
-    const sortedEntities: RenderableEntity[] = EntityPipeline.getSortedEntities(
-      villageMap.props,
-      characters
-    );
-
-    EntityPipeline.renderEntities(
-      ctx,
-      sortedEntities,
-      camera,
-      BASE_TILE,
-      time,
-      selectedCharId
-    );
-
-    // 4. Update and render particle systems (mist, embers, ability bursts)
-    particleSystemRef.current.update(weather);
-    particleSystemRef.current.render(ctx, camera, viewport);
-
-    // 5. Ambient & Point Lighting post-processing pass
-    renderLightingPass(ctx, timeOfDay, camera, viewport, time);
-  }, [characters, selectedCharId, timeOfDay, weather]);
+  const activeBubbleScreenPos = selectedCharId ? screenPositions.get(selectedCharId) : null;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-ink-900 select-none">
@@ -190,19 +129,23 @@ export const App: React.FC = () => {
         onToggleMute={handleToggleMute}
       />
 
-      {/* Main Isometric Canvas */}
-      <IsometricCanvas
-        onTap={handleTap}
-        onCameraChange={handleCameraChange}
-        onInitController={handleInitController}
-        renderFrame={renderFrame}
+      {/* Main 3D Three.js Isometric Canvas */}
+      <ThreeIsometricCanvas
+        characters={characters}
+        selectedCharId={selectedCharId}
+        timeOfDay={timeOfDay}
+        weather={weather}
+        onSelectCharacter={handleSelectCharacter}
+        onInteractProp={handleInteractProp}
+        onCameraUpdate={handleCameraUpdate}
+        onInitControls={handleInitControls}
       />
 
       {/* In-World Floating Speech Bubble */}
-      {selectedCharacter && !isModalOpen && (
+      {selectedCharacter && activeBubbleScreenPos && !isModalOpen && (
         <SpeechBubble
           character={selectedCharacter}
-          camera={cameraState}
+          screenPos={activeBubbleScreenPos}
           onOpenDetails={() => setIsModalOpen(true)}
           onClose={() => setSelectedCharId(null)}
           onTriggerAbility={handleTriggerAbility}
