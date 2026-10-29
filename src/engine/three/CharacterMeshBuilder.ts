@@ -366,18 +366,23 @@ export class CharacterMeshBuilder {
           if (dist > 0.08) {
             const speed = 2.4;
             const step = Math.min(dist, speed * dt);
-            group.position.x += (dx / dist) * step;
-            group.position.z += (dz / dist) * step;
-            targetHeading = Math.atan2(dx, dz);
+            const nextX = group.position.x + (dx / dist) * step;
+            const nextZ = group.position.z + (dz / dist) * step;
 
-            // Dynamically adjust height to terrain elevation
-            currentBaseY = passabilityGrid.getElevationAt(group.position.x, group.position.z);
-            group.position.y = currentBaseY;
+            // Strictly verify next step is walkable land or pier; avoid water / non-tile
+            if (passabilityGrid.isWalkable(nextX, nextZ)) {
+              group.position.x = nextX;
+              group.position.z = nextZ;
+              targetHeading = Math.atan2(dx, dz);
+              currentBaseY = passabilityGrid.getElevationAt(nextX, nextZ);
+              group.position.y = currentBaseY;
+            } else {
+              isMoving = false;
+            }
           } else {
             isMoving = false;
             group.position.x = targetX;
             group.position.z = targetZ;
-            // Retain forward momentum heading instead of snapping backwards
             currentBaseY = passabilityGrid.getElevationAt(targetX, targetZ);
             group.position.y = currentBaseY;
           }
@@ -402,19 +407,22 @@ export class CharacterMeshBuilder {
               targetHeading = config.rotationY + (Math.random() - 0.5) * 1.4;
             }
 
-            // Ambient village wandering on walkable terrain
+            // Ambient village wandering strictly on walkable dry land
             idleTimer += dt;
-            if (idleTimer > 9.0 + Math.random() * 5.0) {
+            if (idleTimer > 8.0 + Math.random() * 4.0) {
               idleTimer = 0;
-              const wanderAngle = Math.random() * Math.PI * 2;
-              const wanderDist = 0.5 + Math.random() * 0.8;
-              const tryX = homeX + Math.cos(wanderAngle) * wanderDist;
-              const tryZ = homeZ + Math.sin(wanderAngle) * wanderDist;
-              if (passabilityGrid.isWalkable(tryX, tryZ)) {
-                targetX = tryX;
-                targetZ = tryZ;
-                targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
-                isMoving = true;
+              for (let attempt = 0; attempt < 8; attempt++) {
+                const wanderAngle = Math.random() * Math.PI * 2;
+                const wanderDist = 0.5 + Math.random() * 1.0;
+                const tryX = homeX + Math.cos(wanderAngle) * wanderDist;
+                const tryZ = homeZ + Math.sin(wanderAngle) * wanderDist;
+                if (passabilityGrid.isWalkable(tryX, tryZ)) {
+                  targetX = tryX;
+                  targetZ = tryZ;
+                  targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
+                  isMoving = true;
+                  break;
+                }
               }
             }
           }

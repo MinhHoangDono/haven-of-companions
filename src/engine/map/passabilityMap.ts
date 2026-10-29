@@ -46,9 +46,13 @@ export class PassabilityGrid {
       for (let z = -35; z <= 35; z++) {
         let elevation = 1.0;
         let type: TilePassability = 'walkable';
-
+        // Strict boundary check: non-tile void outside diorama bounds is BLOCKED
+        if (Math.abs(x) > 31 || Math.abs(z) > 31) {
+          elevation = -5.0;
+          type = 'cliff';
+        }
         // 1. Zone 1: Highland Mountain Range (North-West: X <= -8, Z <= 2)
-        if (x <= -8 && z <= 2) {
+        else if (x <= -8 && z <= 2) {
           if (x <= -18 && z <= -12) {
             elevation = 4.2; // High alpine mountain peak
             type = 'walkable';
@@ -56,41 +60,32 @@ export class PassabilityGrid {
             elevation = 3.2; // Campsite plateau
             type = 'walkable';
           } else {
-            // Hillside terrace slope transitioning down to Plaza
-            elevation = 2.0;
+            elevation = 2.0; // Hillside terrace slope
             type = 'walkable';
           }
         }
-        // 2. Zone 3: Vast Coastal Bay & Ocean (South-West: X <= 10, Z >= 4)
-        else if (x <= 10 && z >= 4) {
-          // Deep ocean water basin
-          if (x <= 6 && z >= 8) {
-            // Check if on the cozy boardwalk pier walkway
-            if (x >= -4 && x <= -1 && z >= 5 && z <= 22) {
-              elevation = 0.25;
-              type = 'pier'; // Walkable wooden boat pier over water!
-            } else {
-              elevation = -2.5;
-              type = 'water'; // Deep ocean water: BLOCKED!
-            }
-          }
-          // Sandy beach transition into shallows
-          else if (z >= 4 && z < 8) {
-            elevation = 0.2;
-            type = 'walkable';
+        // 2. Zone 3: Vast Coastal Bay & Ocean (South-West: X <= 12, Z >= 5)
+        else if (x <= 12 && z >= 5) {
+          // Wooden boardwalk boat pier: strictly walkable pier over water
+          if (x >= -3.8 && x <= -1.2 && z >= 4.5 && z <= 22) {
+            elevation = 0.25;
+            type = 'pier';
+          } else if (z >= 7.5) {
+            // Deep ocean water: strictly BLOCKED!
+            elevation = -2.5;
+            type = 'water';
           } else {
-            elevation = 0.5;
+            // Sandy shoreline shallows
+            elevation = 0.22;
             type = 'walkable';
           }
         }
         // 3. Zone 4: Outer Lighthouse Promontory (South-East: X >= 12, Z >= 4)
         else if (x >= 12 && z >= 4) {
           if (x >= 28 || z >= 28) {
-            // Outer reef shallows
-            elevation = -0.4;
-            type = 'water';
+            elevation = -1.0;
+            type = 'water'; // Outer reef shallows: BLOCKED
           } else {
-            // Elevated green clifftop promontory
             elevation = 1.35;
             type = 'walkable';
           }
@@ -110,6 +105,7 @@ export class PassabilityGrid {
    * Returns true if target coordinate is walkable land or a boardwalk pier
    */
   public isWalkable(x: number, z: number): boolean {
+    if (Math.abs(x) > 31 || Math.abs(z) > 31) return false;
     const key = this.getKey(x, z);
     const cell = this.cells.get(key);
     if (!cell) return false;

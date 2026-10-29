@@ -18,8 +18,8 @@ export const App: React.FC = () => {
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCasting, setIsCasting] = useState(false);
-  const [screenPositions, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const [celebrationToast, setCelebrationToast] = useState<string | null>(null);
+  const [, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
 
   // TopBar state
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
@@ -53,6 +53,22 @@ export const App: React.FC = () => {
 
   const handleSelectCharacter = useCallback((char: Character) => {
     audioManager.playTap();
+
+    if (char.id === 'ngoc-ha-monk') {
+      const effectType = char.signatureAbility.effectType;
+      audioManager.playAbility(effectType);
+      castSpellRef.current?.(effectType, char.id);
+      setCharacters((prev) =>
+        prev.map((c) => (c.id === char.id ? { ...c, hopProgress: 0.01 } : c))
+      );
+      setCelebrationToast("✨ Ngọc Hà thi triển [Flowing Water Katas]!");
+      setTimeout(() => {
+        setCelebrationToast(null);
+      }, 3200);
+      panToCharacter(char);
+      return;
+    }
+
     setSelectedCharId(char.id);
 
     // Hop animation
@@ -139,7 +155,6 @@ export const App: React.FC = () => {
 
 
 
-  const activeBubbleScreenPos = selectedCharId ? screenPositions.get(selectedCharId) : null;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-ink-900 select-none">
@@ -174,12 +189,10 @@ export const App: React.FC = () => {
       )}
 
 
-      {/* In-World Floating Speech Bubble (Closed when modal open or cast active) */}
-      {selectedCharacter && activeBubbleScreenPos && !isModalOpen && !isCasting && (
+      {/* Bottom-Left Docked Speech Bubble (Closed when modal open or cast active) */}
+      {selectedCharacter && !isModalOpen && !isCasting && (
         <SpeechBubble
           character={selectedCharacter}
-          screenPos={activeBubbleScreenPos}
-          onOpenDetails={() => setIsModalOpen(true)}
           onClose={() => setSelectedCharId(null)}
           onTriggerAbility={handleTriggerAbility}
         />
