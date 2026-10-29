@@ -58,12 +58,15 @@ export const App: React.FC = () => {
       const effectType = char.signatureAbility.effectType;
       audioManager.playAbility(effectType);
       castSpellRef.current?.(effectType, char.id);
+      setIsCasting(true);
+      setSelectedCharId(null);
       setCharacters((prev) =>
         prev.map((c) => (c.id === char.id ? { ...c, hopProgress: 0.01 } : c))
       );
-      setCelebrationToast("✨ Ngọc Hà thi triển [Flowing Water Katas]!");
+      setCelebrationToast(`✨ ${char.nickname} thi triển [${char.signatureAbility.name}]!`);
       setTimeout(() => {
         setCelebrationToast(null);
+        setIsCasting(false);
       }, 3200);
       panToCharacter(char);
       return;
