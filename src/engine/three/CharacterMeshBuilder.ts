@@ -95,12 +95,12 @@ export class CharacterMeshBuilder {
    */
   private static buildDruid(group: THREE.Group) {
     const matRobe = new THREE.MeshStandardMaterial({
-      color: 0x2d6836, // Emerald green
+      color: 0x7c3aed, // Royal Amethyst Violet (contrasts sharply with green pine trees)
       roughness: 0.8,
     });
 
     const matHood = new THREE.MeshStandardMaterial({
-      color: 0x22522a,
+      color: 0x5b21b6,
       roughness: 0.75,
     });
 
@@ -115,10 +115,10 @@ export class CharacterMeshBuilder {
     });
 
     const matLeaf = new THREE.MeshStandardMaterial({
-      color: 0x66dd55,
-      roughness: 0.4,
-      emissive: 0x228811,
-      emissiveIntensity: 0.3,
+      color: 0x38bdf8,
+      roughness: 0.2,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.8,
     });
 
     // Robe lower body (cone)
@@ -159,10 +159,10 @@ export class CharacterMeshBuilder {
     group.add(staff);
 
     // Sprouting Leaf bud on staff top
-    const leafGeo = new THREE.DodecahedronGeometry(0.08);
-    const leaf = new THREE.Mesh(leafGeo, matLeaf);
-    leaf.position.set(0.35, 1.25, 0.15);
-    group.add(leaf);
+    const crystalGeo = new THREE.DodecahedronGeometry(0.1);
+    const crystal = new THREE.Mesh(crystalGeo, matLeaf);
+    crystal.position.set(0.35, 1.25, 0.15);
+    group.add(crystal);
   }
 
   /**
