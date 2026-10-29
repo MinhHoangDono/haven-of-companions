@@ -15,9 +15,14 @@ export class TouchControls3D {
 
   // Camera Target (center point the camera orbits / looks at)
   public target = new THREE.Vector3(0, 0.8, 0);
-  public distance = 18; // Closer default so characters and tactical details are prominent
+  public distance = 18;
   public minDistance = 9;
   public maxDistance = 32;
+
+  // 3D Spherical Angles for Rotation
+  public azimuthAngle = Math.PI / 4; // Initial classic 45-degree isometric view
+  public targetAzimuth = Math.PI / 4;
+  public elevationAngle = 0.61; // Approx 35-degree true isometric elevation
 
   // Touch tracking
   private pointers = new Map<number, { x: number; y: number }>();
@@ -25,6 +30,8 @@ export class TouchControls3D {
   private touchStartTime = 0;
   private lastMoveTime = 0;
   private lastPinchDist = 0;
+  private lastPinchAngle = 0;
+  private isMouseRotating = false;
 
   // Inertia
   private velocityX = 0;
@@ -49,6 +56,9 @@ export class TouchControls3D {
     this.domElement = domElement;
     this.callbacks = callbacks;
 
+    // Prevent default context menu for smooth desktop right-click rotation
+    this.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
     this.updateCameraPosition();
   }
 
@@ -63,12 +73,26 @@ export class TouchControls3D {
     this.callbacks.onCameraChange?.();
   }
 
-  public updateCameraPosition() {
-    // True isometric vector (azimuth 45 deg, elevation ~35.26 deg)
-    // Normalized isometric direction: (1, 1.15, 1) normalized
-    const isoDir = new THREE.Vector3(1, 1.15, 1).normalize();
+  /**
+   * Smoothly rotates the camera around the diorama by deltaRadians (e.g. +PI/4 or -PI/4)
+   */
+  public rotateBy(deltaRadians: number) {
+    this.targetAzimuth += deltaRadians;
+    this.callbacks.onCameraChange?.();
+  }
 
-    this.camera.position.copy(this.target).addScaledVector(isoDir, this.distance);
+  public updateCameraPosition() {
+    const cosElev = Math.cos(this.elevationAngle);
+    const sinElev = Math.sin(this.elevationAngle);
+
+    // Direction vector from target to camera in spherical coordinates
+    const xOffset = Math.sin(this.azimuthAngle) * cosElev;
+    const yOffset = sinElev;
+    const zOffset = Math.cos(this.azimuthAngle) * cosElev;
+
+    const camDir = new THREE.Vector3(xOffset, yOffset, zOffset).normalize();
+
+    this.camera.position.copy(this.target).addScaledVector(camDir, this.distance);
     this.camera.lookAt(this.target);
   }
 
@@ -80,6 +104,12 @@ export class TouchControls3D {
     this.pointers.set(e.pointerId, { x, y });
     this.startPointers.set(e.pointerId, { x, y });
 
+    // Right-click drag rotates on PC
+    if (e.button === 2) {
+      this.isMouseRotating = true;
+      return;
+    }
+
     if (this.pointers.size === 1) {
       this.isPanning = true;
       this.touchStartTime = performance.now();
@@ -89,6 +119,7 @@ export class TouchControls3D {
     } else if (this.pointers.size === 2) {
       const pts = Array.from(this.pointers.values());
       this.lastPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      this.lastPinchAngle = Math.atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
     }
   }
 
@@ -101,18 +132,32 @@ export class TouchControls3D {
     const prev = this.pointers.get(e.pointerId)!;
     this.pointers.set(e.pointerId, { x, y });
 
+    const dx = x - prev.x;
+    const dy = y - prev.y;
+
+    // Right-click drag rotation on PC
+    if (this.isMouseRotating) {
+      this.azimuthAngle += dx * 0.008;
+      this.targetAzimuth = this.azimuthAngle;
+      this.updateCameraPosition();
+      this.callbacks.onCameraChange?.();
+      return;
+    }
+
     const now = performance.now();
     const dt = Math.max(1, now - this.lastMoveTime);
 
     if (this.pointers.size === 1) {
-      const dx = x - prev.x;
-      const dy = y - prev.y;
+      // Screen X moves along camera horizontal right vector
+      // Screen Y moves along camera horizontal forward vector
+      const rightX = Math.cos(this.azimuthAngle);
+      const rightZ = -Math.sin(this.azimuthAngle);
+      const fwdX = -Math.sin(this.azimuthAngle);
+      const fwdZ = -Math.cos(this.azimuthAngle);
 
-      // Translate 2D screen delta along isometric ground axes
-      // Screen X moves diagonally (X - Z); Screen Y moves diagonally (X + Z)
       const moveScale = (this.distance / 1000) * 0.9;
-      const groundDX = (-dx + dy) * moveScale;
-      const groundDZ = (dx + dy) * moveScale;
+      const groundDX = (-dx * rightX + dy * fwdX) * moveScale;
+      const groundDZ = (-dx * rightZ + dy * fwdZ) * moveScale;
 
       this.target.x = THREE.MathUtils.clamp(this.target.x + groundDX, this.bounds.minX, this.bounds.maxX);
       this.target.z = THREE.MathUtils.clamp(this.target.z + groundDZ, this.bounds.minZ, this.bounds.maxZ);
@@ -124,38 +169,50 @@ export class TouchControls3D {
       this.updateCameraPosition();
       this.callbacks.onCameraChange?.();
     } else if (this.pointers.size === 2) {
+      // 2-Finger Pinch Zoom + Twist Rotation on mobile
       const pts = Array.from(this.pointers.values());
       const currentDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const currentAngle = Math.atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
 
+      // Pinch zoom
       if (this.lastPinchDist > 0) {
         const factor = this.lastPinchDist / currentDist;
         this.distance = THREE.MathUtils.clamp(this.distance * factor, this.minDistance, this.maxDistance);
-        this.updateCameraPosition();
-        this.callbacks.onCameraChange?.();
       }
       this.lastPinchDist = currentDist;
+
+      // Twist rotate
+      let deltaAngle = currentAngle - this.lastPinchAngle;
+      if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
+      if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
+
+      this.azimuthAngle += deltaAngle * 1.1;
+      this.targetAzimuth = this.azimuthAngle;
+      this.lastPinchAngle = currentAngle;
+
+      this.updateCameraPosition();
+      this.callbacks.onCameraChange?.();
     }
   }
 
   public handlePointerUp(e: PointerEvent) {
+    if (e.button === 2) {
+      this.isMouseRotating = false;
+    }
+
     const startPos = this.startPointers.get(e.pointerId);
     const rect = this.domElement.getBoundingClientRect();
     const endX = e.clientX - rect.left;
     const endY = e.clientY - rect.top;
-    const duration = performance.now() - this.touchStartTime;
 
-    // Detect Tap
-    if (startPos && duration < 300) {
+    if (startPos && !this.isMouseRotating) {
       const dist = Math.hypot(endX - startPos.x, endY - startPos.y);
-      if (dist < 10) {
+      const duration = performance.now() - this.touchStartTime;
+
+      // Clean tap detection
+      if (dist < 12 && duration < 320) {
         this.raycastTap(endX, endY, rect.width, rect.height);
       }
-    }
-
-    const timeSinceLastMove = performance.now() - this.lastMoveTime;
-    if (timeSinceLastMove > 75) {
-      this.velocityX = 0;
-      this.velocityZ = 0;
     }
 
     this.pointers.delete(e.pointerId);
@@ -163,14 +220,13 @@ export class TouchControls3D {
 
     if (this.pointers.size === 0) {
       this.isPanning = false;
-    } else if (this.pointers.size === 1) {
-      this.lastPinchDist = 0;
+      this.isMouseRotating = false;
     }
   }
 
   public handleWheel(e: WheelEvent) {
     e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 0.9 : 1.1;
+    const zoomFactor = e.deltaY > 0 ? 1.08 : 0.92;
     this.distance = THREE.MathUtils.clamp(this.distance * zoomFactor, this.minDistance, this.maxDistance);
     this.updateCameraPosition();
     this.callbacks.onCameraChange?.();
@@ -186,7 +242,6 @@ export class TouchControls3D {
     const intersects = this.raycaster.intersectObjects(this.interactiveObjects, true);
 
     if (intersects.length > 0) {
-      // Find top interactive object with userData
       let obj: THREE.Object3D | null = intersects[0].object;
       while (obj && !obj.userData?.interactiveId) {
         obj = obj.parent;
@@ -202,12 +257,18 @@ export class TouchControls3D {
       }
     }
 
-    // Tapped ground / nothing interactive
     this.callbacks.onTap?.(null);
   }
 
   public tick() {
-    // Apply inertia damping
+    // 1. Smooth Azimuth Interpolation (for rotate buttons)
+    if (Math.abs(this.targetAzimuth - this.azimuthAngle) > 0.001) {
+      this.azimuthAngle += (this.targetAzimuth - this.azimuthAngle) * 0.14;
+      this.updateCameraPosition();
+      this.callbacks.onCameraChange?.();
+    }
+
+    // 2. Inertia damping
     if (!this.isPanning && (Math.abs(this.velocityX) > 0.001 || Math.abs(this.velocityZ) > 0.001)) {
       this.target.x = THREE.MathUtils.clamp(this.target.x + this.velocityX, this.bounds.minX, this.bounds.maxX);
       this.target.z = THREE.MathUtils.clamp(this.target.z + this.velocityZ, this.bounds.minZ, this.bounds.maxZ);

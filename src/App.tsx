@@ -1,8 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Sparkles, Users } from 'lucide-react';
+import { Sparkles, Users, RotateCcw, RotateCw } from 'lucide-react';
 import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
-import { Character } from './types/character';
+import { Character, CharacterSignatureAbility } from './types/character';
 import { allCharacters } from './data/charactersData';
 import { TouchControls3D } from './engine/three/TouchControls3D';
 import { TopBar, TimeOfDay, WeatherType } from './components/ui/TopBar';
@@ -13,6 +13,7 @@ import { audioManager } from './audio/audioManager';
 
 export const App: React.FC = () => {
   const controlsRef = useRef<TouchControls3D | null>(null);
+  const castSpellRef = useRef<((effectType: CharacterSignatureAbility['effectType'], charId: string) => void) | null>(null);
   const [characters, setCharacters] = useState<Character[]>(allCharacters);
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,6 +29,10 @@ export const App: React.FC = () => {
 
   const handleInitControls = useCallback((controls: TouchControls3D) => {
     controlsRef.current = controls;
+  }, []);
+
+  const handleInitSpellCaster = useCallback((castFn: (effectType: CharacterSignatureAbility['effectType'], charId: string) => void) => {
+    castSpellRef.current = castFn;
   }, []);
 
   const handleCameraUpdate = useCallback((positions: Map<string, { x: number; y: number }>) => {
@@ -91,21 +96,25 @@ export const App: React.FC = () => {
 
     if (propType === 'stew_pot') {
       audioManager.playAbility('nature_bloom');
+      castSpellRef.current?.('nature_bloom', 'anh-thi-druid');
       setCharacters((prev) =>
         prev.map((c) => (c.id === 'anh-thi-druid' ? { ...c, hopProgress: 0.01 } : c))
       );
     } else if (propType === 'sea_bell') {
       audioManager.playAbility('tidal_wave');
+      castSpellRef.current?.('tidal_wave', 'anh-thu-cleric');
       setCharacters((prev) =>
         prev.map((c) => (c.id === 'anh-thu-cleric' || c.id === 'thanh-phuong-paladin' ? { ...c, hopProgress: 0.01 } : c))
       );
     } else if (propType === 'fireworks_mortar') {
       audioManager.playAbility('firework_burst');
+      castSpellRef.current?.('firework_burst', 'khai-van-sorcerer');
       setCharacters((prev) =>
         prev.map((c) => (c.id === 'khai-van-sorcerer' ? { ...c, hopProgress: 0.01 } : c))
       );
     } else if (propType === 'tea_pavilion') {
       audioManager.playAbility('water_slash');
+      castSpellRef.current?.('water_slash', 'ngoc-ha-monk');
       setCharacters((prev) =>
         prev.map((c) => (c.id === 'ngoc-ha-monk' ? { ...c, hopProgress: 0.01 } : c))
       );
@@ -134,10 +143,19 @@ export const App: React.FC = () => {
     const effectType = selectedCharacter.signatureAbility.effectType;
     audioManager.playAbility(effectType);
 
+    // 3D visual particle explosion at character position!
+    castSpellRef.current?.(effectType, selectedCharacter.id);
+
     // Trigger spring hop
     setCharacters((prev) =>
       prev.map((c) => (c.id === selectedCharacter.id ? { ...c, hopProgress: 0.01 } : c))
     );
+
+    // Show spell toast notification!
+    setCelebrationToast(`✨ ${selectedCharacter.nickname} thi triển [${selectedCharacter.signatureAbility.name}]!`);
+    setTimeout(() => {
+      setCelebrationToast(null);
+    }, 3200);
   }, [selectedCharacter]);
 
   const handlePartyReunionFeast = useCallback(() => {
@@ -168,6 +186,14 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const handleRotateCamera = useCallback((deltaAngle: number) => {
+    audioManager.playTap();
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(15);
+    }
+    controlsRef.current?.rotateBy(deltaAngle);
+  }, []);
+
   const activeBubbleScreenPos = selectedCharId ? screenPositions.get(selectedCharId) : null;
 
   return (
@@ -192,6 +218,7 @@ export const App: React.FC = () => {
         onInteractProp={handleInteractProp}
         onCameraUpdate={handleCameraUpdate}
         onInitControls={handleInitControls}
+        onInitSpellCaster={handleInitSpellCaster}
       />
 
       {/* Celebratory Banner Toast */}
@@ -201,7 +228,23 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Action Button: Party Reunion Feast */}
+      {/* Floating Tactical Camera Rotation Controls */}
+      <div className="absolute top-16 right-3.5 z-20 pointer-events-auto flex flex-col gap-2">
+        <button
+          onClick={() => handleRotateCamera(-Math.PI / 4)}
+          className="w-10 h-10 rounded-full bg-ink-900/85 border border-paper-800/80 text-fantasy-gold shadow-lg flex items-center justify-center backdrop-blur-md active:scale-90 transition-all hover:border-fantasy-gold hover:bg-ink-800"
+          title="Xoay góc nhìn 45° sang trái"
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => handleRotateCamera(Math.PI / 4)}
+          className="w-10 h-10 rounded-full bg-ink-900/85 border border-paper-800/80 text-fantasy-gold shadow-lg flex items-center justify-center backdrop-blur-md active:scale-90 transition-all hover:border-fantasy-gold hover:bg-ink-800"
+          title="Xoay góc nhìn 45° sang phải"
+        >
+          <RotateCw className="w-4 h-4" />
+        </button>
+      </div>
       <div className="absolute bottom-24 right-4 z-20 pointer-events-auto">
         <button
           onClick={handlePartyReunionFeast}

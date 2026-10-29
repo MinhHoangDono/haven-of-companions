@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { Character } from '../../types/character';
+import { Character, CharacterSignatureAbility } from '../../types/character';
 import { InteractiveHit } from '../../types/threeEngine';
 import { TimeOfDay, WeatherType } from '../ui/TopBar';
 import { TouchControls3D } from '../../engine/three/TouchControls3D';
 import { DioramaBuilder, InteractivePropRef } from '../../engine/three/DioramaBuilder';
 import { CharacterMeshBuilder, CharacterMeshHandle } from '../../engine/three/CharacterMeshBuilder';
 import { LightingManager } from '../../engine/three/LightingManager';
+import { SpellEffect3D } from '../../engine/three/SpellEffect3D';
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -17,6 +18,7 @@ interface ThreeIsometricCanvasProps {
   onInteractProp: (propType: string, position: THREE.Vector3) => void;
   onCameraUpdate?: (screenPositions: Map<string, { x: number; y: number }>) => void;
   onInitControls?: (controls: TouchControls3D) => void;
+  onInitSpellCaster?: (castFn: (effectType: CharacterSignatureAbility['effectType'], charId: string) => void) => void;
 }
 
 export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
@@ -28,6 +30,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   onInteractProp,
   onCameraUpdate,
   onInitControls,
+  onInitSpellCaster,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const controlsRef = useRef<TouchControls3D | null>(null);
@@ -36,7 +39,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   const interactivePropsRef = useRef<InteractivePropRef[]>([]);
   const waterMeshRef = useRef<THREE.Mesh | null>(null);
   const boatGroupRef = useRef<THREE.Group | null>(null);
-
+  const spellEffectsRef = useRef<SpellEffect3D | null>(null);
   const charactersRef = useRef(characters);
   charactersRef.current = characters;
 
@@ -104,6 +107,15 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     const lighting = new LightingManager(scene);
     lightingRef.current = lighting;
 
+    // 4b. 3D Spell Particle Effect Manager
+    const spellEffects = new SpellEffect3D(scene);
+    spellEffectsRef.current = spellEffects;
+
+    onInitSpellCaster?.((effectType, charId) => {
+      const handle = handles.get(charId);
+      const origin = handle ? handle.group.position.clone() : new THREE.Vector3(0, 0.8, 0);
+      spellEffects.castSpell(effectType, origin);
+    });
     // 5. Setup Touch & Mouse Controls
     const controls = new TouchControls3D(
       camera,
@@ -194,9 +206,11 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       // Update camera physics
       controls.tick();
 
+      // Update 3D spells
+      spellEffects.update(minInterval / 1000);
+
       // Update lighting flicker
       lighting.update(currentTime);
-
       // Animate gentle water wave & boat bobbing
       if (boatGroupRef.current) {
         boatGroupRef.current.position.y = -0.15 + Math.sin(currentTime * 0.002) * 0.05;
