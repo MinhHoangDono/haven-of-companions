@@ -51,9 +51,9 @@ export const SpeechBubble: React.FC<SpeechBubbleProps> = ({
       <div className="relative w-64 md:w-72 bg-paper-100 text-ink-900 border-2 border-paper-800 rounded-2xl p-3.5 shadow-2xl backdrop-blur-sm">
         {/* Header row */}
         <div className="flex items-center justify-between border-b border-paper-200 pb-1.5 mb-2">
-          <div className="flex items-center gap-1.5">
-            <MessageCircle className="w-3.5 h-3.5 text-fantasy-gold" />
-            <span className="text-[11px] font-serif font-bold tracking-wide uppercase text-ink-800">
+          <div className="flex items-center gap-1.5 min-w-0 pr-2">
+            <MessageCircle className="w-3.5 h-3.5 text-fantasy-gold shrink-0" />
+            <span className="text-[11px] font-serif font-bold tracking-wide uppercase text-ink-800 truncate max-w-[160px] sm:max-w-[200px]" title={character.name}>
               {character.name}
             </span>
           </div>

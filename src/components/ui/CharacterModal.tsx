@@ -48,9 +48,9 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
         </button>
 
         {/* Profile Header */}
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-3.5 mb-4 pr-10">
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center border-2 shadow-lg"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border-2 shadow-lg shrink-0"
             style={{
               backgroundColor: character.color.primary,
               borderColor: character.color.accent,
@@ -59,19 +59,19 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
             {getFactionIcon()}
           </div>
 
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <h2 className="text-lg font-serif font-bold text-paper-100">
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+              <h2 className="text-base sm:text-lg font-serif font-bold text-paper-100 truncate max-w-full" title={character.name}>
                 {character.name}
               </h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-sans bg-ink-800 border border-paper-800 text-paper-200/80">
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-sans bg-ink-800 border border-paper-800 text-paper-200/80 shrink-0">
                 {character.pronoun}
               </span>
             </div>
-            <p className="text-xs font-serif font-semibold text-amber-300">
+            <p className="text-xs font-serif font-semibold text-amber-300 truncate max-w-full" title={character.classTitle}>
               {character.classTitle}
             </p>
-            <p className="text-[11px] font-sans text-paper-200/60 flex items-center gap-1 mt-0.5">
+            <p className="text-[11px] font-sans text-paper-200/60 flex items-center gap-1 mt-0.5 truncate">
               <span>{character.factionName}</span>
             </p>
           </div>
@@ -124,10 +124,10 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
               onTriggerAbility();
               onClose();
             }}
-            className="flex items-center justify-center gap-1.5 bg-fantasy-gold text-ink-900 font-sans font-bold text-xs py-2.5 px-3 rounded-xl active:scale-95 transition-all shadow-md"
+            className="flex items-center justify-center gap-1.5 bg-fantasy-gold text-ink-900 font-sans font-bold text-xs py-2.5 px-3 rounded-xl active:scale-95 transition-all shadow-md min-w-0"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{character.signatureAbility.name}</span>
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{character.signatureAbility.name}</span>
           </button>
 
           <button

@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { RotateCcw, RotateCw } from 'lucide-react';
 import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
 import { Character, CharacterSignatureAbility } from './types/character';
 import { allCharacters } from './data/charactersData';
@@ -140,9 +139,9 @@ export const App: React.FC = () => {
 
   const handleTriggerAbility = useCallback(() => {
     if (!selectedCharacter) return;
+    setIsModalOpen(false);
     const effectType = selectedCharacter.signatureAbility.effectType;
     audioManager.playAbility(effectType);
-
     // 3D visual particle explosion at character position!
     castSpellRef.current?.(effectType, selectedCharacter.id);
 
@@ -166,13 +165,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handleRotateCamera = useCallback((deltaAngle: number) => {
-    audioManager.playTap();
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate(15);
-    }
-    controlsRef.current?.rotateBy(deltaAngle);
-  }, []);
 
   const activeBubbleScreenPos = selectedCharId ? screenPositions.get(selectedCharId) : null;
 
@@ -208,23 +200,6 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Tactical Camera Rotation Controls */}
-      <div className="absolute top-16 right-3.5 z-20 pointer-events-auto flex flex-col gap-2">
-        <button
-          onClick={() => handleRotateCamera(-Math.PI / 4)}
-          className="w-10 h-10 rounded-full bg-ink-900/85 border border-paper-800/80 text-fantasy-gold shadow-lg flex items-center justify-center backdrop-blur-md active:scale-90 transition-all hover:border-fantasy-gold hover:bg-ink-800"
-          title="Xoay góc nhìn 45° sang trái"
-        >
-          <RotateCcw className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => handleRotateCamera(Math.PI / 4)}
-          className="w-10 h-10 rounded-full bg-ink-900/85 border border-paper-800/80 text-fantasy-gold shadow-lg flex items-center justify-center backdrop-blur-md active:scale-90 transition-all hover:border-fantasy-gold hover:bg-ink-800"
-          title="Xoay góc nhìn 45° sang phải"
-        >
-          <RotateCw className="w-4 h-4" />
-        </button>
-      </div>
 
       {/* In-World Floating Speech Bubble */}
       {selectedCharacter && activeBubbleScreenPos && !isModalOpen && (
@@ -237,7 +212,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Bottom Thumb-Zone Carousel (Smooth scroll for all 9 friends) */}
+      {/* Left Docked Character List under Haven of Companions Card */}
       <CharacterCarousel
         characters={characters}
         selectedCharId={selectedCharId}

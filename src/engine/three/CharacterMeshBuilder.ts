@@ -643,14 +643,14 @@ export class CharacterMeshBuilder {
       ctx.textBaseline = 'middle';
       ctx.fillText(emoji, 60, 64);
 
-      // Character Name
-      ctx.font = 'bold 34px "Cinzel", "Times New Roman", serif';
+      // Character Name (Inter with full Vietnamese diacritics support)
+      ctx.font = 'bold 32px "Inter", system-ui, -apple-system, sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'left';
       ctx.fillText(name, 115, 48);
 
       // Class Subtitle
-      ctx.font = 'bold 22px sans-serif';
+      ctx.font = '600 20px "Inter", system-ui, -apple-system, sans-serif';
       ctx.fillStyle = accentColor;
       ctx.fillText(classTitle.toUpperCase(), 118, 86);
     }

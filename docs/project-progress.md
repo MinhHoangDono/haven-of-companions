@@ -1,8 +1,7 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v3.3`)  
+> **Status**: Live in Production (`v3.5`)  
 > **Production URL**: [https://boisterous-raindrop-4dc674.netlify.app](https://boisterous-raindrop-4dc674.netlify.app)  
-> **Repository Commit**: `c247a71`  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
 
 ---
@@ -25,7 +24,8 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **Phase 4** | Mobile UI & Dialogues | Bottom-dock thumb carousel with smooth scrolling, in-world typewriter speech bubbles, and expandable bottom-sheet RPG character modals | **Completed** ✅ |
 | **Phase 5** | Atmosphere & Spells | 4-stage Day/Night lighting (Dawn, Day, Sunset, Night), campfire flame flicker, Web Audio synthesized chimes, and **3D Particle Spell System (`SpellEffect3D`)** | **Completed** ✅ |
 | **Phase 6** | Performance & PWA | Code-split manual chunks (`vendor-three`, `vendor-react`), PWA service worker cache (`v3.3`), adaptive 60 FPS active / 30 FPS idle loop | **Completed** ✅ |
-| **Expansion** | Coastal & Camera Upgrade | Move Ngọc Hà & Lâm Anh Thư to ocean edge, add big galleon ship, coastal lighthouse with rotating beacon, dynamic 3D ocean wave swell, and **3D Camera Rotation buttons (`↺` / `↻`)** | **Completed** ✅ |
+| **Expansion** | Coastal & Camera Upgrade | Move Ngọc Hà & Lâm Anh Thư to ocean edge, add big galleon ship, coastal lighthouse with rotating beacon, dynamic 3D ocean wave swell, and 3D camera touch rotation | **Completed** ✅ |
+| **Refinements** | UI/UX & Movement Evolution (`v3.5`) | 3D hero model viewer inside modal with 360° touch rotation, Tap-to-Move & ambient village wandering, left-docked companion list under Haven card, Inter typography for flawless Vietnamese diacritics, modal auto-close on cast, and clean wave normals | **Completed** ✅ |
 
 ---
 
@@ -88,4 +88,14 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 
 - **Bundle Optimization**: Code-split into `vendor-three` (537 kB / 134 kB gzip), `vendor-react` (133 kB / 43 kB gzip), and app code (72 kB / 22 kB gzip).
 - **Frame Rate**: Adaptive RAF loop runs at **60 FPS** during user interactions (panning, zooming, rotating, spell casting) and throttles to **30 FPS** after 3.5s of idle time to conserve mobile battery.
-- **PWA & Offline**: Service Worker cache (`haven-companions-v3.3`) pre-caches critical assets and provides instantaneous warm reloads on iOS Safari and Android Chrome.
+- **PWA & Offline**: Service Worker cache (`haven-companions-v3.5`) pre-caches critical assets and provides instantaneous warm reloads on iOS Safari and Android Chrome.
+
+---
+
+## 6. Interactive Movement & UI Architecture (`v3.5`)
+
+- **Tap-to-Move**: Tapping open terrain or piers while a companion is selected directs them to walk over with smooth orientation heading and animated rhythmic walking bobbing. A pulsing golden destination waypoint ring marks their target.
+- **Ambient Village Roaming**: When idle and unselected, companions periodically take relaxed strolls around their local post, creating a living medieval diorama.
+- **3D Modal Hero Viewport (`CharacterPreview3D.tsx`)**: The companion modal features an embedded 3D WebGL viewport with 360° touch/mouse rotation, allowing players to inspect gear, weapons, cloaks, and armor up close.
+- **Left-Docked Companion List**: Docked neatly on the left under the "Haven of Companions" title card, providing rapid one-tap hero selection, instant camera pan, and a quick collapse/expand toggle.
+- **Inter Typography**: Standardized on Google Font Inter across all HTML UI and in-world 3D nameplates for crisp rendering of all Vietnamese diacritics with zero text truncation or clipping.
