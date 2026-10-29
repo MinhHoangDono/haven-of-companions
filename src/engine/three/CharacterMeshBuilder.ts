@@ -306,8 +306,8 @@ export class CharacterMeshBuilder {
       }
     });
 
-    const homeX = config.posX;
-    const homeZ = config.posZ;
+    let homeX = config.posX;
+    let homeZ = config.posZ;
     let targetX = homeX;
     let targetZ = homeZ;
     let isMoving = false;
@@ -333,6 +333,8 @@ export class CharacterMeshBuilder {
         const validPos = passabilityGrid.clampToWalkable(x, z);
         targetX = validPos.x;
         targetZ = validPos.z;
+        homeX = targetX;
+        homeZ = targetZ;
         targetHeading = Math.atan2(targetX - group.position.x, targetZ - group.position.z);
         isMoving = true;
       },
@@ -414,8 +416,8 @@ export class CharacterMeshBuilder {
               for (let attempt = 0; attempt < 8; attempt++) {
                 const wanderAngle = Math.random() * Math.PI * 2;
                 const wanderDist = 0.5 + Math.random() * 1.0;
-                const tryX = homeX + Math.cos(wanderAngle) * wanderDist;
-                const tryZ = homeZ + Math.sin(wanderAngle) * wanderDist;
+                const tryX = group.position.x + Math.cos(wanderAngle) * wanderDist;
+                const tryZ = group.position.z + Math.sin(wanderAngle) * wanderDist;
                 if (passabilityGrid.isWalkable(tryX, tryZ)) {
                   targetX = tryX;
                   targetZ = tryZ;
