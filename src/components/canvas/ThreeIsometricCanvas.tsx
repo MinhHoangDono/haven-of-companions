@@ -279,8 +279,8 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       // Animate Lighthouse rotating beacon beam
       if (lighthouseLightRef.current) {
         const bAngle = currentTime * 0.0025;
-        lighthouseLightRef.current.position.x = 16.5 + Math.cos(bAngle) * 1.5;
-        lighthouseLightRef.current.position.z = 14.5 + Math.sin(bAngle) * 1.5;
+         lighthouseLightRef.current.position.x = 24.0 + Math.cos(bAngle) * 1.8;
+         lighthouseLightRef.current.position.z = 20.0 + Math.sin(bAngle) * 1.8;
       }
       // Animate waypoint destination marker
       if (waypointTimer > 0) {

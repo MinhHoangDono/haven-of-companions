@@ -57,7 +57,7 @@ console.log('2. Ingesting KayKit Weapon Accessories...');
   copyIfExists(KAYKIT_WEAPON_SRC, CHAR_DEST, `${base}.bin`);
 });
 
-console.log('3. Ingesting KayKit Character Textures (Required by weapons and props)...');
+console.log('3. Ingesting KayKit Character Textures...');
 [
   'knight_texture.png',
   'mage_texture.png',
@@ -96,14 +96,19 @@ const medNature = [
   'trees_A_medium',
   'tree_single_A',
   'mountain_A_grass_trees',
-  'mountain_B_grass_trees'
+  'mountain_B_grass_trees',
+  'rock_single_A',
+  'rock_single_B',
+  'rock_single_C',
+  'rock_single_D',
+  'rock_single_E'
 ];
 medNature.forEach((n) => {
   copyIfExists(path.join(KAYKIT_MED_SRC, 'decoration/nature'), PROPS_DEST, `${n}.gltf`);
   copyIfExists(path.join(KAYKIT_MED_SRC, 'decoration/nature'), PROPS_DEST, `${n}.bin`);
 });
 
-const medProps = ['tent', 'barrel', 'resource_lumber', 'weaponrack', 'crate_open'];
+const medProps = ['tent', 'barrel', 'resource_lumber', 'resource_stone', 'weaponrack', 'wheelbarrow', 'target', 'crate_open'];
 medProps.forEach((p) => {
   copyIfExists(path.join(KAYKIT_MED_SRC, 'decoration/props'), PROPS_DEST, `${p}.gltf`);
   copyIfExists(path.join(KAYKIT_MED_SRC, 'decoration/props'), PROPS_DEST, `${p}.bin`);
@@ -116,8 +121,7 @@ copyIfExists(
   'hexagons_medieval.png'
 );
 
-console.log('6. Ingesting Kenney Pirate Ships, Lighthouse, Docks & Textures...');
-// Colormap texture for Kenney GLBs
+console.log('6. Ingesting Kenney Pirate Ships, Lighthouse, Docks, Foliage & Textures...');
 copyIfExists(
   path.join(KENNEY_PIRATE_SRC, 'Textures'),
   ENV_TEX_DEST,
@@ -149,7 +153,15 @@ const pirateAssets = [
   'rocks-b.glb',
   'rocks-c.glb',
   'flag-pirate.glb',
-  'flag-high.glb'
+  'flag-high.glb',
+  // Foliage & Ground patches
+  'patch-grass.glb',
+  'patch-grass-foliage.glb',
+  'patch-sand.glb',
+  'patch-sand-foliage.glb',
+  'grass-patch.glb',
+  'grass.glb',
+  'grass-plant.glb'
 ];
 pirateAssets.forEach((p) => copyIfExists(KENNEY_PIRATE_SRC, ENV_DEST, p));
 

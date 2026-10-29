@@ -13,11 +13,11 @@ export class PassabilityGrid {
   private static instance: PassabilityGrid;
   private cells: Map<string, PassabilityCell> = new Map();
 
-  // 50x50 Bounds: X in [-25, 25], Z in [-25, 25]
-  public readonly minX = -25;
-  public readonly maxX = 25;
-  public readonly minZ = -25;
-  public readonly maxZ = 25;
+  // 70x70 Bounds: X in [-35, 35], Z in [-35, 35]
+  public readonly minX = -35;
+  public readonly maxX = 35;
+  public readonly minZ = -35;
+  public readonly maxZ = 35;
 
   private constructor() {
     this.buildGrid();
@@ -35,47 +35,47 @@ export class PassabilityGrid {
   }
 
   /**
-   * Constructs the 50x50 elevation and walkability matrix across 4 diverse biomes:
-   * 1. Highlands Mountain Range (NW): Y = 2.0 to 3.8 (Stepped alpine peaks, pine groves, campsite)
-   * 2. Sunspire Town Square & Village Districts (NE & Center): Y = 1.0 (Plaza, guildhall, cathedral, market)
-   * 3. Vast Ocean Bay (SW): Y = -0.3 to 0.25 (Deep ocean basin, sandy shoreline, boardwalk piers)
-   * 4. Outer Lighthouse Promontory (SE): Y = 1.2 (Elevated sea cliff, reef boulders, beacon lighthouse)
+   * Constructs the 70x70 elevation and walkability matrix across 4 diverse biomes:
+   * 1. Highlands Mountain Range (NW): Y = 2.4 to 4.2 (High alpine peaks, pine groves, campsite)
+   * 2. Sunspire Town Square & Village Quarters (NE & Center): Y = 1.0 (Plaza, stone roads, tavern, market)
+   * 3. Vast Deep Ocean Bay (SW): Y = -2.8 to 0.25 (Deep ocean basin, sandy shoreline, boardwalk pier)
+   * 4. Outer Lighthouse Promontory (SE): Y = 1.3 (Elevated sea cape, lighthouse, coastal grass)
    */
   private buildGrid(): void {
-    for (let x = -25; x <= 25; x++) {
-      for (let z = -25; z <= 25; z++) {
+    for (let x = -35; x <= 35; x++) {
+      for (let z = -35; z <= 35; z++) {
         let elevation = 1.0;
         let type: TilePassability = 'walkable';
 
-        // 1. Zone 1: Highland Mountain Range (North-West)
-        if (x <= -4 && z <= 0) {
-          if (x <= -12 && z <= -8) {
-            elevation = 3.6; // High alpine mountain peak
+        // 1. Zone 1: Highland Mountain Range (North-West: X <= -8, Z <= 2)
+        if (x <= -8 && z <= 2) {
+          if (x <= -18 && z <= -12) {
+            elevation = 4.2; // High alpine mountain peak
             type = 'walkable';
-          } else if (x <= -8 && z <= -4) {
-            elevation = 2.8; // Campsite plateau
+          } else if (x <= -12 && z <= -6) {
+            elevation = 3.2; // Campsite plateau
             type = 'walkable';
           } else {
             // Hillside terrace slope transitioning down to Plaza
-            elevation = 1.8;
+            elevation = 2.0;
             type = 'walkable';
           }
         }
-        // 2. Zone 3: Vast Coastal Bay & Ocean (South-West)
-        else if (x <= 6 && z >= 2) {
+        // 2. Zone 3: Vast Coastal Bay & Ocean (South-West: X <= 10, Z >= 4)
+        else if (x <= 10 && z >= 4) {
           // Deep ocean water basin
-          if (x <= 3 && z >= 6) {
-            // Check if on the boardwalk pier walkway
-            if (x >= -4 && x <= 0 && z >= 4 && z <= 18) {
+          if (x <= 6 && z >= 8) {
+            // Check if on the cozy boardwalk pier walkway
+            if (x >= -4 && x <= -1 && z >= 5 && z <= 22) {
               elevation = 0.25;
-              type = 'pier'; // Walkable wooden pier over water!
+              type = 'pier'; // Walkable wooden boat pier over water!
             } else {
-              elevation = -0.35;
+              elevation = -2.5;
               type = 'water'; // Deep ocean water: BLOCKED!
             }
           }
-          // Sandy beach transition into water
-          else if (z >= 2 && z < 6) {
+          // Sandy beach transition into shallows
+          else if (z >= 4 && z < 8) {
             elevation = 0.2;
             type = 'walkable';
           } else {
@@ -83,15 +83,15 @@ export class PassabilityGrid {
             type = 'walkable';
           }
         }
-        // 3. Zone 4: Outer Lighthouse Promontory (South-East)
-        else if (x >= 7 && z >= 2) {
-          if (x >= 21 || z >= 21) {
+        // 3. Zone 4: Outer Lighthouse Promontory (South-East: X >= 12, Z >= 4)
+        else if (x >= 12 && z >= 4) {
+          if (x >= 28 || z >= 28) {
             // Outer reef shallows
-            elevation = -0.15;
+            elevation = -0.4;
             type = 'water';
           } else {
-            // Elevated stone sea cliff
-            elevation = 1.25;
+            // Elevated green clifftop promontory
+            elevation = 1.35;
             type = 'walkable';
           }
         }
@@ -137,7 +137,7 @@ export class PassabilityGrid {
     }
 
     // Spiral search for nearest valid walkable tile
-    for (let radius = 1; radius <= 16; radius++) {
+    for (let radius = 1; radius <= 20; radius++) {
       for (let dx = -radius; dx <= radius; dx++) {
         for (let dz = -radius; dz <= radius; dz++) {
           if (Math.abs(dx) === radius || Math.abs(dz) === radius) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { assetLoader } from './GLTFAssetLoader';
-import { DIORAMA_PROPS } from '../../data/propLayoutData';
+import { DIORAMA_PROPS, PropInstanceDef } from '../../data/propLayoutData';
 import { InteractivePropRef } from './DioramaBuilder';
 
 export class PropPlacementManager {
@@ -34,15 +34,16 @@ export class PropPlacementManager {
       parentGroup.add(propScene);
 
       // Register interactive hit targets
-      if (def.interactive) {
+      const item = def as PropInstanceDef;
+      if (item.interactive) {
         propScene.userData = {
-          interactiveId: def.interactive.id,
-          interactiveType: def.interactive.type,
+          interactiveId: item.interactive.id,
+          interactiveType: item.interactive.type,
         };
 
         interactiveRefs.push({
-          id: def.interactive.id,
-          type: def.interactive.type,
+          id: item.interactive.id,
+          type: item.interactive.type as any,
           mesh: propScene,
           position: propScene.position.clone(),
         });

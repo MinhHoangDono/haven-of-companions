@@ -13,6 +13,8 @@ export interface CharacterMeshHandle {
   update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => void;
   getHeadWorldPosition: () => THREE.Vector3;
   moveTo: (x: number, z: number) => void;
+  faceTowards?: (x: number, z: number) => void;
+  rotateBy?: (deltaAngle: number) => void;
 }
 
 export interface CharacterModelConfig {
@@ -35,9 +37,9 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'anh-thi-druid': {
     model: 'Mage.glb',
     scale: 0.65,
-    posX: -14.5,
-    posZ: -15.0,
-    baseY: 2.8,
+    posX: -15.0,
+    posZ: -14.0,
+    baseY: 3.0,
     rotationY: Math.PI * 0.3,
     emoji: '🌿',
     accentColor: '#38d976',
@@ -48,9 +50,9 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'phuong-quynh-ranger': {
     model: 'Ranger.glb',
     scale: 0.65,
-    posX: -18.5,
-    posZ: -11.0,
-    baseY: 2.8,
+    posX: -19.0,
+    posZ: -10.0,
+    baseY: 3.0,
     rotationY: Math.PI * 0.45,
     emoji: '🏹',
     accentColor: '#69db7c',
@@ -62,9 +64,9 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'tram-anh-bard': {
     model: 'Rogue.glb',
     scale: 0.65,
-    posX: 6.5,
-    posZ: -12.5,
-    baseY: 1.0,
+    posX: 3.5,
+    posZ: -13.0,
+    baseY: 1.05,
     rotationY: -Math.PI * 0.65,
     emoji: '🪕',
     accentColor: '#f06595',
@@ -75,9 +77,9 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'khai-van-sorcerer': {
     model: 'Mage.glb',
     scale: 0.65,
-    posX: 14.0,
-    posZ: -6.5,
-    baseY: 1.0,
+    posX: 13.0,
+    posZ: -2.5,
+    baseY: 1.05,
     rotationY: -Math.PI * 0.5,
     emoji: '🔥',
     accentColor: '#ff922b',
@@ -88,9 +90,9 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'thao-uyen-cleric': {
     model: 'Knight.glb',
     scale: 0.65,
-    posX: 4.5,
-    posZ: -3.5,
-    baseY: 1.0,
+    posX: 3.8,
+    posZ: -2.5,
+    baseY: 1.05,
     rotationY: Math.PI * 0.25,
     emoji: '✨',
     accentColor: '#ffd43b',
@@ -101,7 +103,7 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'ngoc-ha-monk': {
     model: 'Barbarian.glb',
     scale: 0.65,
-    posX: 4.5,
+    posX: 6.5,
     posZ: 7.5,
     baseY: 0.25,
     rotationY: -Math.PI * 0.75,
@@ -113,8 +115,8 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'thanh-phuong-paladin': {
     model: 'Knight.glb',
     scale: 0.68,
-    posX: -3.5,
-    posZ: 8.5,
+    posX: -2.5,
+    posZ: 6.0,
     baseY: 0.25,
     rotationY: Math.PI * 0.15,
     emoji: '🛡️',
@@ -127,8 +129,8 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'xuan-minh-rogue': {
     model: 'Rogue_Hooded.glb',
     scale: 0.65,
-    posX: -2.0,
-    posZ: 14.5,
+    posX: -2.5,
+    posZ: 16.5,
     baseY: 0.25,
     rotationY: Math.PI * 0.5,
     emoji: '🗡️',
@@ -140,9 +142,9 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   'anh-thu-cleric': {
     model: 'Mage.glb',
     scale: 0.65,
-    posX: 16.5,
-    posZ: 12.5,
-    baseY: 1.2,
+    posX: 21.0,
+    posZ: 18.0,
+    baseY: 1.45,
     rotationY: -Math.PI * 0.3,
     emoji: '🌊',
     accentColor: '#22b8cf',
@@ -310,6 +312,8 @@ export class CharacterMeshBuilder {
     let targetZ = homeZ;
     let isMoving = false;
     let idleTimer = Math.random() * 5.0;
+    let turnTimer = Math.random() * 4.0;
+    let targetHeading = config.rotationY;
 
     return {
       id: character.id,
@@ -318,11 +322,18 @@ export class CharacterMeshBuilder {
       pedestalMesh,
       nameplateSprite,
       baseY: currentBaseY,
+      faceTowards: (x: number, z: number) => {
+        targetHeading = Math.atan2(x - group.position.x, z - group.position.z);
+      },
+      rotateBy: (deltaAngle: number) => {
+        targetHeading += deltaAngle;
+      },
       moveTo: (x: number, z: number) => {
         // Enforce passability: blocks walking into deep ocean water or off cliffs
         const validPos = passabilityGrid.clampToWalkable(x, z);
         targetX = validPos.x;
         targetZ = validPos.z;
+        targetHeading = Math.atan2(targetX - group.position.x, targetZ - group.position.z);
         isMoving = true;
       },
       update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => {
@@ -340,6 +351,12 @@ export class CharacterMeshBuilder {
             activeAction = idleAction;
           }
         }
+        // Smooth rotational turning towards targetHeading (flexible orientation)
+        let diff = targetHeading - group.rotation.y;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        const turnSpeed = isMoving ? 12 : 3.5;
+        group.rotation.y += diff * Math.min(1.0, dt * turnSpeed);
 
         if (isMoving) {
           const dx = targetX - group.position.x;
@@ -351,7 +368,7 @@ export class CharacterMeshBuilder {
             const step = Math.min(dist, speed * dt);
             group.position.x += (dx / dist) * step;
             group.position.z += (dz / dist) * step;
-            group.rotation.y = Math.atan2(dx, dz);
+            targetHeading = Math.atan2(dx, dz);
 
             // Dynamically adjust height to terrain elevation
             currentBaseY = passabilityGrid.getElevationAt(group.position.x, group.position.z);
@@ -360,7 +377,7 @@ export class CharacterMeshBuilder {
             isMoving = false;
             group.position.x = targetX;
             group.position.z = targetZ;
-            group.rotation.y = config.rotationY;
+            // Retain forward momentum heading instead of snapping backwards
             currentBaseY = passabilityGrid.getElevationAt(targetX, targetZ);
             group.position.y = currentBaseY;
           }
@@ -373,8 +390,19 @@ export class CharacterMeshBuilder {
           }
           group.position.y = currentBaseY + bob + hop;
 
-          // Ambient village wandering on walkable terrain
-          if (!isSelected) {
+          // Flexible idle behaviors
+          if (isSelected) {
+            // When selected, gently face south-southeast towards the isometric camera
+            targetHeading = Math.PI * 0.25;
+          } else {
+            // Natural occasional gaze shifts (turning left/right looking around the village)
+            turnTimer += dt;
+            if (turnTimer > 4.5 + Math.random() * 4.0) {
+              turnTimer = 0;
+              targetHeading = config.rotationY + (Math.random() - 0.5) * 1.4;
+            }
+
+            // Ambient village wandering on walkable terrain
             idleTimer += dt;
             if (idleTimer > 9.0 + Math.random() * 5.0) {
               idleTimer = 0;
@@ -385,12 +413,12 @@ export class CharacterMeshBuilder {
               if (passabilityGrid.isWalkable(tryX, tryZ)) {
                 targetX = tryX;
                 targetZ = tryZ;
+                targetHeading = Math.atan2(tryX - group.position.x, tryZ - group.position.z);
                 isMoving = true;
               }
             }
           }
         }
-
         // Pedestal glow pulse
         const pulse = Math.sin(time * 0.005) * 0.15;
         pedestalMat.opacity = isSelected ? 0.95 : 0.6 + pulse;
