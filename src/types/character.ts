@@ -9,7 +9,7 @@ export interface CharacterStat {
 export interface CharacterSignatureAbility {
   name: string;
   description: string;
-  effectType: 'nature_bloom' | 'aegis_shield' | 'firework_burst' | 'water_slash';
+  effectType: 'nature_bloom' | 'aegis_shield' | 'firework_burst' | 'water_slash' | 'eagle_scout' | 'lute_hymn' | 'dawn_light' | 'swashbuckle_coin' | 'tidal_wave';
 }
 
 export interface Character {

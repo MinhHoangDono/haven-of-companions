@@ -131,7 +131,18 @@ class AudioManager {
     osc.stop(now + 0.06);
   }
 
-  public playAbility(type: 'nature_bloom' | 'aegis_shield' | 'firework_burst' | 'water_slash') {
+  public playAbility(
+    type:
+      | 'nature_bloom'
+      | 'aegis_shield'
+      | 'firework_burst'
+      | 'water_slash'
+      | 'eagle_scout'
+      | 'lute_hymn'
+      | 'dawn_light'
+      | 'swashbuckle_coin'
+      | 'tidal_wave'
+  ) {
     if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;
 
@@ -172,7 +183,6 @@ class AudioManager {
         break;
 
       case 'firework_burst':
-        // Crackle pop
         [300, 150, 60].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
@@ -209,7 +219,125 @@ class AudioManager {
           }, idx * 50);
         });
         break;
+
+      case 'eagle_scout':
+        // High hunting falcon whistle
+        [880, 1174.66, 1760].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.06, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.55);
+          }, idx * 70);
+        });
+        break;
+
+      case 'lute_hymn':
+        // Strummed medieval harp arpeggio
+        [329.63, 392.0, 493.88, 587.33, 659.25].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.08, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.8);
+          }, idx * 60);
+        });
+        break;
+
+      case 'dawn_light':
+        // Sacred radiant chord
+        [523.25, 659.25, 783.99, 987.77].forEach((freq) => {
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.6);
+        });
+        break;
+
+      case 'swashbuckle_coin':
+        // Metallic coin flip ping
+        [1318.51, 1567.98, 2093.0].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.08, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.45);
+          }, idx * 45);
+        });
+        break;
+
+      case 'tidal_wave':
+        // Low sea surge and tide bell
+        [220, 293.66, 440, 587.33].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.07, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.0);
+          }, idx * 80);
+        });
+        break;
     }
+  }
+
+  public playCelebrationCheer() {
+    if (!this.ctx || this.isMuted) return;
+    // Rapid festive arpeggios + fireworks bursts
+    [440, 554.37, 659.25, 880, 1108.73, 1318.51].forEach((freq, idx) => {
+      setTimeout(() => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.08, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.9);
+      }, idx * 60);
+    });
   }
 
   public playToast() {

@@ -17,26 +17,124 @@ export class CharacterMeshBuilder {
     const group = new THREE.Group();
     scene.add(group);
 
-    // Open, prominent coordinates in the 3D diorama:
-    // Thi @ Highlands clifftop clearing: (-2.8, 1.8, -3.0)
-    // Phuong @ Coastal pier entrance: (0.5, 0.25, 2.4)
-    let posX = -2.8;
-    let posZ = -3.0;
-    let baseY = 1.8;
+    // Coordinate mapping for all 9 characters across the 3 diorama tiers
+    let posX = 0;
+    let posZ = 0;
+    let baseY = 0.9;
+    let rotationY = 0;
+    let emoji = '⚔️';
+    let accentColor = '#ffd700';
+    let pedestalColor = 0xffffff;
 
-    if (character.id === 'thanh-phuong-paladin') {
-      posX = 0.5;
-      posZ = 2.4;
-      baseY = 0.25;
+    switch (character.id) {
+      // 1. Huỳnh Trần Anh Thi – The Wilderness Druid (Highlands Hearth)
+      case 'anh-thi-druid':
+        posX = -2.8;
+        posZ = -3.0;
+        baseY = 1.8;
+        rotationY = Math.PI * 0.3;
+        emoji = '🌿';
+        accentColor = '#38d976';
+        pedestalColor = 0x22ee66;
+        break;
+
+      // 2. Lê Nguyễn Phương Quỳnh – The Elven Ranger (Highlands Overlook)
+      case 'phuong-quynh-ranger':
+        posX = -4.8;
+        posZ = -1.2;
+        baseY = 1.8;
+        rotationY = Math.PI * 0.45;
+        emoji = '🏹';
+        accentColor = '#69db7c';
+        pedestalColor = 0x40c057;
+        break;
+
+      // 3. Trần Nguyễn Trâm Anh – The Lore Bard (Town Square Stage)
+      case 'tram-anh-bard':
+        posX = 2.4;
+        posZ = -4.0;
+        baseY = 0.9;
+        rotationY = -Math.PI * 0.65;
+        emoji = '🪕';
+        accentColor = '#f06595';
+        pedestalColor = 0xe64980;
+        break;
+
+      // 4. Nguyễn Khải Vạn – The Pyromancy Sorcerer (Mortar Battery)
+      case 'khai-van-sorcerer':
+        posX = 4.2;
+        posZ = -1.5;
+        baseY = 0.9;
+        rotationY = -Math.PI * 0.5;
+        emoji = '🔥';
+        accentColor = '#ff922b';
+        pedestalColor = 0xfd7e14;
+        break;
+
+      // 5. Nguyễn Trần Thảo Uyên – Cleric of the Light (Plaza Steps)
+      case 'thao-uyen-cleric':
+        posX = 0.8;
+        posZ = -1.2;
+        baseY = 0.9;
+        rotationY = Math.PI * 0.25;
+        emoji = '✨';
+        accentColor = '#ffd43b';
+        pedestalColor = 0xfcc419;
+        break;
+
+      // 6. Nguyễn Thị Ngọc Hà – Way of the Kensei Monk (Tatami Pavilion)
+      case 'ngoc-ha-monk':
+        posX = 5.2;
+        posZ = 0.8;
+        baseY = 0.25;
+        rotationY = -Math.PI * 0.75;
+        emoji = '🥋';
+        accentColor = '#20c997';
+        pedestalColor = 0x12b886;
+        break;
+
+      // 7. Phạm Trần Thanh Phương – Ronin / Paladin (Pier Entrance)
+      case 'thanh-phuong-paladin':
+        posX = 0.5;
+        posZ = 2.4;
+        baseY = 0.25;
+        rotationY = -Math.PI * 0.25;
+        emoji = '🛡️';
+        accentColor = '#4dabf7';
+        pedestalColor = 0x339af0;
+        break;
+
+      // 8. Phạm Xuân Minh – Swashbuckler Rogue (Ship Gangway)
+      case 'xuan-minh-rogue':
+        posX = 2.6;
+        posZ = 4.2;
+        baseY = 0.25;
+        rotationY = -Math.PI * 0.7;
+        emoji = '⚔️';
+        accentColor = '#ff6b6b';
+        pedestalColor = 0xfa5252;
+        break;
+
+      // 9. Lâm Anh Thư – Ocean Cleric (Tide Shrine)
+      case 'anh-thu-cleric':
+        posX = 5.5;
+        posZ = 3.6;
+        baseY = 0.25;
+        rotationY = -Math.PI * 0.5;
+        emoji = '🌊';
+        accentColor = '#22b8cf';
+        pedestalColor = 0x15aabf;
+        break;
     }
 
     group.position.set(posX, baseY, posZ);
+    group.rotation.y = rotationY;
     group.userData = { interactiveId: character.id, interactiveType: 'character' };
 
     // 1. Glowing Hero Runic Pedestal on ground
     const pedestalGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.04, 32);
     const pedestalMat = new THREE.MeshBasicMaterial({
-      color: character.id === 'anh-thi-druid' ? 0x22ee66 : 0x33aaff,
+      color: pedestalColor,
       transparent: true,
       opacity: 0.75,
     });
@@ -57,23 +155,15 @@ export class CharacterMeshBuilder {
     selectionRing.position.y = 0.03;
     group.add(selectionRing);
 
-    // 2. Build Sculpted Humanoid Hero
-    let staffOrbMesh: THREE.Mesh | null = null;
-
-    if (character.id === 'anh-thi-druid') {
-      staffOrbMesh = this.buildDruidHero(group);
-      group.rotation.y = Math.PI * 0.3; // Face viewer / plaza
-    } else {
-      this.buildPaladinHero(group);
-      group.rotation.y = -Math.PI * 0.25; // Face viewer / docks
-    }
+    // 2. Build Sculpted Humanoid Character Model
+    const animatedMesh = this.buildClassModel(character.id, group);
 
     // 3. Floating In-World Nameplate Billboard Sprite
     const nameplateSprite = this.createNameplateSprite(
       character.name,
       character.classTitle,
-      character.id === 'anh-thi-druid' ? '🌿' : '🛡️',
-      character.id === 'anh-thi-druid' ? '#38d976' : '#4dabf7'
+      emoji,
+      accentColor
     );
     nameplateSprite.position.set(0, 2.35, 0);
     group.add(nameplateSprite);
@@ -94,8 +184,8 @@ export class CharacterMeshBuilder {
       nameplateSprite,
       baseY,
       update: (time: number, isSelected: boolean, hopProgress: number) => {
-        // Idle breathing bob
-        const bob = Math.sin(time * 0.003 + (character.id === 'anh-thi-druid' ? 0 : 2)) * 0.04;
+        // Breathing bob
+        const bob = Math.sin(time * 0.003 + posX) * 0.04;
         let hop = 0;
         if (hopProgress > 0) {
           hop = Math.sin(hopProgress * Math.PI) * 0.45;
@@ -108,10 +198,12 @@ export class CharacterMeshBuilder {
         pedestalMat.opacity = isSelected ? 0.95 : 0.6 + pulse;
         ringMat.opacity = isSelected ? 1.0 : 0;
 
-        // Staff orb magic pulse for Thi
-        if (staffOrbMesh) {
-          const orbMat = staffOrbMesh.material as THREE.MeshStandardMaterial;
-          orbMat.emissiveIntensity = 0.8 + Math.sin(time * 0.008) * 0.4;
+        // Animated item pulse if available
+        if (animatedMesh) {
+          const m = animatedMesh.material as THREE.MeshStandardMaterial;
+          if (m.emissive) {
+            m.emissiveIntensity = 0.8 + Math.sin(time * 0.008) * 0.4;
+          }
         }
       },
       getHeadWorldPosition: () => {
@@ -121,6 +213,338 @@ export class CharacterMeshBuilder {
         return headPos;
       },
     };
+  }
+
+  /**
+   * Helper that dispatches to the correct class humanoid model
+   */
+  private static buildClassModel(id: string, group: THREE.Group): THREE.Mesh | null {
+    switch (id) {
+      case 'anh-thi-druid':
+        return this.buildDruid(group);
+      case 'phuong-quynh-ranger':
+        return this.buildRanger(group);
+      case 'tram-anh-bard':
+        return this.buildBard(group);
+      case 'khai-van-sorcerer':
+        return this.buildSorcerer(group);
+      case 'thao-uyen-cleric':
+        return this.buildCleric(group);
+      case 'ngoc-ha-monk':
+        return this.buildMonk(group);
+      case 'thanh-phuong-paladin':
+        return this.buildPaladin(group);
+      case 'xuan-minh-rogue':
+        return this.buildRogue(group);
+      case 'anh-thu-cleric':
+        return this.buildOceanCleric(group);
+      default:
+        return this.buildDruid(group);
+    }
+  }
+
+  /**
+   * Shared Humanoid Base Generator (Boots, Torso, Arms, Head)
+   */
+  private static buildHumanoidBase(
+    group: THREE.Group,
+    skinColor = 0xfbd2b0,
+    legsColor = 0x333333,
+    tunicColor = 0xf4ecd8
+  ) {
+    const matSkin = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.6 });
+    const matLegs = new THREE.MeshStandardMaterial({ color: legsColor, roughness: 0.7 });
+    const matTunic = new THREE.MeshStandardMaterial({ color: tunicColor, roughness: 0.6 });
+
+    // Legs & Boots
+    [-0.14, 0.14].forEach((lx) => {
+      const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.7, 8);
+      const leg = new THREE.Mesh(legGeo, matLegs);
+      leg.position.set(lx, 0.35, 0);
+      leg.castShadow = true;
+      group.add(leg);
+    });
+
+    // Lower Body / Tunic
+    const bodyGeo = new THREE.CylinderGeometry(0.24, 0.36, 0.65, 8);
+    const body = new THREE.Mesh(bodyGeo, matTunic);
+    body.position.y = 0.75;
+    body.castShadow = true;
+    group.add(body);
+
+    // Torso Chest
+    const torsoGeo = new THREE.CylinderGeometry(0.2, 0.24, 0.45, 8);
+    const torso = new THREE.Mesh(torsoGeo, matTunic);
+    torso.position.y = 1.15;
+    torso.castShadow = true;
+    group.add(torso);
+
+    // Head
+    const headGeo = new THREE.SphereGeometry(0.16, 12, 12);
+    const head = new THREE.Mesh(headGeo, matSkin);
+    head.position.y = 1.52;
+    head.castShadow = true;
+    group.add(head);
+
+    return { matSkin, matTunic, head };
+  }
+
+  // 1. Huỳnh Trần Anh Thi – The Wilderness Druid
+  private static buildDruid(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x54361e, 0xf4ecd8);
+    const matMantle = new THREE.MeshStandardMaterial({ color: 0x226b38, roughness: 0.5 });
+    const matHair = new THREE.MeshStandardMaterial({ color: 0x3b2214, roughness: 0.8 });
+    const matWood = new THREE.MeshStandardMaterial({ color: 0x4a301a, roughness: 0.8 });
+    const matOrb = new THREE.MeshStandardMaterial({
+      color: 0x33ff77,
+      emissive: 0x22cc55,
+      emissiveIntensity: 0.8,
+      roughness: 0.2,
+    });
+
+    // Cape
+    const cape = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.95, 0.08), matMantle);
+    cape.position.set(0, 0.95, -0.16);
+    cape.rotation.x = -0.12;
+    group.add(cape);
+
+    // Hair
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), matHair);
+    hair.position.set(0, 1.56, -0.04);
+    group.add(hair);
+
+    // Staff
+    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 1.85, 8), matWood);
+    staff.position.set(0.42, 0.95, 0.35);
+    staff.castShadow = true;
+    group.add(staff);
+
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), matOrb);
+    orb.position.set(0.42, 1.9, 0.35);
+    group.add(orb);
+
+    return orb;
+  }
+
+  // 2. Lê Nguyễn Phương Quỳnh – The Elven Ranger
+  private static buildRanger(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x2e482e, 0x3d6a3d);
+    const matLeather = new THREE.MeshStandardMaterial({ color: 0x6e4a2e, roughness: 0.7 });
+    const matBow = new THREE.MeshStandardMaterial({ color: 0x8a5528, roughness: 0.6 });
+    const matFeather = new THREE.MeshStandardMaterial({ color: 0xe0d6b5, roughness: 0.5 });
+
+    // Quiver on Back
+    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.7, 8), matLeather);
+    quiver.position.set(-0.16, 1.15, -0.18);
+    quiver.rotation.z = -0.3;
+    group.add(quiver);
+
+    // Recurve Longbow in Hand
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.45, 0.025, 8, 20, Math.PI * 0.9), matBow);
+    bow.position.set(0.38, 1.1, 0.2);
+    bow.rotation.y = Math.PI * 0.4;
+    group.add(bow);
+
+    // Scout Headband with Feather
+    const feather = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.22, 5), matFeather);
+    feather.position.set(-0.16, 1.68, 0);
+    feather.rotation.z = 0.5;
+    group.add(feather);
+
+    return bow;
+  }
+
+  // 3. Trần Nguyễn Trâm Anh – The Lore Bard
+  private static buildBard(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x4a182e, 0x8a244c);
+    const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8, roughness: 0.2 });
+    const matWood = new THREE.MeshStandardMaterial({ color: 0x6e3b1c, roughness: 0.5 });
+    const matBeret = new THREE.MeshStandardMaterial({ color: 0xb52b5b, roughness: 0.7 });
+
+    // Bardic Feathered Beret
+    const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.1, 12), matBeret);
+    beret.position.set(0.04, 1.68, 0);
+    beret.rotation.z = 0.15;
+    group.add(beret);
+
+    // Golden Lute in Hands
+    const luteGroup = new THREE.Group();
+    luteGroup.position.set(0.15, 1.1, 0.25);
+    luteGroup.rotation.z = 0.4;
+
+    const luteBody = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 8), matWood);
+    luteBody.scale.set(1, 1.4, 0.5);
+    luteGroup.add(luteBody);
+
+    const luteNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 6), matGold);
+    luteNeck.position.y = 0.45;
+    luteGroup.add(luteNeck);
+    group.add(luteGroup);
+
+    return luteBody;
+  }
+
+  // 4. Nguyễn Khải Vạn – The Pyromancy Sorcerer
+  private static buildSorcerer(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x4a1515, 0xb82e1f);
+    const matHat = new THREE.MeshStandardMaterial({ color: 0x221528, roughness: 0.6 });
+    const matFire = new THREE.MeshStandardMaterial({
+      color: 0xff4500,
+      emissive: 0xff6600,
+      emissiveIntensity: 1.2,
+      roughness: 0.2,
+    });
+
+    // Pointed Sorcerer Hat
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.04, 12), matHat);
+    brim.position.y = 1.62;
+    group.add(brim);
+
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.55, 10), matHat);
+    cone.position.set(0, 1.88, -0.05);
+    cone.rotation.x = -0.15;
+    group.add(cone);
+
+    // Floating Fireball in Hand
+    const fireball = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), matFire);
+    fireball.position.set(0.36, 1.15, 0.32);
+    group.add(fireball);
+
+    return fireball;
+  }
+
+  // 5. Nguyễn Trần Thảo Uyên – Cleric of the Light
+  private static buildCleric(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x8a7230, 0xfaf3dc);
+    const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.85, roughness: 0.2 });
+    const matHalo = new THREE.MeshStandardMaterial({
+      color: 0xfff0aa,
+      emissive: 0xffe066,
+      emissiveIntensity: 0.9,
+    });
+
+    // Radiant Sun Halo floating behind head
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.03, 8, 24), matHalo);
+    halo.position.set(0, 1.6, -0.15);
+    group.add(halo);
+
+    // Golden Healing Chalice / Scepter
+    const scepter = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 8), matGold);
+    scepter.position.set(0.35, 1.1, 0.2);
+    group.add(scepter);
+
+    const chalice = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.15, 8), matGold);
+    chalice.position.set(0.35, 1.65, 0.2);
+    group.add(chalice);
+
+    return chalice;
+  }
+
+  // 6. Nguyễn Thị Ngọc Hà – Way of the Kensei Monk
+  private static buildMonk(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x16382c, 0xf0f7f4);
+    const matBelt = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
+    const matWood = new THREE.MeshStandardMaterial({ color: 0x82542a, roughness: 0.6 });
+
+    // Black Obi Sash
+    const obi = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.12, 10), matBelt);
+    obi.position.y = 0.95;
+    group.add(obi);
+
+    // Dual Bokken / Wooden Practice Blades
+    [-0.28, 0.28].forEach((bx) => {
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.75, 0.03), matWood);
+      blade.position.set(bx, 0.75, -0.1);
+      blade.rotation.x = -0.4;
+      group.add(blade);
+    });
+
+    return obi;
+  }
+
+  // 7. Phạm Trần Thanh Phương – The Ronin / Paladin Guardian
+  private static buildPaladin(group: THREE.Group): THREE.Mesh {
+    const matSteel = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.85, roughness: 0.25 });
+    const matNavy = new THREE.MeshStandardMaterial({ color: 0x142c4c, metalness: 0.6, roughness: 0.4 });
+    const matGold = new THREE.MeshStandardMaterial({ color: 0xffcc00, metalness: 0.9, roughness: 0.2 });
+    const matBlade = new THREE.MeshStandardMaterial({ color: 0xeef2f7, metalness: 0.95, roughness: 0.1 });
+
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x142c4c, 0xcfd8dc);
+
+    // Kabuto Helm with Golden Crescent Horn
+    const helm = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), matSteel);
+    helm.position.y = 1.55;
+    group.add(helm);
+
+    const horn = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 8, 20, Math.PI * 0.85), matGold);
+    horn.rotation.x = Math.PI / 2;
+    horn.rotation.z = -Math.PI * 0.42;
+    horn.position.set(0, 1.78, 0.1);
+    group.add(horn);
+
+    // Towering Kite Shield
+    const shield = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.95, 0.06), matNavy);
+    shield.position.set(-0.35, 1.05, 0.25);
+    group.add(shield);
+
+    // Drawn Katana
+    const sword = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.9, 0.02), matBlade);
+    sword.position.set(0.36, 0.75, 0.2);
+    group.add(sword);
+
+    return sword;
+  }
+
+  // 8. Phạm Xuân Minh – The Swashbuckler Rogue
+  private static buildRogue(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x222222, 0x8a2b2b);
+    const matHat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6 });
+    const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2 });
+    const matSteel = new THREE.MeshStandardMaterial({ color: 0xeeeeee, metalness: 0.9, roughness: 0.2 });
+
+    // Pirate Tricorn Hat
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.24, 0.12, 3), matHat);
+    hat.position.y = 1.66;
+    group.add(hat);
+
+    // Dueling Rapier
+    const rapier = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.95, 6), matSteel);
+    rapier.position.set(0.38, 0.8, 0.2);
+    rapier.rotation.x = 0.3;
+    group.add(rapier);
+
+    // Shiny Gold Doubloon Coin in Hand
+    const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.02, 12), matGold);
+    coin.position.set(-0.25, 1.15, 0.25);
+    coin.rotation.x = Math.PI / 2;
+    group.add(coin);
+
+    return coin;
+  }
+
+  // 9. Lâm Anh Thư – The Ocean Cleric
+  private static buildOceanCleric(group: THREE.Group): THREE.Mesh {
+    this.buildHumanoidBase(group, 0xfbd2b0, 0x134e70, 0x3882ab);
+    const matCyan = new THREE.MeshStandardMaterial({
+      color: 0x44ddff,
+      emissive: 0x2288cc,
+      emissiveIntensity: 0.8,
+      roughness: 0.3,
+    });
+    const matCoral = new THREE.MeshStandardMaterial({ color: 0xf08080, roughness: 0.5 });
+
+    // Coral Headdress
+    const crown = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.03, 6, 12), matCoral);
+    crown.position.set(0, 1.65, 0);
+    crown.rotation.x = Math.PI / 2;
+    group.add(crown);
+
+    // Sacred Tidal Bell Trident
+    const trident = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.6, 6), matCyan);
+    trident.position.set(0.36, 0.95, 0.25);
+    group.add(trident);
+
+    return trident;
   }
 
   /**
@@ -170,7 +594,7 @@ export class CharacterMeshBuilder {
       ctx.fillText(emoji, 60, 64);
 
       // Character Name
-      ctx.font = 'bold 36px "Cinzel", "Times New Roman", serif';
+      ctx.font = 'bold 34px "Cinzel", "Times New Roman", serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'left';
       ctx.fillText(name, 115, 48);
@@ -192,281 +616,5 @@ export class CharacterMeshBuilder {
     const sprite = new THREE.Sprite(spriteMat);
     sprite.scale.set(2.4, 0.6, 1);
     return sprite;
-  }
-
-  /**
-   * Huỳnh Trần Anh Thi – The Wilderness Druid
-   * Sculpted humanoid model with ivory tunic, emerald mantle, brunette hair, and druid staff
-   */
-  private static buildDruidHero(group: THREE.Group): THREE.Mesh {
-    const matSkin = new THREE.MeshStandardMaterial({ color: 0xfbd2b0, roughness: 0.6 });
-    const matHair = new THREE.MeshStandardMaterial({ color: 0x3b2214, roughness: 0.8 }); // Dark brunette
-    const matTunic = new THREE.MeshStandardMaterial({ color: 0xf4ecd8, roughness: 0.6 }); // Ivory tunic
-    const matMantle = new THREE.MeshStandardMaterial({ color: 0x226b38, roughness: 0.5 }); // Emerald cape
-    const matLeather = new THREE.MeshStandardMaterial({ color: 0x54361e, roughness: 0.7 }); // Leather belt/boots
-    const matGold = new THREE.MeshStandardMaterial({ color: 0xdfa642, metalness: 0.7, roughness: 0.3 });
-    const matStaff = new THREE.MeshStandardMaterial({ color: 0x4a301a, roughness: 0.8 });
-    const matOrb = new THREE.MeshStandardMaterial({
-      color: 0x33ff77,
-      emissive: 0x22cc55,
-      emissiveIntensity: 0.8,
-      roughness: 0.2,
-    });
-
-    // 1. Legs & Leather Boots
-    [-0.14, 0.14].forEach((lx) => {
-      const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.7, 8);
-      const leg = new THREE.Mesh(legGeo, matLeather);
-      leg.position.set(lx, 0.35, 0);
-      leg.castShadow = true;
-      group.add(leg);
-    });
-
-    // 2. Ivory Tunic / Robe Dress
-    const dressGeo = new THREE.CylinderGeometry(0.24, 0.38, 0.7, 10);
-    const dress = new THREE.Mesh(dressGeo, matTunic);
-    dress.position.y = 0.75;
-    dress.castShadow = true;
-    group.add(dress);
-
-    // Gold filigree belt with herb pouch
-    const beltGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.08, 10);
-    const belt = new THREE.Mesh(beltGeo, matGold);
-    belt.position.y = 0.95;
-    group.add(belt);
-
-    const pouchGeo = new THREE.BoxGeometry(0.12, 0.14, 0.1);
-    const pouch = new THREE.Mesh(pouchGeo, matLeather);
-    pouch.position.set(0.24, 0.9, 0.12);
-    group.add(pouch);
-
-    // 3. Torso & Shoulders
-    const torsoGeo = new THREE.CylinderGeometry(0.2, 0.24, 0.45, 8);
-    const torso = new THREE.Mesh(torsoGeo, matTunic);
-    torso.position.y = 1.15;
-    torso.castShadow = true;
-    group.add(torso);
-
-    // 4. Emerald Druid Cape / Mantle flowing behind
-    const capeGeo = new THREE.BoxGeometry(0.5, 0.95, 0.08);
-    const cape = new THREE.Mesh(capeGeo, matMantle);
-    cape.position.set(0, 0.95, -0.16);
-    cape.rotation.x = -0.12;
-    cape.castShadow = true;
-    group.add(cape);
-
-    // Mantle shoulder cowl
-    const cowlGeo = new THREE.CylinderGeometry(0.28, 0.32, 0.18, 10);
-    const cowl = new THREE.Mesh(cowlGeo, matMantle);
-    cowl.position.y = 1.35;
-    cowl.castShadow = true;
-    group.add(cowl);
-
-    // 5. Head, Face & Brunette Hair
-    const headGeo = new THREE.SphereGeometry(0.16, 12, 12);
-    const head = new THREE.Mesh(headGeo, matSkin);
-    head.position.y = 1.52;
-    head.castShadow = true;
-    group.add(head);
-
-    // Flowing wavy hair
-    const hairTopGeo = new THREE.SphereGeometry(0.18, 10, 10);
-    const hairTop = new THREE.Mesh(hairTopGeo, matHair);
-    hairTop.position.set(0, 1.56, -0.04);
-    group.add(hairTop);
-
-    const hairBackGeo = new THREE.CylinderGeometry(0.14, 0.22, 0.45, 8);
-    const hairBack = new THREE.Mesh(hairBackGeo, matHair);
-    hairBack.position.set(0, 1.36, -0.14);
-    hairBack.rotation.x = -0.2;
-    group.add(hairBack);
-
-    // Druid Headband with Emerald Gem
-    const bandGeo = new THREE.TorusGeometry(0.17, 0.02, 6, 16);
-    const band = new THREE.Mesh(bandGeo, matGold);
-    band.position.set(0, 1.55, 0);
-    band.rotation.x = Math.PI / 2;
-    group.add(band);
-
-    const gemGeo = new THREE.DodecahedronGeometry(0.04);
-    const gem = new THREE.Mesh(gemGeo, matOrb);
-    gem.position.set(0, 1.56, 0.17);
-    group.add(gem);
-
-    // 6. Right Arm holding Wooden Druid Staff
-    const armGeo = new THREE.CylinderGeometry(0.06, 0.05, 0.5, 6);
-    const armRight = new THREE.Mesh(armGeo, matTunic);
-    armRight.position.set(0.3, 1.15, 0.15);
-    armRight.rotation.x = 0.4;
-    group.add(armRight);
-
-    // Wooden Staff
-    const staffGeo = new THREE.CylinderGeometry(0.035, 0.03, 1.85, 8);
-    const staff = new THREE.Mesh(staffGeo, matStaff);
-    staff.position.set(0.42, 0.95, 0.35);
-    staff.castShadow = true;
-    group.add(staff);
-
-    // Staff top gnarled branches holding glowing magical orb
-    const staffOrb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), matOrb);
-    staffOrb.position.set(0.42, 1.9, 0.35);
-    group.add(staffOrb);
-
-    return staffOrb;
-  }
-
-  /**
-   * Phạm Trần Thanh Phương – The Ronin / Paladin Guardian (she/her)
-   * Sculpted paladin knight with steel armor, golden crescent kabuto, kite shield, and sword
-   */
-  private static buildPaladinHero(group: THREE.Group) {
-    const matSteel = new THREE.MeshStandardMaterial({
-      color: 0xcfd8dc,
-      metalness: 0.85,
-      roughness: 0.25,
-    });
-    const matNavyPlate = new THREE.MeshStandardMaterial({
-      color: 0x142c4c,
-      metalness: 0.6,
-      roughness: 0.4,
-    });
-    const matGoldTrim = new THREE.MeshStandardMaterial({
-      color: 0xffcc00,
-      metalness: 0.9,
-      roughness: 0.2,
-    });
-    const matRoyalCape = new THREE.MeshStandardMaterial({
-      color: 0x184282,
-      roughness: 0.5,
-    });
-    const matBlade = new THREE.MeshStandardMaterial({
-      color: 0xeef2f7,
-      metalness: 0.95,
-      roughness: 0.1,
-    });
-
-    // 1. Armored Greaves & Sabatons
-    [-0.16, 0.16].forEach((lx) => {
-      const legGeo = new THREE.CylinderGeometry(0.11, 0.09, 0.7, 8);
-      const leg = new THREE.Mesh(legGeo, matSteel);
-      leg.position.set(lx, 0.35, 0);
-      leg.castShadow = true;
-      group.add(leg);
-
-      const kneeGeo = new THREE.SphereGeometry(0.08, 6, 6);
-      const knee = new THREE.Mesh(kneeGeo, matGoldTrim);
-      knee.position.set(lx, 0.5, 0.1);
-      group.add(knee);
-    });
-
-    // 2. Armored Faulds & Tassets (Lacquered Skirt)
-    const tassetGeo = new THREE.CylinderGeometry(0.28, 0.36, 0.45, 8);
-    const tassets = new THREE.Mesh(tassetGeo, matNavyPlate);
-    tassets.position.y = 0.75;
-    tassets.castShadow = true;
-    group.add(tassets);
-
-    // 3. Silver Steel Cuirass (Breastplate)
-    const chestGeo = new THREE.BoxGeometry(0.46, 0.48, 0.3);
-    const chest = new THREE.Mesh(chestGeo, matSteel);
-    chest.position.y = 1.15;
-    chest.castShadow = true;
-    group.add(chest);
-
-    // Golden lion crest plaque on chest
-    const plaqueGeo = new THREE.BoxGeometry(0.2, 0.22, 0.32);
-    const plaque = new THREE.Mesh(plaqueGeo, matGoldTrim);
-    plaque.position.set(0, 1.18, 0.02);
-    group.add(plaque);
-
-    // 4. Large Curved Shoulder Pauldrons (Sode)
-    [-0.32, 0.32].forEach((px) => {
-      const pGeo = new THREE.BoxGeometry(0.2, 0.24, 0.26);
-      const p = new THREE.Mesh(pGeo, matNavyPlate);
-      p.position.set(px, 1.34, 0);
-      p.castShadow = true;
-      group.add(p);
-
-      const trimGeo = new THREE.BoxGeometry(0.22, 0.06, 0.28);
-      const trim = new THREE.Mesh(trimGeo, matGoldTrim);
-      trim.position.set(px, 1.44, 0);
-      group.add(trim);
-    });
-
-    // 5. Flowing Royal-Navy Paladin Cape
-    const capeGeo = new THREE.BoxGeometry(0.58, 1.05, 0.08);
-    const cape = new THREE.Mesh(capeGeo, matRoyalCape);
-    cape.position.set(0, 0.95, -0.2);
-    cape.rotation.x = -0.15;
-    cape.castShadow = true;
-    group.add(cape);
-
-    // 6. Knight Kabuto Helm with Golden Crescent Horn Crest
-    const helmGeo = new THREE.SphereGeometry(0.18, 12, 12);
-    const helm = new THREE.Mesh(helmGeo, matSteel);
-    helm.position.y = 1.55;
-    helm.castShadow = true;
-    group.add(helm);
-
-    // Visor slit
-    const visorGeo = new THREE.BoxGeometry(0.22, 0.05, 0.08);
-    const visor = new THREE.Mesh(visorGeo, matGoldTrim);
-    visor.position.set(0, 1.54, 0.16);
-    group.add(visor);
-
-    // Majestic Golden Crescent Horn Crest (Wakidate / Horn)
-    const hornGeo = new THREE.TorusGeometry(0.22, 0.03, 8, 20, Math.PI * 0.85);
-    const horn = new THREE.Mesh(hornGeo, matGoldTrim);
-    horn.rotation.x = Math.PI / 2;
-    horn.rotation.z = -Math.PI * 0.42;
-    horn.position.set(0, 1.78, 0.1);
-    group.add(horn);
-
-    // 7. Left Arm holding Towering Kite Shield
-    const shieldGroup = new THREE.Group();
-    shieldGroup.position.set(-0.35, 1.05, 0.25);
-
-    const shieldBodyGeo = new THREE.BoxGeometry(0.52, 0.95, 0.06);
-    const shieldBody = new THREE.Mesh(shieldBodyGeo, matNavyPlate);
-    shieldBody.castShadow = true;
-    shieldGroup.add(shieldBody);
-
-    const shieldRimGeo = new THREE.BoxGeometry(0.56, 0.99, 0.04);
-    const shieldRim = new THREE.Mesh(shieldRimGeo, matGoldTrim);
-    shieldRim.position.z = 0.02;
-    shieldGroup.add(shieldRim);
-
-    // Heraldic Cross on Shield
-    const crossVert = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, 0.05), matGoldTrim);
-    crossVert.position.z = 0.04;
-    shieldGroup.add(crossVert);
-
-    const crossHoriz = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.05), matGoldTrim);
-    crossHoriz.position.set(0, 0.15, 0.04);
-    shieldGroup.add(crossHoriz);
-
-    group.add(shieldGroup);
-
-    // 8. Right Hand holding Gleaming Katana / Broadsword
-    const swordGroup = new THREE.Group();
-    swordGroup.position.set(0.36, 1.0, 0.2);
-
-    const bladeGeo = new THREE.BoxGeometry(0.06, 0.9, 0.02);
-    const blade = new THREE.Mesh(bladeGeo, matBlade);
-    blade.position.y = -0.25;
-    blade.castShadow = true;
-    swordGroup.add(blade);
-
-    const guardGeo = new THREE.BoxGeometry(0.16, 0.04, 0.08);
-    const guard = new THREE.Mesh(guardGeo, matGoldTrim);
-    guard.position.y = 0.22;
-    swordGroup.add(guard);
-
-    const hiltGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.24, 6);
-    const hilt = new THREE.Mesh(hiltGeo, matRoyalCape);
-    hilt.position.y = 0.35;
-    swordGroup.add(hilt);
-
-    group.add(swordGroup);
   }
 }

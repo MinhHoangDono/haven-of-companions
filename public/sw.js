@@ -1,4 +1,4 @@
-const CACHE_NAME = 'haven-companions-v2.1';
+const CACHE_NAME = 'haven-companions-v3.0';
 
 const PRECACHE_ASSETS = [
   '/',
