@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dfa642" />
+      <stop offset="100%" stop-color="#9a6e20" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a3342" />
+      <stop offset="100%" stop-color="#12161f" />
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+  <!-- Medieval Crest Shield -->
+  <path d="M 50 18 Q 74 18 78 36 Q 78 68 50 82 Q 22 68 22 36 Q 26 18 50 18 Z" fill="#1b2432" stroke="url(#shieldGrad)" stroke-width="4"/>
+  <!-- Golden Cross Emblem -->
+  <path d="M 50 26 L 50 72 M 32 44 L 68 44" stroke="url(#shieldGrad)" stroke-width="4" stroke-linecap="round"/>
+  <!-- Sparkles -->
+  <circle cx="50" cy="44" r="4" fill="#fff" />
+</svg>
