@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v4.1.0] - 2026-10-30
+
+### Added
+- **Responsive Character Modal (`CharacterModal.tsx`)**: Re-architected modal layout to display as a full-screen view on mobile devices (`w-full h-full rounded-none pt-safe pb-safe`) and as an elegant centered modal on desktop/web screens (`sm:items-center sm:rounded-3xl sm:max-w-xl sm:max-h-[90vh]`).
+- **Dialog Auto-Dismissal During Ability Cast (`App.tsx`)**: Introduced `isCasting` state that automatically dismisses both the character sheet and the in-world floating `SpeechBubble` dialogue box during spell activation, ensuring 3D particle explosions remain completely unobstructed.
+- **Strategic Skill Button Placement**: Moved the primary signature ability button (*"Thi triển [Kỹ năng]"*) to the top of the character sheet, directly above the 360° interactive hero model viewport for instant accessibility.
+- **Memory Feature Implementation Plan (`plans/261029-1724-memory-gallery/`)**: Formulated and validated a comprehensive 4-phase plan for location-anchored 3D Memory Crystals, Google Drive direct CDN image resolution, touch-first photo gallery modal, and nostalgic audio chimes.
+
+### Removed
+- **"Raise a Toast" Button**: Cleaned out the obsolete toast action button and associated event handlers from `CharacterModal.tsx` and `App.tsx`.
+
+---
+
 ## [v4.0.0] - 2026-10-30
 
 ### Added

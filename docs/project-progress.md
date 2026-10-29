@@ -1,6 +1,6 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v4.0`)  
+> **Status**: Live in Production (`v4.1`)  
 > **Production URL**: [https://boisterous-raindrop-4dc674.netlify.app](https://boisterous-raindrop-4dc674.netlify.app)  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
 
@@ -27,6 +27,7 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **Expansion** | Coastal & Camera Upgrade | Move Ngọc Hà & Lâm Anh Thư to ocean edge, add big galleon ship, coastal lighthouse with rotating beacon, dynamic 3D ocean wave swell, and 3D camera touch rotation | **Completed** ✅ |
 | **Refinements** | UI/UX & Movement Evolution (`v3.5`) | 3D hero model viewer inside modal with 360° touch rotation, Tap-to-Move & ambient village wandering, left-docked companion list under Haven card, Inter typography for flawless Vietnamese diacritics, modal auto-close on cast, and clean wave normals | **Completed** ✅ |
 | **Remodel & 24x24 Expansion** | KayKit Adventurers, Medieval Village & 24x24 Map | 9 KayKit Adventurer models with class armor & weapon sockets, 24x24 5-step stepped topography with natural transitions, water walkability blocking (`passabilityMap.ts`), declarative prop placement registry (`propLayoutData.ts`), and 30 FPS mobile optimization | **Completed** ✅ |
+| **UI & Modal Architecture** | Modal Responsive Refinement & Spell Dialog Management (`v4.1`) | Full-screen modal on mobile phones, centered card on web/desktop, primary skill cast button repositioned above 360 preview, removed Raise Toast, dialog auto-dismissed during spell cast, and Memory Feature plan validated (`plans/261029-1724-memory-gallery/`) | **Completed** ✅ |
 
 ---
 
@@ -100,3 +101,6 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 - **3D Modal Hero Viewport (`CharacterPreview3D.tsx`)**: The companion modal features an embedded 3D WebGL viewport with 360° touch/mouse rotation, allowing players to inspect gear, weapons, cloaks, and armor up close.
 - **Left-Docked Companion List**: Docked neatly on the left under the "Haven of Companions" title card, providing rapid one-tap hero selection, instant camera pan, and a quick collapse/expand toggle.
 - **Inter Typography**: Standardized on Google Font Inter across all HTML UI and in-world 3D nameplates for crisp rendering of all Vietnamese diacritics with zero text truncation or clipping.
+- **Responsive Modal Layout**: `CharacterModal.tsx` dynamically adapts: full-screen on mobile phones (`w-full h-full rounded-none pt-safe pb-safe`) for focused inspection, and centered in the middle of the screen on web/desktop viewports (`sm:items-center sm:rounded-3xl sm:max-w-xl sm:max-h-[90vh]`).
+- **Unobstructed Spell Cast View**: Integrated an `isCasting` state in `App.tsx` that instantly closes both the character sheet and the in-world floating dialogue box (`SpeechBubble`) whenever an ability is triggered, allowing full visibility of the real-time 3D particle explosion.
+- **Memory & Photo Gallery Plan**: Validated 4-phase architecture in `plans/261029-1724-memory-gallery/` covering location-anchored 3D Memory Crystals, zero-auth Google Drive CDN image linking, touch photo lightbox, and nostalgic audio cues.
