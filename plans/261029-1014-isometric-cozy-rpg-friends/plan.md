@@ -97,7 +97,7 @@ The experience is engineered specifically for mobile phone browsers (iOS Safari 
 | 4 | [Phase 4: Mobile-First RPG UI, Dialogue System & Character Sheet Modals](./phase-04-mobile-ui-dialogue.md) | Completed |
 | 5 | [Phase 5: Cozy Atmosphere, Dynamic Lighting, Particle Systems & Audio](./phase-05-atmosphere-interactions.md) | Completed |
 | 6 | [Phase 6: Mobile Performance Optimization, PWA Support, QA & Deployment](./phase-06-performance-pwa-deploy.md) | Completed |
-
+| 7 | [Phase 7: Remodel & Kenney GLB Asset Integration](./phase-07-remodel-kenney-glb-asset-integration.md) | Pending |
 ---
 
 ## Success Criteria
