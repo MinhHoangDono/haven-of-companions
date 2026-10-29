@@ -1,4 +1,4 @@
-import { InteractiveTargetType } from '../types/threeEngine';
+import { InteractivePropType } from '../types/threeEngine';
 export type AssetPackCategory = 'props' | 'environment' | 'characters';
 
 export interface PropInstanceDef {
@@ -10,7 +10,7 @@ export interface PropInstanceDef {
   scale?: number | [number, number, number];
   interactive?: {
     id: string;
-    type: InteractiveTargetType;
+    type: InteractivePropType;
   };
 }
 
