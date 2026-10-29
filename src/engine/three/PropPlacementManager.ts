@@ -43,7 +43,7 @@ export class PropPlacementManager {
 
         interactiveRefs.push({
           id: item.interactive.id,
-          type: item.interactive.type as any,
+          type: item.interactive.type,
           mesh: propScene,
           position: propScene.position.clone(),
         });
