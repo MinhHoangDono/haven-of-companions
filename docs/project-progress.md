@@ -1,6 +1,6 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v3.5`)  
+> **Status**: Live in Production (`v4.0`)  
 > **Production URL**: [https://boisterous-raindrop-4dc674.netlify.app](https://boisterous-raindrop-4dc674.netlify.app)  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
 
@@ -26,6 +26,7 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **Phase 6** | Performance & PWA | Code-split manual chunks (`vendor-three`, `vendor-react`), PWA service worker cache (`v3.3`), adaptive 60 FPS active / 30 FPS idle loop | **Completed** ✅ |
 | **Expansion** | Coastal & Camera Upgrade | Move Ngọc Hà & Lâm Anh Thư to ocean edge, add big galleon ship, coastal lighthouse with rotating beacon, dynamic 3D ocean wave swell, and 3D camera touch rotation | **Completed** ✅ |
 | **Refinements** | UI/UX & Movement Evolution (`v3.5`) | 3D hero model viewer inside modal with 360° touch rotation, Tap-to-Move & ambient village wandering, left-docked companion list under Haven card, Inter typography for flawless Vietnamese diacritics, modal auto-close on cast, and clean wave normals | **Completed** ✅ |
+| **Remodel & 24x24 Expansion** | KayKit Adventurers, Medieval Village & 24x24 Map | 9 KayKit Adventurer models with class armor & weapon sockets, 24x24 5-step stepped topography with natural transitions, water walkability blocking (`passabilityMap.ts`), declarative prop placement registry (`propLayoutData.ts`), and 30 FPS mobile optimization | **Completed** ✅ |
 
 ---
 

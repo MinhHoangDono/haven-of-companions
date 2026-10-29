@@ -15,9 +15,9 @@ export class TouchControls3D {
 
   // Camera Target (center point the camera orbits / looks at)
   public target = new THREE.Vector3(0, 0.8, 0);
-  public distance = 18;
-  public minDistance = 9;
-  public maxDistance = 32;
+  public distance = 22;
+  public minDistance = 10;
+  public maxDistance = 42;
 
   // 3D Spherical Angles for Rotation
   public azimuthAngle = Math.PI / 4; // Initial classic 45-degree isometric view
@@ -41,10 +41,10 @@ export class TouchControls3D {
 
   // Bounds clamping for the compact diorama
   private bounds = {
-    minX: -8,
-    maxX: 8,
-    minZ: -8,
-    maxZ: 8,
+    minX: -11.5,
+    maxX: 11.5,
+    minZ: -11.5,
+    maxZ: 11.5,
   };
 
   constructor(

@@ -4,6 +4,7 @@ import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
 import { Character, CharacterSignatureAbility } from './types/character';
 import { allCharacters } from './data/charactersData';
 import { TouchControls3D } from './engine/three/TouchControls3D';
+import { CHARACTER_CONFIGS } from './engine/three/CharacterMeshBuilder';
 import { TopBar, TimeOfDay, WeatherType } from './components/ui/TopBar';
 import { CharacterCarousel } from './components/ui/CharacterCarousel';
 import { SpeechBubble } from './components/ui/SpeechBubble';
@@ -41,36 +42,11 @@ export const App: React.FC = () => {
   const panToCharacter = useCallback((char: Character) => {
     if (!controlsRef.current) return;
 
-    switch (char.id) {
-      case 'anh-thi-druid':
-        controlsRef.current.panTo(-2.8, -3.0);
-        break;
-      case 'phuong-quynh-ranger':
-        controlsRef.current.panTo(-4.8, -1.2);
-        break;
-      case 'tram-anh-bard':
-        controlsRef.current.panTo(2.4, -4.0);
-        break;
-      case 'khai-van-sorcerer':
-        controlsRef.current.panTo(4.2, -1.5);
-        break;
-      case 'thao-uyen-cleric':
-        controlsRef.current.panTo(0.8, -1.2);
-        break;
-      case 'ngoc-ha-monk':
-        controlsRef.current.panTo(-0.5, 4.8);
-        break;
-      case 'thanh-phuong-paladin':
-        controlsRef.current.panTo(0.5, 2.4);
-        break;
-      case 'xuan-minh-rogue':
-        controlsRef.current.panTo(2.6, 4.2);
-        break;
-      case 'anh-thu-cleric':
-        controlsRef.current.panTo(5.0, 5.2);
-        break;
-      default:
-        controlsRef.current.panTo(0, 0);
+    const config = CHARACTER_CONFIGS[char.id];
+    if (config) {
+      controlsRef.current.panTo(config.posX, config.posZ);
+    } else {
+      controlsRef.current.panTo(0, 0);
     }
   }, []);
 

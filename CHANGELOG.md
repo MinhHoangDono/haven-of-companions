@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v4.0.0] - 2026-10-30
+
+### Added
+- **KayKit Adventurers 3D Character Remodel (`CharacterMeshBuilder.ts`, `CharacterPreview3D.tsx`)**: Upgraded all 9 companions to stylized low-poly 3D models from `KayKit_Adventurers_2.0_FREE` (`Knight.glb`, `Mage.glb`, `Ranger.glb`, `Rogue.glb`, `Rogue_Hooded.glb`, `Barbarian.glb`) with class-specific armor, tunics, robes, and hand-socket weapon attachments (`staff.gltf`, `bow_withString.gltf`, `quiver.gltf`, `sword_2handed_color.gltf`, `shield_square_color.gltf`, `dagger.gltf`).
+- **24x24 Diorama Expansion & 5-Step Stepped Topography (`DioramaBuilder.ts`)**: Expanded world bounds from $16 \times 16$ to $24 \times 24$ ($X, Z \in [-12, 12]$) featuring 5 vertical elevation tiers connected by sloped ramps, stone stairs, and rock ledges across 4 biomes (Highlands Mountain, Sunspire Plaza, Coastal Bay, and Outer Lighthouse Promontory).
+- **Water Navigation Blocking & Passability Grid (`passabilityMap.ts`)**: Implemented discrete 2D passability grid preventing companions from moving or falling into deep ocean water while permitting movement along dry land, ramps, and wooden boardwalk dock piers.
+- **Declarative Fast-Placement Prop System (`propLayoutData.ts`, `PropPlacementManager.ts`)**: Introduced data-driven prop layout registry allowing instant 1-line copy-pasting of KayKit medieval buildings (tavern, homes, church, market, windmill), campsite, pine trees, and Kenney pirate galleon, lighthouse, docks, and cannons.
+- **GLTF Asset Loader Pipeline (`GLTFAssetLoader.ts`)**: Singleton asset loader with in-memory promise caching, shadow casting/receiving traversal, and `SkeletonUtils.clone` for safe skinned mesh instantiation.
+
+### Changed
+- **30 FPS Battery & Thermal Optimization**: Relaxed frame rate throttle to 30 FPS (~33.3ms interval), reducing CPU/GPU overhead by ~50% on mobile while accommodating richer geometry and prop density.
+- **Camera Orbit & Bounds (`TouchControls3D.ts`)**: Expanded clamping bounds to $[-11.5, 11.5]$ and camera zoom distance range to $[10, 42]$.
+- **Service Worker Cache**: Incremented cache version to `haven-companions-v4.0`.
+
+---
+
 ## [v3.5.0] - 2026-10-29
 
 ### Added

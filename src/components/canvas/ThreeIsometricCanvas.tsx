@@ -8,6 +8,7 @@ import { DioramaBuilder, InteractivePropRef } from '../../engine/three/DioramaBu
 import { CharacterMeshBuilder, CharacterMeshHandle } from '../../engine/three/CharacterMeshBuilder';
 import { LightingManager } from '../../engine/three/LightingManager';
 import { SpellEffect3D } from '../../engine/three/SpellEffect3D';
+import { passabilityGrid } from '../../engine/map/passabilityMap';
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -153,14 +154,15 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
               onSelectCharacterRef.current(char);
             }
           } else if (hit.type === 'ground') {
-            // Tap-to-Move for active selected character!
+            // Tap-to-Move for active selected character with water blocking!
             if (selectedCharIdRef.current) {
               const activeHandle = handles.get(selectedCharIdRef.current);
               if (activeHandle) {
-                activeHandle.moveTo(hit.point.x, hit.point.z);
+                const validTarget = passabilityGrid.clampToWalkable(hit.point.x, hit.point.z);
+                activeHandle.moveTo(validTarget.x, validTarget.z);
 
                 // Position and trigger pulsing golden waypoint ring
-                waypointMesh.position.set(hit.point.x, activeHandle.baseY + 0.02, hit.point.z);
+                waypointMesh.position.set(validTarget.x, validTarget.y + 0.04, validTarget.z);
                 waypointMat.opacity = 0.95;
                 waypointMesh.scale.setScalar(1.2);
                 waypointTimer = 1.0;
@@ -235,8 +237,8 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     const animate = (currentTime: number) => {
       rafId = requestAnimationFrame(animate);
 
-      // 60 FPS active vs 30 FPS idle throttling
-      const minInterval = controls.isPanning ? 14 : 28;
+      // 30 FPS frame throttling (approx 33.3ms)
+      const minInterval = 33.3;
       if (currentTime - lastRenderTime < minInterval) return;
       lastRenderTime = currentTime;
 
