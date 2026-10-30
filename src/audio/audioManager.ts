@@ -360,6 +360,123 @@ class AudioManager {
       }, i * 90);
     });
   }
+
+  public playBuildPlaceSound() {
+    if (!this.ctx || this.isMuted) return;
+    [523.25, 783.99].forEach((freq, i) => {
+      setTimeout(() => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.09, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.35);
+      }, i * 75);
+    });
+  }
+
+  public playDemolishSound() {
+    if (!this.ctx || this.isMuted) return;
+    [261.63, 164.81].forEach((freq, i) => {
+      setTimeout(() => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.08, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      }, i * 90);
+    });
+  }
+
+  /**
+   * 3D Platformer Collectible Chime (Coins, Leaves, Shells)
+   */
+  public playPickup(type: string = 'gold_coin') {
+    if (!this.ctx || this.isMuted) return;
+
+    let freqs = [1046.5, 1318.5, 1567.98]; // C6, E6, G6 bright crystal
+    if (type === 'dalat_tea') {
+      freqs = [659.25, 880, 1174.66]; // E5, A5, D6 verdant chime
+    } else if (type === 'sea_conch') {
+      freqs = [587.33, 783.99, 1046.5]; // D5, G5, C6 ocean chime
+    } else if (type === 'firework_ember') {
+      freqs = [783.99, 1174.66, 1760.0]; // G5, D6, A6 fire sparkle
+    }
+
+    freqs.forEach((freq, idx) => {
+      setTimeout(() => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.08, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      }, idx * 55);
+    });
+  }
+
+  /**
+   * High-Jump Wind Geyser Spring Launch
+   */
+  public playSpring() {
+    if (!this.ctx || this.isMuted) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const t = this.ctx.currentTime;
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(1200, t + 0.35);
+
+    gain.gain.setValueAtTime(0.09, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.55);
+  }
+
+  /**
+   * Fragile Pier Plank Creak & Rumble
+   */
+  public playWoodCreak() {
+    if (!this.ctx || this.isMuted) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const t = this.ctx.currentTime;
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(140, t);
+    osc.frequency.linearRampToValueAtTime(80, t + 0.25);
+
+    gain.gain.setValueAtTime(0.06, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.32);
+  }
 }
 
 export const audioManager = new AudioManager();

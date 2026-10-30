@@ -9,6 +9,10 @@ import { CharacterMeshBuilder, CharacterMeshHandle } from '../../engine/three/Ch
 import { LightingManager } from '../../engine/three/LightingManager';
 import { SpellEffect3D } from '../../engine/three/SpellEffect3D';
 import { passabilityGrid } from '../../engine/map/passabilityMap';
+import { CollectibleMeshBuilder } from '../../engine/three/CollectibleMeshBuilder';
+import { DynamicPlatformManager } from '../../engine/three/DynamicPlatformManager';
+import { CollectibleItem } from '../../types/platformer';
+import { audioManager } from '../../audio/audioManager';
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -23,6 +27,8 @@ interface ThreeIsometricCanvasProps {
   onInitSpellCaster?: (castFn: (effectType: CharacterSignatureAbility['effectType'], charId: string) => void) => void;
   onInspectHit?: (hit: InteractiveHit | null) => void;
   onInitJumper?: (jumpFn: () => void) => void;
+  onCollectItem?: (item: CollectibleItem) => void;
+  onPlatformToast?: (msg: string) => void;
 }
 
 export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
@@ -38,6 +44,8 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   onInitSpellCaster,
   onInspectHit,
   onInitJumper,
+  onCollectItem,
+  onPlatformToast,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const controlsRef = useRef<TouchControls3D | null>(null);
@@ -72,6 +80,11 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   const onInspectHitRef = useRef(onInspectHit);
   onInspectHitRef.current = onInspectHit;
 
+  const onCollectItemRef = useRef(onCollectItem);
+  onCollectItemRef.current = onCollectItem;
+
+  const onPlatformToastRef = useRef(onPlatformToast);
+  onPlatformToastRef.current = onPlatformToast;
   // React to TimeOfDay changes
   useEffect(() => {
     lightingRef.current?.setTimeOfDay(timeOfDay);
@@ -144,6 +157,10 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     // 4b. 3D Spell Particle Effect Manager
     const spellEffects = new SpellEffect3D(scene);
     spellEffectsRef.current = spellEffects;
+
+    // 4c. 3D Collectibles & Dynamic Platforms (Falling Pier Planks & High-Jump Vents)
+    const collectibles = CollectibleMeshBuilder.getInitialCollectibles(scene);
+    const dynamicPlatforms = new DynamicPlatformManager(scene);
 
     // Waypoint Destination Marker Ring
     const waypointGeo = new THREE.RingGeometry(0.28, 0.44, 24);
@@ -401,6 +418,55 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
         }
       }
 
+      // Update 3D Collectibles (Bobbing, Rotating & Magnetic Proximity Pickup)
+      collectibles.forEach((item) => {
+        if (item.collected) {
+          item.respawnTimer -= dt;
+          if (item.respawnTimer <= 0) {
+            item.collected = false;
+            if (item.mesh) {
+              item.mesh.visible = true;
+              item.mesh.position.copy(item.spawnPosition);
+            }
+          }
+          return;
+        }
+
+        if (!item.mesh) return;
+
+        const floatGroup = item.mesh.getObjectByName('floatingItem');
+        if (floatGroup) {
+          floatGroup.rotation.y += dt * 2.2;
+          floatGroup.position.y = 0.38 + Math.sin(currentTime * 0.003 + item.position.x * 2.0) * 0.08;
+        }
+
+        if (activeHandle) {
+          const cPos = activeHandle.group.position;
+          const dist = Math.hypot(cPos.x - item.position.x, cPos.z - item.position.z);
+          if (dist < 1.35 && Math.abs(cPos.y - item.position.y) < 1.2) {
+            item.collected = true;
+            item.respawnTimer = 25.0; // Respawns after 25s
+            if (item.mesh) item.mesh.visible = false;
+            audioManager.playPickup(item.type);
+            onCollectItemRef.current?.(item);
+          }
+        }
+      });
+
+      // Update Dynamic Platforms (Falling Plank & Highland High-Jump Wind Vent)
+      if (activeHandle) {
+        dynamicPlatforms.update(
+          dt,
+          currentTime,
+          activeHandle.group.position,
+          (boostVelocity) => {
+            activeHandle.launchJump?.(boostVelocity);
+          },
+          (msg) => {
+            onPlatformToastRef.current?.(msg);
+          }
+        );
+      }
       handles.forEach((handle) => {
         const charData = charactersRef.current.find((c) => c.id === handle.id);
         const isSelected = handle.id === selectedCharIdRef.current;
@@ -419,6 +485,8 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
     return () => {
       cancelAnimationFrame(rafId);
+      dynamicPlatforms.dispose(scene);
+      collectibles.forEach((c) => c.mesh && scene.remove(c.mesh));
       dom.removeEventListener('pointerdown', onDown);
       dom.removeEventListener('pointermove', onMove);
       dom.removeEventListener('pointerup', onUp);

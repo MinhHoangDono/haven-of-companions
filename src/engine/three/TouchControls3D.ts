@@ -38,14 +38,52 @@ export class TouchControls3D {
   private velocityZ = 0;
   private friction = 0.92;
   public isPanning = false;
+  public isBuilderMode = false;
 
   // Bounds clamping for the compact diorama
-   private bounds = {
-     minX: -34,
-     maxX: 34,
-     minZ: -34,
-     maxZ: 34,
-   };
+  private bounds = {
+    minX: -34,
+    maxX: 34,
+    minZ: -34,
+    maxZ: 34,
+  };
+
+  public setBuilderMode(enabled: boolean) {
+    this.isBuilderMode = enabled;
+    if (enabled) {
+      this.friction = 0.88; // Slightly crisper damping for precise building
+    } else {
+      this.friction = 0.92;
+    }
+  }
+
+  public panByDirection(dirX: number, dirZ: number, deltaDistance: number) {
+    this.target.x = THREE.MathUtils.clamp(
+      this.target.x + dirX * deltaDistance,
+      this.bounds.minX,
+      this.bounds.maxX
+    );
+    this.target.z = THREE.MathUtils.clamp(
+      this.target.z + dirZ * deltaDistance,
+      this.bounds.minZ,
+      this.bounds.maxZ
+    );
+    this.updateCameraPosition();
+    this.callbacks.onCameraChange?.();
+  }
+
+  public focusOn(point: THREE.Vector3) {
+    const clampedX = THREE.MathUtils.clamp(point.x, this.bounds.minX, this.bounds.maxX);
+    const clampedZ = THREE.MathUtils.clamp(point.z, this.bounds.minZ, this.bounds.maxZ);
+    this.target.x = clampedX;
+    this.target.z = clampedZ;
+    this.updateCameraPosition();
+    this.callbacks.onCameraChange?.();
+  }
+
+  public centerOnPlaza() {
+    this.focusOn(new THREE.Vector3(0, 1.5, 0));
+  }
 
   constructor(
     camera: THREE.Camera,

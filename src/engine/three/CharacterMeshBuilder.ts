@@ -16,7 +16,8 @@ export interface CharacterMeshHandle {
   moveByDirection?: (dx: number, dz: number, dt: number) => void;
   faceTowards?: (x: number, z: number) => void;
   rotateBy?: (deltaAngle: number) => void;
-  jump?: () => void;
+  jump?: (customVelocity?: number) => void;
+  launchJump?: (velocity: number) => void;
   isJumping?: () => boolean;
 }
 
@@ -335,11 +336,15 @@ export class CharacterMeshBuilder {
       rotateBy: (deltaAngle: number) => {
         targetHeading += deltaAngle;
       },
-      jump: () => {
+      jump: (customVelocity?: number) => {
         if (!isJumping) {
           isJumping = true;
-          jumpVelocity = 6.2;
+          jumpVelocity = customVelocity || 6.2;
         }
+      },
+      launchJump: (velocity: number) => {
+        isJumping = true;
+        jumpVelocity = velocity;
       },
       isJumping: () => isJumping,
       moveByDirection: (dx: number, dz: number, dt: number) => {

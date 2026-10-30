@@ -78,6 +78,27 @@ export class PassabilityGrid {
   }
 
   /**
+   * Marks or unmarks a custom bounding footprint as blocked/walkable
+   */
+  public markCustomObstacle(minX: number, maxX: number, minZ: number, maxZ: number, blocked: boolean): void {
+    for (let x = Math.round(minX); x <= Math.round(maxX); x++) {
+      for (let z = Math.round(minZ); z <= Math.round(maxZ); z++) {
+        const key = this.getKey(x, z);
+        const cell = this.cells.get(key);
+        if (cell) {
+          if (blocked) {
+            cell.type = 'cliff';
+          } else {
+            const blockType = VoxelTerrainBuilder.getBlockType(x, z);
+            const elevation = VoxelTerrainBuilder.getTopElevation(x, z);
+            cell.type = elevation <= 0 ? 'water' : blockType === 'WOOD_PLANK' ? 'pier' : 'walkable';
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Clamps target destination to valid walkable ground, strictly preventing walking into deep ocean water
    */
   public clampToWalkable(targetX: number, targetZ: number): THREE.Vector3 {
