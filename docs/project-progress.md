@@ -1,6 +1,6 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v6.4`)  
+> **Status**: Live in Production (`v8.5.0`)  
 > **Production URL**: [https://minhhoangdono.github.io/haven-of-companions/](https://minhhoangdono.github.io/haven-of-companions/)  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
 > **CI/CD Pipeline**: GitHub Actions (`.github/workflows/deploy.yml`) on `master` branch push  
@@ -32,6 +32,11 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **Controls & Navigation** | Desktop WASD, Jumping Physics & Coordinate Inspector (`v5.2`) | Screen-relative WASD keyboard navigation, realistic gravity jump arc ($2.8\text{m}$ step clearance), camera follow tracking, in-game 3D Coordinate Inspector HUD, un-inverted mouse drag, and coastal shoreline encampment | **Completed** ✅ |
 | **City Builder Mode** | In-Game Construction, Smooth Camera & Persistence (`v5.3`) | Adapted Kenney City Builder into Three.js: 22 CC0 structures across 5 categories, DynamicMeshLibrary, real-time green/red ghost hologram, 90° rotation, demolish tool, smooth builder camera with LERP damping, localStorage persistence, JSON export/import, and West shore dock cleanup | **Completed** ✅ |
 | **Platformer & Deploy Pipeline** | 3D Collectibles, Gimmicks & Automated GitHub Pages CI/CD (`v6.4`) | 12 scattered 3D collectibles across 3 biomes with coin counter HUD in `TopBar`, fragile falling pier plank, high-jump thermal wind geyser, automated GitHub Actions deployment workflow with relative base pathing (`base: "./"`), and subpath asset resolution | **Completed** ✅ |
+| **Mythic Arsenal Expansion** | Procedural 3D Weapons & Armor (Items 10-18) | 9 high-poly procedural mythic weapons, shields, halos, and mantles (`EquipmentGenerator.ts`), custom PBR materials (obsidian, crystal transmission, gold, emissive runes), 2H weapon offhand suppression & socket grip alignment (`CharacterMeshBuilder.ts`), and items catalog (`itemsData.ts`) | **Completed** ✅ |
+| **Character Redesign & Dual Abilities** | 18 GPU-Batched 3D VFX & Procedural Web Audio (`v7.0`) | Full transition to RPG dual-ability architecture (1 Active + 1 Ultimate for all 9 heroes), 18 single draw call VFX handlers (`SpellEffect3D.ts` via `three.quarks` BatchedRenderer), dual-card modal UI (`CharacterModal.tsx`), and Web Audio frequency synthesis (`audioManager.ts`) | **Completed** ✅ |
+| **Companion Armory & Passives** | Weapon Grip Sockets, 1H/2H Classification & 18 Passives (`v8.2`) | Dedicated weapon grip matrix, two-handed offhand suppression, horizontal companion switcher carousel inside modal, and 18 lore-anchored passives (2 per friend) | **Completed** ✅ |
+| **Cel-Shaded Flame & Spell VFX** | Anime Flame Body & 18-Hero GPU Batched VFX (`v8.4`) | 3D procedural anime flame cylinder with 3 stepped color thresholds, 24 rising ember sparks, and full single-draw-call `three.quarks` particle engine for all 9 heroes | **Completed** ✅ |
+| **Godot Toon Shaders & Nature** | Godot Toon Water & Instanced Dithered Grass (`v8.5`) | Direct Three.js ports of Godot `water_toon.gdshader` (dual-wave distortion, 12-step diffuse, 8-step specular, foam) and `grass.gdshader` (1,200 instanced blades, Bayer 4x4 dither, root-anchored wind sway, 3-stop palette gradient) | **Completed** ✅ |
 ---
 
 ## 3. Technical Architecture
@@ -63,13 +68,13 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
     - **Sunset**: Dramatic low amber sun casting long shadows.
     - **Night**: Cool indigo moonlight with high-contrast glowing lanterns.
 - **`SpellEffect3D.ts`**:
-  - Real-time 3D particle & mesh spell engine with 9 distinct visual effects (emerald rings, divine light pillars, firework rockets, water blade crescents, dome shields, and gold coin showers).
+  - GPU-batched 3D particle & mesh spell engine with 18 distinct active and ultimate visual effects powered by `three.quarks` `BatchedRenderer` (single draw call) and managed dynamic point lights.
 
 ### 3.2 UI & Component Layer (`src/components/ui/`)
 - **`TopBar.tsx`**: Displays village name, time of day toggle, Da Lat mist weather toggle, and audio mute toggle.
 - **`CharacterCarousel.tsx`**: Ergonomic bottom carousel with faction badges, class titles, and smooth horizontal scrolling.
 - **`SpeechBubble.tsx`**: Typewriter text dialogue floating above the character's head via 3D-to-2D screen projection (`vector.project(camera)`).
-- **`CharacterModal.tsx`**: Expandable slide-up bottom sheet with Vietnamese character lore, whimsical stats, and the "Cast Ability" trigger button.
+- **`CharacterModal.tsx`**: Expandable slide-up bottom sheet with Vietnamese character lore, whimsical stats, 360° 3D hero preview, and dual ability cards (Active & Ultimate) with independent cast triggers.
 
 ### 3.3 City Builder & Construction Subsystem (`src/engine/three/builder/`)
 - **`DynamicMeshLibrary.ts`**:
@@ -95,15 +100,15 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 
 | # | Friend | Class Title | Faction | 3D Coordinates | Key Gear & Abilities |
 |---|---|---|---|---|---|
-| **1** | **Huỳnh Trần Anh Thi** | The Wilderness Druid | Highlands | $(-2.8, 1.8, -3.0)$ | Ivory tunic, emerald cape, wooden staff with glowing emerald orb. *Verdant Bloom* |
-| **2** | **Lê Nguyễn Phương Quỳnh** | The Elven Ranger | Highlands | $(-4.8, 1.8, -1.2)$ | Forest leather armor, elven longbow, back quiver, scout headband. *Eagle Eye* |
-| **3** | **Trần Nguyễn Trâm Anh** | The Lore Bard | Scholars | $(2.4, 0.9, -4.0)$ | Ruby velvet tunic, feathered beret, hand-carved golden lute. *Hymn of Antiquity* |
-| **4** | **Nguyễn Khải Vạn** | The Pyromancy Sorcerer | Scholars | $(4.2, 0.9, -1.5)$ | Flame-trimmed crimson robe, pointed hat, floating fireball. *Grand Pyrotechnic* |
-| **5** | **Nguyễn Trần Thảo Uyên** | Cleric of the Light | Scholars | $(0.8, 0.9, -1.2)$ | Sacred vestments, floating golden sun halo, sun scepter. *Dawn Radiance* |
-| **6** | **Nguyễn Thị Ngọc Hà** | Way of the Kensei Monk | Vanguard | $(-0.5, 0.15, 4.8)$ | Martial arts gi, black obi sash, dual wooden bokken by the surf. *Flowing Water Katas* |
-| **7** | **Phạm Trần Thanh Phương** | The Ronin / Paladin | Vanguard | $(0.5, 0.25, 2.4)$ | Steel & navy plate armor, golden crescent kabuto horn, kite shield. *Aegis of the Coast* |
-| **8** | **Phạm Xuân Minh** | The Swashbuckler Rogue | Vanguard | $(2.6, 0.25, 4.2)$ | Tricorn hat with plume, captain sash, dueling rapier, gold coin. *Swashbuckler Flourish* |
-| **9** | **Lâm Anh Thư** | The Ocean Cleric | Vanguard | $(5.0, 0.05, 5.2)$ | Ocean blue & seafoam vestments, coral headdress, sea bell trident. *Tidal Embrace* |
+| **1** | **Huỳnh Trần Anh Thi** | The Herbal Ranger / Highland Guardian | Highlands | $(-2.8, 1.8, -3.0)$ | Ivory tunic, emerald cape, wooden staff with glowing emerald orb. *🌿 Hạt Giống Sinh Mệnh* / *🌲 Đại Ngàn Tỉnh Giấc* |
+| **2** | **Lê Nguyễn Phương Quỳnh** | The Singing Ranger | Highlands | $(-4.8, 1.8, -1.2)$ | Forest leather armor, elven longbow, back quiver, scout headband. *🏹 Mũi Tên Âm Vang* / *🎶 Khúc Ca Đại Ngàn* |
+| **3** | **Trần Nguyễn Trâm Anh** | The Illusionist Painter | Scholars | $(2.4, 0.9, -4.0)$ | Ruby velvet tunic, feathered beret, hand-carved golden lute. *🖌️ Vệt Cọ Hư Không* / *🎨 Kiệt Tác Không Gian* |
+| **4** | **Nguyễn Khải Vạn** | Fireworks Vanguard | Scholars | $(4.2, 0.9, -1.5)$ | Flame-trimmed crimson robe, pointed hat, floating fireball. *🎇 Quả Cầu Pháo Hoa* / *🎆 Dạ Khúc Tinh Tú* |
+| **5** | **Nguyễn Trần Thảo Uyên** | The Cleric of the Light | Scholars | $(0.8, 0.9, -1.2)$ | Sacred vestments, floating golden sun halo, sun scepter. *🛡️ Ánh Sáng Chở Che* / *☀️ Hừng Đông Tỏa Sáng* |
+| **6** | **Nguyễn Thị Ngọc Hà** | The Athletic Monk | Vanguard | $(-0.5, 0.15, 4.8)$ | Martial arts gi, black obi sash, dual wooden bokken by the surf. *⚡ Nhịp Độ Thể Thao* / *🥋 Chân Ngôn Bất Tận* |
+| **7** | **Phạm Trần Thanh Phương** | The Highland Water Guardian | Vanguard | $(0.5, 0.25, 2.4)$ | Steel & navy plate armor, golden crescent kabuto horn, kite shield. *💧 Dòng Suối Quật Cường* / *🌊 Khát Vọng Trùng Khơi* |
+| **8** | **Phạm Xuân Minh** | The Swashbuckler Rogue | Vanguard | $(2.6, 0.25, 4.2)$ | Tricorn hat with plume, captain sash, dueling rapier, gold coin. *🎯 Lệnh Xung Phong* / *🔥 Bữa Tiệc Cuồng Nộ* |
+| **9** | **Lâm Anh Thư** | Tide Priestess | Vanguard | $(5.0, 0.05, 5.2)$ | Ocean blue & seafoam vestments, coral headdress, sea bell trident. *🫧 Làn Sóng Tĩnh Lặng* / *⛲ Nhiệt Huyết Đại Dương* |
 
 ---
 

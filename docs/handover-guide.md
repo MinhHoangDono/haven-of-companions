@@ -85,7 +85,7 @@ src/
 ├── App.tsx                               # Root orchestrator: HUD, top bar, modals, spell & build triggers
 ├── main.tsx                              # React DOM mount point & Service Worker registration
 ├── types/
-│   ├── character.ts                      # Character interface, factions, stats, signature abilities, passives
+│   ├── character.ts                      # Character interface, factions, stats, active & ultimate abilities, AbilityEffectType
 │   ├── inventory.ts                      # WieldType (1H/2H), WeaponArchetype, ArmorArchetype, ElementType, ItemStats
 │   ├── engine.ts                         # Coordinate types and screen dimensions
 │   ├── threeEngine.ts                    # 3D hit detection types and raycasting interfaces
@@ -96,7 +96,7 @@ src/
 │   ├── itemsData.ts                      # Complete catalog of weapons (1H/2H), armors, hats, capes, and consumables
 │   └── propLayoutData.ts                 # Declarative placements for village buildings, galleon, and props
 ├── audio/
-│   └── audioManager.ts                   # Web Audio synthesizer: chimes, toasts, spells & builder SFX
+│   └── audioManager.ts                   # Web Audio synthesizer: chimes, toasts, 18 ability SFX & builder SFX
 ├── engine/
 │   ├── inventory/
 │   │   └── InventoryManager.ts           # Central party inventory & equipment manager with localStorage persistence
@@ -108,12 +108,17 @@ src/
 │       ├── VoxelTerrainBuilder.ts        # Stepped voxel terrain generator with coastal sand & coves
 │       ├── CharacterMeshBuilder.ts       # 9 humanoid hero avatars, WEAPON_GRIP_CONFIGS matrix, outfit/hat swapper
 │       ├── LightingManager.ts            # Directional sun, soft shadow mapping, day/night cycle
-│       ├── SpellEffect3D.ts              # Real-time 3D particle spell animations
+│       ├── SpellEffect3D.ts              # 18 GPU-batched active & ultimate 3D particle spell animations (three.quarks)
 │       ├── CollectibleMeshBuilder.ts     # 12 scattered 3D collectibles with magnetic proximity pickup
 │       ├── DynamicPlatformManager.ts     # Fragile falling pier planks and high-jump thermal wind vents
+│       ├── materials/
+│       │   └── GodotWaterMaterial.ts     # Port of Godot water_toon.gdshader: dual-wave distortion, 12-step toon lighting, foam
+│       ├── nature/
+│       │   └── GodotGrassManager.ts      # Port of Godot grass.gdshader: 1,200 instanced blades, Bayer 4x4 dither, wind sway
+│       ├── effects/
+│       │   └── CartoonFireMesh.ts        # Cel-shaded anime flame cylinder & rising ember sparks at campfire hearth
 │       ├── equipment/
 │       │   └── EquipmentGenerator.ts     # Procedural 3D mesh generator: Greatsword, Katana, Scythe, Staff, Scepter, Hats, Capes
-│       └── builder/
 │           ├── CityBuilderController.ts  # In-game voxel construction, ghost hologram, rotation, bulldozer
 │           ├── CitySaveManager.ts        # LocalStorage persistence, JSON export/import for village & wardrobe (v2)
 │           └── DynamicMeshLibrary.ts     # 53 CC0 structures across 5 categories with footprint metadata
@@ -175,6 +180,11 @@ src/
   - On Desktop: Full-height 2-column layout.
   - Integrated `ResizeObserver`: Guarantees the WebGL canvas never collapses to zero height on orientation changes or modal transitions.
 
+
+### 5.5 Environmental Shaders & Nature Package (`src/engine/three/materials/`, `nature/`, `effects/`)
+- **Godot Toon Water Shader (`GodotWaterMaterial.ts`)**: Direct Three.js port of Godot's `water_toon.gdshader`. Computes dual-layer Simplex wave offsets, 12-step banded diffuse, 8-step specular glints, faceted normals (`dFdx`/`dFdy`), and procedural wave crest foam entirely on the GPU in a single draw call.
+- **Godot Instanced Grass & Dither System (`GodotGrassManager.ts`)**: Port of Godot's `grass.gdshader`, `ground.gdshader`, and `dither.gdshaderinc`. Renders 1,200 instanced grass blades (`THREE.InstancedMesh`) across terrain tiers using `grass_basic_atlas.png`, Bayer 4x4 matrix ordered dithering, root-anchored wind sway, and a 3-stop spatial noise color gradient.
+- **Cel-Shaded Anime Flame & Campfire Hearth (`CartoonFireMesh.ts`)**: Procedural 3D flame body deformed by upward-scrolling 2D Simplex noise with 3 stepped anime color bands and 24 rising ember sparks (`THREE.Points`).
 ## 6. Critical Scars & Operational Gotchas
 
 ### 5.1 Mobile Web Audio Auto-play Policy

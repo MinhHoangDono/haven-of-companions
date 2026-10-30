@@ -14,13 +14,14 @@ An interactive, mobile-first 3D isometric medieval fantasy RPG web diorama celeb
   - 1-finger inertial pan & 2-finger pinch zoom ($9\text{m}$ to $32\text{m}$).
   - Free 2-finger twist rotation on mobile + Right-click drag on PC.
   - Tactical Quick-Rotate buttons (`↺` / `↻`) for instant $45^\circ$ snap rotation to inspect characters behind buildings and cliffs.
-- **Dynamic 3D Particle Spells**: Pressing "Cast" triggers character-specific 3D visual particle explosions (emerald leaf rings, golden eagle beacons, divine light pillars, pyrotechnic rockets, water slashes, shield domes, and gold coin showers).
+- **RPG Dual Ability System & 18 GPU-Batched VFX**: Each companion commands 1 Active Ability (tactical short cooldown) and 1 Ultimate Ability (cinematic tide-turner) powered by `three.quarks` `BatchedRenderer` (single draw call) with procedural Web Audio synthesis.
 - **Interactive Village Props**: Bubbling campfire cauldron, coastal tide bell, festival fireworks mortar battery, and tatami tea pavilion.
 - **Party Reunion Feast (Hội Ngộ 9 Tri Kỷ)**: Single-tap party celebration trigger gathering all 9 friends with multi-harmonic audio chimes and simultaneous wave celebration hops.
 - **City Builder & Voxel Construction Mode**: In-game medieval construction sandbox with 22 CC0 structures across 5 categories, real-time green/red ghost preview, 90° rotation, bulldozer tool, dynamic passability synchronization, and `localStorage` layout persistence.
 - **3D Platformer & Collectibles**: 12 scattered 3D collectibles across 3 biomes (Gold Coins, Wild Tea Leaves, Conch Shells, Fireworks Embers) with magnetic proximity pickup, coin counter HUD in `TopBar`, fragile falling pier plank, and high-jump thermal wind vent.
+- **Godot Toon Shaders & Nature Subsystem**: Dual-layer Simplex wave distortion ocean water shader (`GodotWaterMaterial.ts`), 1,200 instanced grass blades (`GodotGrassManager.ts` with Bayer 4x4 matrix ordered dithering and root-anchored wind sway), and cel-shaded anime flame hearth (`CartoonFireMesh.ts`).
 - **Atmospheric Day/Night & Weather**: 4-stage lighting (Dawn, Day, Sunset, Night) with PCF soft shadow mapping, campfire flame flicker, and Đà Lạt mountain mist.
-- **Mobile Performance & PWA**: 60 FPS active / 30 FPS idle battery-saving loop, manual vendor chunk splitting, and offline Service Worker support (`v6.4`).
+- **Mobile Performance & PWA**: 60 FPS active / 30 FPS idle battery-saving loop, manual vendor chunk splitting, and offline Service Worker support (`v8.5`).
 ---
 
 ## Quick Start
@@ -72,4 +73,4 @@ For technical handover, system architecture, and future development guides, refe
 - [`docs/system-architecture.md`](./docs/system-architecture.md) – Coordinate system, 3D scene graph, camera math, touch gesture engine, and state management.
 - [`docs/character-registry.md`](./docs/character-registry.md) – Specification of the 9 friends: real-life inspirations, factions, stats, lore, and 3D diorama anchors.
 - [`docs/remodeling-guide.md`](./docs/remodeling-guide.md) – Step-by-step roadmap for upgrading character and environment models using the included Kenney and KayKit GLB asset packs.
-- [`docs/PROJECT_PROGRESS.md`](./docs/PROJECT_PROGRESS.md) – Comprehensive milestone audit and acceptance criteria verification.
+- [`docs/project-progress.md`](./docs/project-progress.md) – Comprehensive milestone audit and acceptance criteria verification.

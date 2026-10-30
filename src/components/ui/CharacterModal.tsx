@@ -102,6 +102,7 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
   };
 
   const handleEquip = (item: InventoryItem) => {
+    const targetSlot = item.equipSlot || selectedSlot;
     // If equipping a 2-handed weapon, unequip bulky shields to avoid clipping
     const is2H =
       item.wieldType === 'two_handed' ||
@@ -110,19 +111,21 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
       item.weaponType === 'archmage_staff' ||
       item.weaponType === 'elemental_bow';
 
-    if (item.equipSlot === 'mainWeapon' && is2H) {
+    if (targetSlot === 'mainWeapon' && is2H) {
       const offItem = getEquippedItem('offhand');
       if (offItem && offItem.modelAsset !== 'quiver.gltf') {
         inventoryManager.unequipItem(currentCharacter.id, 'offhand');
       }
     }
 
-    inventoryManager.equipItem(currentCharacter.id, selectedSlot, item.id);
+    inventoryManager.equipItem(currentCharacter.id, targetSlot, item.id);
+    setSelectedSlot(targetSlot);
     setInspectedItem(item);
   };
 
-  const handleUnequip = () => {
-    inventoryManager.unequipItem(currentCharacter.id, selectedSlot);
+  const handleUnequip = (item?: InventoryItem) => {
+    const targetSlot = item?.equipSlot || selectedSlot;
+    inventoryManager.unequipItem(currentCharacter.id, targetSlot);
   };
 
   const handleSwitchCompanion = (c: Character) => {
@@ -422,9 +425,9 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                       </div>
 
                       {/* Equip / Unequip Action Button */}
-                      {currentlyEquippedInSlot?.id === displayItem.id ? (
+                      {getEquippedItem(displayItem.equipSlot || selectedSlot)?.id === displayItem.id ? (
                         <button
-                          onClick={handleUnequip}
+                          onClick={() => handleUnequip(displayItem)}
                           className="px-3 py-1.5 rounded-xl bg-rose-950/70 border border-rose-700/80 text-rose-300 font-serif font-bold text-xs hover:bg-rose-900 active:scale-95 transition-all shadow-md shrink-0"
                         >
                           Tháo Đồ
@@ -492,7 +495,7 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                     </div>
                   ) : (
                     currentSlotItems.map((item: InventoryItem) => {
-                      const isEquipped = currentlyEquippedInSlot?.id === item.id;
+                      const isEquipped = getEquippedItem(item.equipSlot || selectedSlot)?.id === item.id;
                       const isInspected = displayItem?.id === item.id;
 
                       return (
@@ -536,7 +539,7 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleUnequip();
+                                  handleUnequip(item);
                                 }}
                                 className="px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold bg-rose-950/60 text-rose-300 border border-rose-800/60 hover:bg-rose-900 active:scale-95"
                               >

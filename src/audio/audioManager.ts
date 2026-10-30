@@ -228,10 +228,45 @@ class AudioManager {
         });
         break;
 
-      // 3. Trâm Anh
+      // 3. Trâm Anh (StatusFXFree: Shatter Shards & Void Aura)
       case 'active_void_brush':
       case 'lute_hymn':
-        [329.63, 392.0, 493.88, 587.33, 659.25].forEach((freq, idx) => {
+        // Glassy status shatter whip-crack + high resonant shimmer
+        [587.33, 880, 1320, 1760, 2640].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = idx === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.09, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.6);
+          }, idx * 45);
+        });
+        break;
+
+      case 'ult_spatial_masterpiece':
+        // Dimensional sub-bass drop
+        if (this.ctx) {
+          const subOsc = this.ctx.createOscillator();
+          const subGain = this.ctx.createGain();
+          subOsc.type = 'sawtooth';
+          subOsc.frequency.setValueAtTime(85, now);
+          subOsc.frequency.exponentialRampToValueAtTime(38, now + 1.2);
+          subGain.gain.setValueAtTime(0.12, now);
+          subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+          subOsc.connect(subGain);
+          subGain.connect(this.ctx.destination);
+          subOsc.start(now);
+          subOsc.stop(now + 1.5);
+        }
+        // Ascending chromatic crystal cascade
+        [329.63, 440, 554.37, 659.25, 880, 1108.73, 1318.51, 1760, 2217.46].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
             const osc = this.ctx.createOscillator();
@@ -239,72 +274,75 @@ class AudioManager {
             const t = this.ctx.currentTime;
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.08, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+            gain.gain.setValueAtTime(0.07, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 0.85);
-          }, idx * 60);
+            osc.stop(t + 0.95);
+          }, idx * 75);
         });
         break;
 
-      case 'ult_spatial_masterpiece':
-        [220, 277.18, 329.63, 440, 554.37, 659.25].forEach((freq, idx) => {
-          setTimeout(() => {
-            if (!this.ctx) return;
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            const t = this.ctx.currentTime;
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.05, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(t);
-            osc.stop(t + 1.3);
-          }, idx * 80);
-        });
-        break;
-
-      // 4. Khải Vạn
+      // 4. Khải Vạn (FlameFXFree & ElementalMagicFXFree: Roaring Firestorm & Celestial Meteors)
       case 'active_firework_orb':
       case 'firework_burst':
-        [300, 150, 60].forEach((freq, idx) => {
+        // Supercharged flame charge + explosive detonation punch
+        [450, 280, 140, 65, 38].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             const t = this.ctx.currentTime;
-            osc.type = 'sawtooth';
+            osc.type = idx < 2 ? 'sawtooth' : 'triangle';
             osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.1, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+            gain.gain.setValueAtTime(0.12, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 0.4);
-          }, idx * 60);
+            osc.stop(t + 0.5);
+          }, idx * 40);
         });
         break;
 
       case 'ult_celestial_nocturne':
-        [400, 300, 200, 150, 100, 60].forEach((freq, idx) => {
+        // 5 Staggered celestial meteor projectile strikes with deep pyrotechnic booms
+        [0, 280, 560, 840, 1120].forEach((delayMs, mIdx) => {
           setTimeout(() => {
             if (!this.ctx) return;
+            const baseFreq = [75, 60, 90, 50, 40][mIdx];
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             const t = this.ctx.currentTime;
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.1, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+            osc.frequency.setValueAtTime(baseFreq * 4, t);
+            osc.frequency.exponentialRampToValueAtTime(baseFreq, t + 0.4);
+            gain.gain.setValueAtTime(0.12, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 0.65);
-          }, idx * 90);
+            osc.stop(t + 0.6);
+
+            // Crackling sparks sizzle
+            [1200, 1600, 2400].forEach((sFreq, sIdx) => {
+              setTimeout(() => {
+                if (!this.ctx) return;
+                const sOsc = this.ctx.createOscillator();
+                const sGain = this.ctx.createGain();
+                const st = this.ctx.currentTime;
+                sOsc.type = 'triangle';
+                sOsc.frequency.setValueAtTime(sFreq, st);
+                sGain.gain.setValueAtTime(0.05, st);
+                sGain.gain.exponentialRampToValueAtTime(0.001, st + 0.25);
+                sOsc.connect(sGain);
+                sGain.connect(this.ctx.destination);
+                sOsc.start(st);
+                sOsc.stop(st + 0.3);
+              }, sIdx * 50);
+            });
+          }, delayMs);
         });
         break;
 

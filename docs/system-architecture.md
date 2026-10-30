@@ -133,7 +133,43 @@ flowchart LR
 
 ---
 
-## 8. Automated Production Deployment Pipeline
+## 8. Dual Ability 3D VFX & Procedural Equipment Pipeline
+
+### 8.1 GPU-Batched VFX Engine (`src/engine/three/SpellEffect3D.ts`)
+- **Single Draw Call Optimization**: All 18 active and ultimate abilities utilize `three.quarks` `BatchedRenderer` sharing geometry and particle textures (Kenney Particle Pack in `public/textures/particles/`).
+- **Dynamic Point Light Management**: Each ability can allocate a transient Three.js `PointLight` at cast origin. A dedicated decay timer smoothly interpolates intensity down to zero before removing the light from the scene to prevent WebGL light count saturation.
+- **Procedural Sound Synthesis**: Every ability effect triggers a corresponding micro-synthesizer oscillator envelope via the Web Audio API in `src/audio/audioManager.ts`, generating melodic harps, whooshes, chimes, or bass drops without loading external `.mp3` audio files.
+
+### 8.2 Procedural Mythic Arsenal Engine (`src/engine/three/equipment/EquipmentGenerator.ts`)
+- **Procedural Mesh Router**: Equipment with `proc:` model IDs bypass GLTF file loads and are generated programmatically via Three.js primitives (lathes, extruded profiles, faceted cones, and torus rings).
+- **Physical Materials (PBR)**: Utilizes `THREE.MeshPhysicalMaterial` with transmission ($0.85$–$0.95$), roughness, metalness, and emissive bloom intensity.
+- **Two-Handed Socket & Grip Matrix (`CharacterMeshBuilder.ts`)**:
+  - `WEAPON_GRIP_CONFIGS`: Maps weapon archetypes (`greatsword`, `colossal_hammer`, `scythe`, `polearm`, `bardic_lute`, `dual_chakram`) to precise position, rotation, and scale offsets relative to `handslot.r`.
+  - `is2H` Invariant: Automatically suppresses offhand shields or items on `handslot.l` when a two-handed weapon is equipped, preventing mesh clipping during combat stances and walking animations.
+
+---
+
+## 9. Environmental Shaders & Nature Subsystem
+
+### 9.1 Godot Toon Water Material (`src/engine/three/materials/GodotWaterMaterial.ts`)
+- **GPU Wave Synthesis**: Dual-layer Simplex wave distortion executed directly in vertex and fragment shaders. Evaluates counter-propagating wave coordinates ($1.5\times$ scale layer offset) with zero CPU memory or vertex allocation loops.
+- **Toon Lighting Thresholds**: 12 discrete stepped diffuse bands and 8 stepped specular glints with `smoothstep` edge smoothing.
+- **Stylized Faceted Normals**: Hardware screen derivatives (`dFdx(vWorldPos)`, `dFdy(vWorldPos)`) produce faceted low-poly planar water facets.
+- **Wave Foam**: Procedural wave crest thresholding (`smoothstep(0.68, 0.88, vWave)`) yielding bright white foam crests against an aquatic cyan-to-deep navy gradient.
+
+### 9.2 Godot Instanced Grass & Dither System (`src/engine/three/nature/GodotGrassManager.ts`)
+- **Instanced Rendering**: Renders 1,200 instanced grass quads (`THREE.InstancedMesh`) positioned dynamically on top of terrain blocks using `VoxelTerrainBuilder.getTopElevation()`.
+- **Bayer 4x4 Ordered Dithering**: Ported from `dither.gdshaderinc`. Evaluates a $4\times 4$ Bayer matrix against alpha threshold to generate retro pixel-art dithering, completely avoiding WebGL alpha sorting contention and depth fighting.
+- **Root-Anchored Wind Sway**: Quadratic height dampening $\text{pow}(\text{uv.y}, 1.8)$ anchors the blade roots firmly to the ground while upper tips sway in real time with global wind vectors.
+- **3-Stop Color Palette**: Maps spatial noise across coordinates to Godot's `palette_01.tres` (deep forest green `#468232` $\rightarrow$ meadow green `#75a743` $\rightarrow$ lime `#a8ca58`).
+
+### 9.3 Cel-Shaded Anime Flame & Campfire Hearth (`src/engine/three/effects/CartoonFireMesh.ts`)
+- **3D Procedural Flame**: Tapered cylinder deformed by upward-scrolling 2D Simplex noise with 3 stepped anime color bands (white core $>0.80$, gold $>0.62$, orange $>0.42$).
+- **24 Rising Ember Sparks**: `THREE.Points` with additive blending, horizontal sinusoidal swirl, and height reset wrapping.
+
+---
+
+## 10. Automated Production Deployment Pipeline
 
 ```mermaid
 flowchart LR
