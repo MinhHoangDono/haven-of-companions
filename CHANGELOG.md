@@ -12,6 +12,7 @@
   - Restored authentic low-poly physical vertex wave displacement with per-frame `computeVertexNormals()`.
   - Anchored water plane to safe elevation ($Y = 0.02$) with bounded wave amplitude ($A \le 0.06\text{m}$), ensuring ocean waves physically roll and undulate without ever flooding shoreline sand and land blocks ($Y \ge 0.20\text{m}$).
   - Reinstated clean `MeshStandardMaterial` with deep marine blue (`#0a4f6d`) and `flatShading: true`, providing natural sunlight facet reflections without artificial shader glare circles.
+- **Beach Sand Instanced Mesh Restoration (`VoxelTerrainBuilder.ts`)**: Re-added missing `dioramaGroup.add(sandMesh)` call that caused all coastal beach dunes, walkable shoreline sand blocks, and promontory beach wraps to be omitted from the scene.
 
 ## [v8.5.1] - 2026-10-30
 

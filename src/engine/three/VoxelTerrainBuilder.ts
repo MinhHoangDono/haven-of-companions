@@ -380,7 +380,7 @@ export class VoxelTerrainBuilder {
       const sandMesh = new THREE.InstancedMesh(cubeGeo, matSand, sandTransforms.length);
       sandTransforms.forEach((m, i) => sandMesh.setMatrixAt(i, m));
       sandMesh.instanceMatrix.needsUpdate = true;
-      sandMesh.castShadow = false; // Sea-level sand receives shadows without self-shadow overdraw
+      sandMesh.castShadow = true;
       sandMesh.receiveShadow = true;
       dioramaGroup.add(sandMesh);
     }

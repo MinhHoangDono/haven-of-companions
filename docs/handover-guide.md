@@ -124,8 +124,9 @@ src/
     └── ui/
         ├── TopBar.tsx                    # Time-of-day, weather, audio mute, build toggle, coin counter
         ├── CharacterCarousel.tsx         # Bottom thumb-zone carousel for instant character jumping
-        ├── SpeechBubble.tsx              # In-world dialogue bubble projected from 3D head positions
-        ├── CharacterModal.tsx            # Full RPG sheet: 360° viewport, 9-hero switcher, 3 functional tabs
+        ├── DialogBox.tsx                 # Hộp thoại đối thoại (dialogbox) nổi: câu thoại, chuyển câu ("Tiếp theo"), nút "Thi triển" & nút "Tối thượng"
+        ├── SpeechBubble.tsx              # Backward-compatible alias cho DialogBox.tsx
+        ├── CharacterModal.tsx            # Hồ sơ nhân vật (trong sheet) / Character Profile Sheet: 360° viewport, 9-hero switcher, 3 tabs (Hành Trang, Kỹ Năng, Ký Ức)
         ├── CharacterPreview3D.tsx        # Isolated 360° turntable WebGL canvas with ResizeObserver
         ├── InspectorBar.tsx              # In-engine 3D Coordinate & Object Inspector tool
         └── builder/

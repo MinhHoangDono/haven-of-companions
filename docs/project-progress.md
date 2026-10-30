@@ -73,8 +73,8 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 ### 3.2 UI & Component Layer (`src/components/ui/`)
 - **`TopBar.tsx`**: Displays village name, time of day toggle, Da Lat mist weather toggle, and audio mute toggle.
 - **`CharacterCarousel.tsx`**: Ergonomic bottom carousel with faction badges, class titles, and smooth horizontal scrolling.
-- **`SpeechBubble.tsx`**: Typewriter text dialogue floating above the character's head via 3D-to-2D screen projection (`vector.project(camera)`).
-- **`CharacterModal.tsx`**: Expandable slide-up bottom sheet with Vietnamese character lore, whimsical stats, 360° 3D hero preview, and dual ability cards (Active & Ultimate) with independent cast triggers.
+- **`DialogBox.tsx` (trước đây là `SpeechBubble.tsx`)**: Hộp thoại nổi (dialogbox) hiển thị lời thoại nhân vật, chuyển câu thoại tiếp theo ("Tiếp theo"), và cụm nút kích hoạt trực tiếp kỹ năng chủ động ("Thi triển") & tuyệt kỹ tối thượng ("Tối thượng").
+- **`CharacterModal.tsx`**: Hồ sơ nhân vật (trong sheet) / Character Profile Sheet: Xem chi tiết mô hình 3D 360°, đổi trang bị, xem bảng 18 kỹ năng chủ động & tối thượng, và xem Ký Ức Tri Kỷ & Nhật Ký Đồng Hành.
 
 ### 3.3 City Builder & Construction Subsystem (`src/engine/three/builder/`)
 - **`DynamicMeshLibrary.ts`**:

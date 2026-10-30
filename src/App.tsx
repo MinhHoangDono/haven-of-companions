@@ -10,7 +10,7 @@ import { TouchControls3D } from './engine/three/TouchControls3D';
 import { CHARACTER_CONFIGS } from './engine/three/CharacterMeshBuilder';
 import { TopBar, TimeOfDay, WeatherType } from './components/ui/TopBar';
 import { CharacterCarousel } from './components/ui/CharacterCarousel';
-import { SpeechBubble } from './components/ui/SpeechBubble';
+import { DialogBox } from './components/ui/DialogBox';
 import { CharacterModal } from './components/ui/CharacterModal';
 import { audioManager } from './audio/audioManager';
 import { ArrowUp } from 'lucide-react';
@@ -290,15 +290,14 @@ export const App: React.FC = () => {
       )}
 
 
-      {/* Bottom-Left Docked Speech Bubble (Closed when modal open or cast active) */}
+      {/* Bottom-Left Docked DialogBox (hộp thoại nhân vật - closed when profile sheet or cast active) */}
       {selectedCharacter && !isModalOpen && !isCasting && (
-        <SpeechBubble
+        <DialogBox
           character={selectedCharacter}
           onClose={() => setSelectedCharId(null)}
           onTriggerAbility={handleTriggerAbility}
         />
       )}
-
       {/* Left Docked Character List under Haven of Companions Card (hidden in build mode) */}
       {!isBuildMode && (
         <CharacterCarousel
