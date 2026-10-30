@@ -1,6 +1,23 @@
 # Changelog
 
-## [v7.3.0] - 2026-10-30
+## [v8.0.0] - 2026-10-30
+
+### Added
+- **Redesigned 3-Column Exodus Rising RPG Character Sheet (`CharacterModal.tsx`, `CharacterPreview3D.tsx`)**:
+  - Full-screen/widescreen executive RPG interface inspired by *Exodus Rising* with dark fantasy aesthetic and responsive multi-column layout.
+  - **Left Column**: Vertical slot selector strip (Weapons, Offhand/Shields, Headgear, Capes, Outfits), selected item inspection card (title, rarity, stats, description, lore, equip action), and scrollable gear list with `[E]` equipped indicators.
+  - **Center Column**: Tall, prominent, full-height 3D character viewport with 360° touch/mouse rotation, flanked by quick slot icons for Primary Weapon, Secondary Shield, Helmet, Cape, and Outfit.
+  - **Right Column**: Character Details header, Level 42 EXP progress bar, large RPG stat blocks (Health 500, Mana 930, Defense 250, Speed 110), signature spell trigger button, and real-life friendship memories.
+  - **Bottom Hint Bar**: Controller and touch prompt indicators (`RS Rotate 360°`, `LS Scroll Gear`, `Y Equip`, `B Close`).
+- **Equipment Visibility & Built-In Mesh Hiding (`CharacterMeshBuilder.ts`)**:
+  - Dynamically hides baked-in class helmet/hat and cape/quiver submeshes (`Knight_Helmet`, `Mage_Hat`, `Barbarian_BearHat`, `Knight_Cape`, `Ranger_Cape`, etc.) when custom gear is equipped or slots are unequipped, completely eliminating clipping and obscured weapons.
+- **Civilian White Shirt & Pants Base Outfit (`CharacterMeshBuilder.ts`, `itemsData.ts`)**:
+  - Introduced `outfit_white_shirt_pants` (Áo Trắng & Quần Vải Thường Dân) utilizing the base KayKit humanoid mannequin (`Rig_Medium_General.glb`) styled with clean white linen shirt and dark slate trousers for characters when no heavy armor is equipped.
+- **Save & Load Full Character & Village Synchronization (`CitySaveManager.ts`, `SaveLoadModal.tsx`)**:
+  - Upgraded world save schema to version 2, capturing placed village structures, all companion equipment customizations (`charactersEquipment`), and backpack inventory records (`inventory`).
+  - Restoring or importing a JSON save file updates both village buildings and companion equipment simultaneously.
+
+---
 
 ### Added
 - **Complete 53-Asset City Builder Catalog (`DynamicMeshLibrary.ts`)**: Integrated all available 3D models from both **KayKit Medieval/Hexagon Packs** and **Kenney Pirate & Environment Kits** into the construction system:
