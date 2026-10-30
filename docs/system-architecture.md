@@ -89,3 +89,31 @@ stateDiagram-v2
 
 - **Active State (60 FPS)**: Render loop ticks every $16\text{ms}$ when panning, zooming, rotating, or animating active 3D particle spells.
 - **Idle State (30 FPS)**: Render loop throttles to $33\text{ms}$ when no touch events occur, reducing mobile GPU utilization by up to $65\%$.
+
+---
+
+## 6. City Builder & Sandbox Construction Subsystem
+
+Adapted from Kenney's Starter Kit City Builder, the sandbox construction engine allows free-form placement, rotation, and demolition of structures across the $70 \times 70$ voxel map:
+
+```mermaid
+flowchart LR
+    Pointer[Pointer Input] -->|Raycast| Voxel[VoxelTerrainBuilder]
+    Voxel -->|Elevation + Material| Builder[CityBuilderController]
+    Builder -->|Check Footprint| Pass[passabilityMap]
+    Builder -->|Preview Ghost| MeshLib[DynamicMeshLibrary]
+    Builder -->|Place / Delete| Group[userStructuresGroup]
+    Group -->|Debounced Sync| Store[(localStorage: haven_city_layout_v1)]
+```
+
+### Key Mathematical & Architectural Invariants:
+1. **Grid Snapping**: Continuous floating-point coordinates $(x, z)$ are quantized into integer grid coordinates $(g_x, g_z) = (\text{round}(x), \text{round}(z))$.
+2. **Elevation Invariance**: Height is sampled directly from voxel heightmaps: $y = \text{VoxelTerrainBuilder.getTopElevation}(g_x, g_z) + y_{\text{offset}}$.
+3. **Multi-Cell Collision Verification**:
+   For any structure with footprint $W \times D$:
+   $$\Delta y_{\text{max}} = \max_{(dx, dz)} |y(g_x + dx, g_z + dz) - y(g_x, g_z)| \le 1.2\text{m}$$
+   Any footprint overlapping deep water ($y \le 0$) or existing structures is rejected with red ghost feedback.
+4. **Dynamic Walkability Reservation**:
+   When placed, the bounding footprint is reserved in `passabilityGrid.markCustomObstacle(minX, maxX, minZ, maxZ, true)`, immediately updating companion A* navigation meshes.
+5. **Serialization Schema**:
+   Structures are persisted to `localStorage` under `haven_city_layout_v1` as versioned JSON records containing `{ instanceId, structureId, gridX, gridZ, elevationY, rotationY }`.

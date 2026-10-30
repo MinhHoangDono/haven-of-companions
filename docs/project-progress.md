@@ -1,6 +1,6 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v5.2`)  
+> **Status**: Live in Production (`v5.3`)  
 > **Production URL**: [https://minhhoangdono.github.io/haven-of-companions/](https://minhhoangdono.github.io/haven-of-companions/)  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
 
@@ -29,6 +29,7 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **Remodel & 24x24 Expansion** | KayKit Adventurers, Medieval Village & 24x24 Map | 9 KayKit Adventurer models with class armor & weapon sockets, 24x24 5-step stepped topography with natural transitions, water walkability blocking (`passabilityMap.ts`), declarative prop placement registry (`propLayoutData.ts`), and 30 FPS mobile optimization | **Completed** ✅ |
 | **UI & Modal Architecture** | Modal Responsive Refinement & Spell Dialog Management (`v4.1`) | Full-screen modal on mobile phones, centered card on web/desktop, primary skill cast button repositioned above 360 preview, removed Raise Toast, dialog auto-dismissed during spell cast, and Memory Feature plan validated (`plans/261029-1724-memory-gallery/`) | **Completed** ✅ |
 | **Controls & Navigation** | Desktop WASD, Jumping Physics & Coordinate Inspector (`v5.2`) | Screen-relative WASD keyboard navigation, realistic gravity jump arc ($2.8\text{m}$ step clearance), camera follow tracking, in-game 3D Coordinate Inspector HUD, un-inverted mouse drag, and coastal shoreline encampment | **Completed** ✅ |
+| **City Builder Mode** | In-Game Construction, Smooth Camera & Persistence (`v5.3`) | Adapted Kenney City Builder into Three.js: 22 CC0 structures across 5 categories, DynamicMeshLibrary, real-time green/red ghost hologram, 90° rotation, demolish tool, smooth builder camera with LERP damping, localStorage persistence, JSON export/import, and West shore dock cleanup | **Completed** ✅ |
 ---
 
 ## 3. Technical Architecture
@@ -67,6 +68,24 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 - **`CharacterCarousel.tsx`**: Ergonomic bottom carousel with faction badges, class titles, and smooth horizontal scrolling.
 - **`SpeechBubble.tsx`**: Typewriter text dialogue floating above the character's head via 3D-to-2D screen projection (`vector.project(camera)`).
 - **`CharacterModal.tsx`**: Expandable slide-up bottom sheet with Vietnamese character lore, whimsical stats, and the "Cast Ability" trigger button.
+
+### 3.3 City Builder & Construction Subsystem (`src/engine/three/builder/`)
+- **`DynamicMeshLibrary.ts`**:
+  - Indexes 22 CC0 public domain 3D models across 5 categories (*Houses, Production, Fortifications, Decorations, Nature*).
+  - Pre-calculates bounding footprint dimensions ($1 \times 1, 2 \times 2, 3 \times 3$), elevation offsets, and shared material pooling.
+  - Generates ghost preview clones with dynamic validity tinting (`0x20c997` emerald green vs `0xfa5252` crimson red).
+- **`CityBuilderController.ts`**:
+  - Real-time grid-snapped cursor raycasting onto voxel terrain (`VoxelTerrainBuilder.getTopElevation`).
+  - $90^\circ$ structure rotation via `R`, `Space`, or UI button.
+  - Demolish tool highlighting and dismantling user-placed structures with audio feedback (`audioManager.playDemolishSound()`).
+  - Automatically syncs placed footprints to `passabilityMap.ts`, preventing companions from walking through player-built walls.
+- **`CitySaveManager.ts`**:
+  - Debounced auto-save to browser `localStorage` (`haven_city_layout_v1`) restoring player creations across reloads.
+  - Formatted JSON export / download, JSON import, and pristine diorama reset.
+- **Builder UI Layer (`src/components/ui/builder/`)**:
+  - `BuilderToolbar.tsx`: Bottom-docked drawer with category tabs and structure count pill ($N/100$).
+  - `StructureCard.tsx`: Thematic 2D sprite cards with footprint badges.
+  - `SaveLoadModal.tsx`: Complete save/export/import/reset dialog.
 
 ---
 

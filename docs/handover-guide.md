@@ -40,24 +40,25 @@ The Vite dev server will print both the local URL (`http://localhost:3000`) and 
 
 ## 3. Production Deployment Pipeline
 
-The application is deployed on **Netlify** with zero backend infrastructure requirements (100% static client-side SPA with WebGL).
+The application is deployed on **GitHub Pages** via **GitHub Actions** with zero backend infrastructure requirements (100% static client-side SPA with WebGL).
 
 ### Deploying to Production
 ```bash
-# Step 1: Ensure clean build
+# Step 1: Ensure clean build and relative base configuration (base: "./" in vite.config.ts)
 npm run build
 
-# Step 2: Deploy to Netlify production
-npx netlify deploy --prod --dir=dist
+# Step 2: Push to master (GitHub Actions automatically builds and deploys to GitHub Pages)
+git push origin master
 ```
 
-### Operational Deployment Invariant: Service Worker Cache
-When shipping a new release, **always bump `CACHE_NAME` in `public/sw.js`**:
-```typescript
-// public/sw.js
-const CACHE_NAME = 'haven-companions-v3.4'; // increment on release
-```
-*Why?* Mobile Safari and Android Chrome aggressively cache PWA assets. Incrementing `CACHE_NAME` triggers the service worker `activate` event, which purges stale cached bundles and ensures users receive the latest changes immediately.
+### Operational Deployment Invariant: Service Worker Cache & Base Path
+1. **Service Worker Cache**: When shipping a new release, **always bump `CACHE_NAME` in `public/sw.js`**:
+   ```typescript
+   // public/sw.js
+   const CACHE_NAME = 'haven-companions-v6.4'; // increment on release
+   ```
+   *Why?* Mobile Safari and Android Chrome aggressively cache PWA assets. Incrementing `CACHE_NAME` triggers the service worker `activate` event, purging stale cached bundles.
+2. **Vite Base Path**: `vite.config.ts` **must** maintain `base: './'` to ensure all chunks, CSS, and 3D GLTF models resolve relative to subpath hosting (GitHub Pages `/haven-of-companions/`).
 
 ---
 

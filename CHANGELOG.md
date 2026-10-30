@@ -1,5 +1,14 @@
 # Changelog
 
+## [v6.4.0] - 2026-10-30
+
+### Added
+- **City Building & Voxel Construction Package**: Added complete builder mode infrastructure (`CityBuilderController.ts`, `CitySaveManager.ts`, `DynamicMeshLibrary.ts`, `BuilderToolbar.tsx`, `SaveLoadModal.tsx`, `StructureCard.tsx`) enabling placement, rotation, demolition, and local storage save/load of custom structures.
+- **Phase 1 Platformer Gimmicks**: Integrated 3D collectibles (`CollectibleMeshBuilder.ts`, 12 scattered items across 3 biomes with coin score HUD in `TopBar`), falling pier planks (`DynamicPlatformManager.ts`), and high-jump thermal wind vents.
+- **Automated GitHub Pages CI/CD Pipeline**: Configured GitHub Actions workflow (`.github/workflows/deploy.yml`) and relative base pathing (`base: "./"`) for robust zero-cost zero-config production deployments.
+
+---
+
 All notable changes to the **Haven of Companions (*Làng Tri Kỷ*)** project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -20,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Mobile Responsive Builder Drawer (`BuilderToolbar.tsx`, `StructureCard.tsx`, `SaveLoadModal.tsx`)**: Bottom-docked catalog drawer with category tabs, 2D sprite cards with footprint badges, structure count pill ($N/100$), and TopBar Build toggle.
 - **30+ FPS Mobile Performance Guarantee**: Throttled 33ms raycasting, shared geometries/materials, and a 100-structure hard safety cap.
 
+### Removed
+- **West Shoreline Wooden Dock & Small Rowboats (`propLayoutData.ts`, `VoxelTerrainBuilder.ts`)**: Removed the wooden dock pier (`structure-platform-dock.glb`) and small rowboats (`boat-row-small.glb`) from the West shore ($X = -2.5, Z \in [5.5, 20]$ and $X = -8.5, Z = 6.2$), cleaning up wooden plank voxels and restoring an open, natural sandy beach coastline.
 ---
 
 ## [v5.2.0] - 2026-10-30

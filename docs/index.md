@@ -20,6 +20,7 @@ Welcome to the technical and operational documentation for **Haven of Companions
 ## Core Invariants
 
 1. **Mobile-First Touch Fluidity**: Every gesture must operate without stuttering or jank. 1-finger drag owns camera ground panning; 2-finger pinch owns camera distance zoom; 2-finger twist and UI buttons own camera azimuth rotation.
-2. **Deterministic Coordinates**: All 3D coordinates use the Three.js coordinate system where $+Y$ is vertical elevation, $+X$ is East, and $+Z$ is South. Diorama bounds are clamped to $[-8, 8]$ on both $X$ and $Z$.
+2. **Deterministic Coordinates**: All 3D coordinates use the Three.js coordinate system where $+Y$ is vertical elevation, $+X$ is East, and $+Z$ is South. World bounds are clamped to $[-35, 35]$ on both $X$ and $Z$ over the $70 \times 70$ voxel diorama.
 3. **PWA Cache Invalidation**: Whenever new assets or code are committed for production release, the `CACHE_NAME` constant in `public/sw.js` **must be incremented** to prevent stale asset caching on iOS Safari and Android Chrome.
 4. **Zero Heavy Runtime CDNs**: All fonts, styles, shaders, and models are self-contained in the project bundle to ensure sub-second cold boot on mobile networks.
+5. **City Builder Footprint Invariant**: User-placed structures must never overlap deep ocean water ($Y \le 0$) or companion pedestals, and must dynamically update `passabilityMap.ts` to prevent companion clipping.
