@@ -18,6 +18,9 @@ import { BuilderToolbar } from './components/ui/builder/BuilderToolbar';
 import { SaveLoadModal } from './components/ui/builder/SaveLoadModal';
 import { CityBuilderController } from './engine/three/builder/CityBuilderController';
 import { BuilderTool, PlacedStructure, StructureDefinition } from './types/cityBuilder';
+import { InventoryDrawer } from './components/ui/inventory/InventoryDrawer';
+import { inventoryManager } from './engine/inventory/InventoryManager';
+import { ActiveBuff } from './types/inventory';
 export const App: React.FC = () => {
   const controlsRef = useRef<TouchControls3D | null>(null);
   const castSpellRef = useRef<((effectType: CharacterSignatureAbility['effectType'], charId: string) => void) | null>(null);
@@ -35,6 +38,21 @@ export const App: React.FC = () => {
   });
   const [inspectorHit, setInspectorHit] = useState<InteractiveHit | null>(null);
 
+  // Inventory & Customization State
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [inventoryCount, setInventoryCount] = useState(() => {
+    return inventoryManager.getItems().reduce((sum, it) => sum + it.quantity, 0);
+  });
+  const [activeBuffs, setActiveBuffs] = useState<ActiveBuff[]>(() => inventoryManager.getActiveBuffs());
+
+  React.useEffect(() => {
+    const unsub = inventoryManager.subscribe(() => {
+      const count = inventoryManager.getItems().reduce((sum, it) => sum + it.quantity, 0);
+      setInventoryCount(count);
+      setActiveBuffs(inventoryManager.getActiveBuffs());
+    });
+    return unsub;
+  }, []);
   // City Builder Mode state
   const builderControllerRef = useRef<CityBuilderController | null>(null);
   const [isBuildMode, setIsBuildMode] = useState(false);
@@ -127,7 +145,11 @@ export const App: React.FC = () => {
       } catch {}
       return next;
     });
-    setCelebrationToast("✨ Nhặt được +" + item.value + " [" + item.name + "]!");
+
+    // Auto-store looted item into player backpack
+    const looted = inventoryManager.addLootFromWorld(item.type);
+    const itemName = looted ? looted.name : item.name;
+    setCelebrationToast(`✨ Nhặt được +${item.value} [${itemName}] vào túi đồ!`);
     setTimeout(() => setCelebrationToast(null), 2500);
   }, []);
 
@@ -188,6 +210,12 @@ export const App: React.FC = () => {
         isMuted={isMuted}
         isInspectorActive={isInspectorActive}
         coinScore={coinScore}
+        inventoryCount={inventoryCount}
+        activeBuffs={activeBuffs}
+        onOpenInventory={() => {
+          audioManager.playTap();
+          setIsInventoryOpen(true);
+        }}
         onToggleTimeOfDay={handleToggleTimeOfDay}
         onToggleWeather={handleToggleWeather}
         onToggleMute={handleToggleMute}
@@ -339,7 +367,7 @@ export const App: React.FC = () => {
           <ArrowUp className="w-6 h-6 stroke-[2.5]" />
         </button>
       )}
-      {/* Expandable Character Sheet Modal */}
+      {/* Expandable Character Sheet Modal with Wardrobe Customizer */}
       {isModalOpen && (
         <CharacterModal
           character={selectedCharacter}
@@ -348,6 +376,18 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* Inventory & Equipment Backpack Drawer */}
+      <InventoryDrawer
+        isOpen={isInventoryOpen}
+        onClose={() => setIsInventoryOpen(false)}
+        characters={characters}
+        selectedCharId={selectedCharId}
+        onSelectCharacter={handleSelectCharacter}
+        onToast={(msg) => {
+          setCelebrationToast(msg);
+          setTimeout(() => setCelebrationToast(null), 3000);
+        }}
+      />
     </div>
   );
 };

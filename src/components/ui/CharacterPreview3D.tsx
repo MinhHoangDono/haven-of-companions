@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Character } from '../../types/character';
 import { CharacterMeshBuilder } from '../../engine/three/CharacterMeshBuilder';
+import { inventoryManager } from '../../engine/inventory/InventoryManager';
 import { RotateCcw } from 'lucide-react';
 
 interface CharacterPreview3DProps {
@@ -76,7 +77,11 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
     const charMeshGroup = new THREE.Group();
     rotGroup.add(charMeshGroup);
     const previewHandle = CharacterMeshBuilder.buildClassModel(character.id, charMeshGroup);
-    // 4. Touch & Mouse 360-degree rotation handling
+
+    // Auto-refresh 3D equipment when user customizes gear
+    const unsub = inventoryManager.subscribe(() => {
+      previewHandle.refreshEquipment?.();
+    });
     let isDragging = false;
     let prevX = 0;
     let velocityY = 0;
@@ -146,6 +151,7 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
     window.addEventListener('resize', handleResize);
 
     return () => {
+      unsub();
       cancelAnimationFrame(rafId);
       dom.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);

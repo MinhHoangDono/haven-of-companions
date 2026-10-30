@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import { Character } from '../../types/character';
 import { assetLoader } from './GLTFAssetLoader';
 import { passabilityGrid } from '../map/passabilityMap';
-
+import { EquipSlot } from '../../types/inventory';
+import { EquipmentGenerator } from './equipment/EquipmentGenerator';
+import { inventoryManager } from '../inventory/InventoryManager';
 export interface CharacterMeshHandle {
   id: string;
   character: Character;
@@ -19,8 +21,9 @@ export interface CharacterMeshHandle {
   jump?: (customVelocity?: number) => void;
   launchJump?: (velocity: number) => void;
   isJumping?: () => boolean;
+  equipSlot?: (slot: EquipSlot, modelAsset: string | null) => Promise<void>;
+  refreshEquipment?: () => Promise<void>;
 }
-
 export interface CharacterModelConfig {
   model: string;
   scale: number;
@@ -251,6 +254,93 @@ export class CharacterMeshBuilder {
     let idleAction: THREE.AnimationAction | null = null;
     let walkAction: THREE.AnimationAction | null = null;
     let headBone: THREE.Object3D | null = null;
+    let rightHand: THREE.Object3D | null = null;
+    let leftHand: THREE.Object3D | null = null;
+    let chest: THREE.Object3D | null = null;
+
+    let currentMainWeaponMesh: THREE.Object3D | null = null;
+    let currentOffhandMesh: THREE.Object3D | null = null;
+    let currentHeadgearMesh: THREE.Object3D | null = null;
+    let currentCapeMesh: THREE.Object3D | null = null;
+
+    const equipSlotFn = async (slot: EquipSlot, modelAsset: string | null) => {
+      try {
+        if (slot === 'mainWeapon') {
+          if (currentMainWeaponMesh && rightHand) {
+            rightHand.remove(currentMainWeaponMesh);
+            currentMainWeaponMesh = null;
+          }
+          if (modelAsset && rightHand) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.scale.set(0.9, 0.9, 0.9);
+            mesh.rotation.x = Math.PI / 2;
+            rightHand.add(mesh);
+            currentMainWeaponMesh = mesh;
+          }
+        } else if (slot === 'offhand') {
+          if (currentOffhandMesh && leftHand) {
+            leftHand.remove(currentOffhandMesh);
+            currentOffhandMesh = null;
+          }
+          if (modelAsset && leftHand) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.scale.set(0.9, 0.9, 0.9);
+            mesh.rotation.y = Math.PI;
+            leftHand.add(mesh);
+            currentOffhandMesh = mesh;
+          }
+        } else if (slot === 'headgear') {
+          if (currentHeadgearMesh && headBone) {
+            headBone.remove(currentHeadgearMesh);
+            currentHeadgearMesh = null;
+          }
+          if (modelAsset && headBone) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.position.set(0, 0.28, 0);
+            headBone.add(mesh);
+            currentHeadgearMesh = mesh;
+          }
+        } else if (slot === 'cape') {
+          if (currentCapeMesh && chest) {
+            chest.remove(currentCapeMesh);
+            currentCapeMesh = null;
+          }
+          if (modelAsset && chest) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.position.set(0, 0.08, -0.16);
+            mesh.rotation.y = Math.PI;
+            chest.add(mesh);
+            currentCapeMesh = mesh;
+          }
+        }
+      } catch (err) {
+        console.warn(`[CharacterMeshBuilder] Failed to equip ${slot}:`, err);
+      }
+    };
+
+    const refreshEquipmentFn = async () => {
+      const equipped = inventoryManager.getEquipped(character.id);
+
+      const mainItemId = equipped.mainWeapon;
+      const mainItem = mainItemId ? inventoryManager.getItem(mainItemId) : null;
+      const mainAsset = mainItem?.modelAsset || config.mainWeapon || null;
+      await equipSlotFn('mainWeapon', mainAsset);
+
+      const offItemId = equipped.offhand;
+      const offItem = offItemId ? inventoryManager.getItem(offItemId) : null;
+      const offAsset = offItem?.modelAsset || config.offhandWeapon || null;
+      await equipSlotFn('offhand', offAsset);
+
+      const headItemId = equipped.headgear;
+      const headItem = headItemId ? inventoryManager.getItem(headItemId) : null;
+      const headAsset = headItem?.modelAsset || null;
+      await equipSlotFn('headgear', headAsset);
+
+      const capeItemId = equipped.cape;
+      const capeItem = capeItemId ? inventoryManager.getItem(capeItemId) : null;
+      const capeAsset = capeItem?.modelAsset || config.backAccessory || null;
+      await equipSlotFn('cape', capeAsset);
+    };
 
     const avatarGroup = new THREE.Group();
     group.add(avatarGroup);
@@ -259,15 +349,15 @@ export class CharacterMeshBuilder {
     Promise.all([
       assetLoader.loadModel(`assets/models/characters/${config.model}`, true),
       ensureAnimationsLoaded(),
-    ]).then(([{ scene: avatarScene }, anims]) => {
+    ]).then(async ([{ scene: avatarScene }, anims]) => {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
       avatarGroup.add(avatarScene);
 
       // Locate skeletal bones
       headBone = avatarScene.getObjectByName('head') || null;
-      const rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r');
-      const leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l');
-      const chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine');
+      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
+      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
+      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
 
       // Bind AnimationMixer to eliminate T-Pose!
       mixer = new THREE.AnimationMixer(avatarScene);
@@ -281,33 +371,8 @@ export class CharacterMeshBuilder {
         walkAction = mixer.clipAction(anims.walk);
       }
 
-      // Attach mainhand weapon to right hand socket
-      if (config.mainWeapon && rightHand) {
-        assetLoader.loadModel(`assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
-          weapon.scale.set(0.9, 0.9, 0.9);
-          weapon.rotation.x = Math.PI / 2;
-          rightHand.add(weapon);
-        });
-      }
-
-      // Attach offhand weapon / shield to left hand socket
-      if (config.offhandWeapon && leftHand) {
-        assetLoader.loadModel(`assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
-          shield.scale.set(0.9, 0.9, 0.9);
-          shield.rotation.y = Math.PI;
-          leftHand.add(shield);
-        });
-      }
-
-      // Attach back accessory (quiver) to chest/spine
-      if (config.backAccessory && chest) {
-        assetLoader.loadModel(`assets/models/characters/${config.backAccessory}`, false).then(({ scene: accessory }) => {
-          accessory.scale.set(0.9, 0.9, 0.9);
-          accessory.position.set(0, 0, -0.18);
-          accessory.rotation.y = Math.PI;
-          chest.add(accessory);
-        });
-      }
+      // Initial equipment mount based on persistent inventory
+      await refreshEquipmentFn();
     });
 
     let currentSpotX = config.posX;
@@ -347,12 +412,14 @@ export class CharacterMeshBuilder {
         jumpVelocity = velocity;
       },
       isJumping: () => isJumping,
+      equipSlot: equipSlotFn,
+      refreshEquipment: refreshEquipmentFn,
       moveByDirection: (dx: number, dz: number, dt: number) => {
         if (Math.abs(dx) < 0.001 && Math.abs(dz) < 0.001) return;
         const len = Math.hypot(dx, dz);
         const normX = dx / len;
         const normZ = dz / len;
-        const speed = isJumping ? 3.8 : 3.2;
+        const speed = (isJumping ? 3.8 : 3.2) * inventoryManager.getSpeedMultiplier();
         const step = speed * dt;
         const nextX = group.position.x + normX * step;
         const nextZ = group.position.z + normZ * step;
@@ -547,7 +614,11 @@ export class CharacterMeshBuilder {
   /**
    * Helper used by CharacterPreview3D.tsx to render animated model in sheet modal
    */
-  public static buildClassModel(charId: string, group: THREE.Group): { update: (dt: number) => void } {
+  public static buildClassModel(charId: string, group: THREE.Group): {
+    update: (dt: number) => void;
+    equipSlot?: (slot: EquipSlot, modelAsset: string | null) => Promise<void>;
+    refreshEquipment?: () => Promise<void>;
+  } {
     const config = CHARACTER_CONFIGS[charId] || {
       model: 'Knight.glb',
       scale: 0.65,
@@ -555,43 +626,113 @@ export class CharacterMeshBuilder {
     };
 
     let mixer: THREE.AnimationMixer | null = null;
+    let headBone: THREE.Object3D | null = null;
+    let rightHand: THREE.Object3D | null = null;
+    let leftHand: THREE.Object3D | null = null;
+    let chest: THREE.Object3D | null = null;
+
+    let currentMainMesh: THREE.Object3D | null = null;
+    let currentOffMesh: THREE.Object3D | null = null;
+    let currentHeadMesh: THREE.Object3D | null = null;
+    let currentCapeMesh: THREE.Object3D | null = null;
+
+    const equipSlotFn = async (slot: EquipSlot, modelAsset: string | null) => {
+      try {
+        if (slot === 'mainWeapon') {
+          if (currentMainMesh && rightHand) rightHand.remove(currentMainMesh);
+          currentMainMesh = null;
+          if (modelAsset && rightHand) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.scale.set(0.9, 0.9, 0.9);
+            mesh.rotation.x = Math.PI / 2;
+            rightHand.add(mesh);
+            currentMainMesh = mesh;
+          }
+        } else if (slot === 'offhand') {
+          if (currentOffMesh && leftHand) leftHand.remove(currentOffMesh);
+          currentOffMesh = null;
+          if (modelAsset && leftHand) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.scale.set(0.9, 0.9, 0.9);
+            mesh.rotation.y = Math.PI;
+            leftHand.add(mesh);
+            currentOffMesh = mesh;
+          }
+        } else if (slot === 'headgear') {
+          if (currentHeadMesh && headBone) headBone.remove(currentHeadMesh);
+          currentHeadMesh = null;
+          if (modelAsset && headBone) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.position.set(0, 0.28, 0);
+            headBone.add(mesh);
+            currentHeadMesh = mesh;
+          }
+        } else if (slot === 'cape') {
+          if (currentCapeMesh && chest) chest.remove(currentCapeMesh);
+          currentCapeMesh = null;
+          if (modelAsset && chest) {
+            const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
+            mesh.position.set(0, 0.08, -0.16);
+            mesh.rotation.y = Math.PI;
+            chest.add(mesh);
+            currentCapeMesh = mesh;
+          }
+        }
+      } catch (e) {
+        console.warn(`[buildClassModel] Failed to equip ${slot}`, e);
+      }
+    };
+
+    const refreshEquipmentFn = async () => {
+      const equipped = inventoryManager.getEquipped(charId);
+
+      const mainItemId = equipped.mainWeapon;
+      const mainItem = mainItemId ? inventoryManager.getItem(mainItemId) : null;
+      const mainAsset = mainItem?.modelAsset || config.mainWeapon || null;
+      await equipSlotFn('mainWeapon', mainAsset);
+
+      const offItemId = equipped.offhand;
+      const offItem = offItemId ? inventoryManager.getItem(offItemId) : null;
+      const offAsset = offItem?.modelAsset || config.offhandWeapon || null;
+      await equipSlotFn('offhand', offAsset);
+
+      const headItemId = equipped.headgear;
+      const headItem = headItemId ? inventoryManager.getItem(headItemId) : null;
+      const headAsset = headItem?.modelAsset || null;
+      await equipSlotFn('headgear', headAsset);
+
+      const capeItemId = equipped.cape;
+      const capeItem = capeItemId ? inventoryManager.getItem(capeItemId) : null;
+      const capeAsset = capeItem?.modelAsset || config.backAccessory || null;
+      await equipSlotFn('cape', capeAsset);
+    };
 
     Promise.all([
       assetLoader.loadModel(`assets/models/characters/${config.model}`, true),
       ensureAnimationsLoaded(),
-    ]).then(([{ scene: avatarScene }, anims]) => {
+    ]).then(async ([{ scene: avatarScene }, anims]) => {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
       group.add(avatarScene);
+
+      headBone = avatarScene.getObjectByName('head') || null;
+      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
+      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
+      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
 
       mixer = new THREE.AnimationMixer(avatarScene);
       if (anims.idle) {
         mixer.clipAction(anims.idle).play();
       }
 
-      const rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r');
-      const leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l');
-
-      if (config.mainWeapon && rightHand) {
-        assetLoader.loadModel(`assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
-          weapon.scale.set(0.9, 0.9, 0.9);
-          weapon.rotation.x = Math.PI / 2;
-          rightHand.add(weapon);
-        });
-      }
-
-      if (config.offhandWeapon && leftHand) {
-        assetLoader.loadModel(`assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
-          shield.scale.set(0.9, 0.9, 0.9);
-          shield.rotation.y = Math.PI;
-          leftHand.add(shield);
-        });
-      }
+      await refreshEquipmentFn();
     });
 
     return {
       update: (dt: number) => {
         if (mixer) mixer.update(dt);
       },
+      equipSlot: equipSlotFn,
+      refreshEquipment: refreshEquipmentFn,
     };
   }
 

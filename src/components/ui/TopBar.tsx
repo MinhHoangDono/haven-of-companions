@@ -10,12 +10,15 @@ interface TopBarProps {
   isMuted: boolean;
   isInspectorActive?: boolean;
   coinScore?: number;
+  inventoryCount?: number;
+  activeBuffs?: { icon: string; name: string }[];
   isBuildMode?: boolean;
   onToggleTimeOfDay: () => void;
   onToggleWeather: () => void;
   onToggleMute: () => void;
   onToggleInspector?: () => void;
   onToggleBuildMode?: () => void;
+  onOpenInventory?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -24,12 +27,15 @@ export const TopBar: React.FC<TopBarProps> = ({
   isMuted,
   isInspectorActive,
   coinScore,
+  inventoryCount,
+  activeBuffs,
   isBuildMode,
   onToggleTimeOfDay,
   onToggleWeather,
   onToggleMute,
   onToggleInspector,
   onToggleBuildMode,
+  onOpenInventory,
 }) => {
   const getTimeIcon = () => {
     switch (timeOfDay) {
@@ -70,6 +76,29 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Control Pills */}
       <div className="pointer-events-auto flex items-center gap-1.5">
+        {/* Active Buff Indicator */}
+        {activeBuffs && activeBuffs.length > 0 && (
+          <div
+            className="flex items-center gap-1 bg-emerald-950/80 border border-emerald-500/70 text-emerald-300 px-2.5 py-1.5 rounded-full text-xs font-serif font-bold shadow-md animate-pulse"
+            title={activeBuffs[0].name}
+          >
+            <span className="text-sm">{activeBuffs[0].icon}</span>
+            <span className="text-[11px] truncate max-w-[85px] sm:max-w-none">{activeBuffs[0].name}</span>
+          </div>
+        )}
+
+        {/* Backpack Inventory Button */}
+        {onOpenInventory && (
+          <button
+            onClick={onOpenInventory}
+            className="flex items-center gap-1.5 bg-ink-900/90 hover:bg-ink-800 backdrop-blur-md border border-fantasy-gold/60 text-fantasy-gold px-2.5 py-1.5 rounded-full text-xs font-serif font-bold active:scale-95 transition-all shadow-md"
+            title="Mở Túi Đồ & Hành Trang Tri Kỷ (Inventory)"
+          >
+            <span className="text-sm">🎒</span>
+            <span className="text-[11px] font-mono text-paper-100">{inventoryCount ?? 0}</span>
+          </button>
+        )}
+
         {/* Collectible Coin Pouch Counter */}
         {coinScore !== undefined && (
           <div

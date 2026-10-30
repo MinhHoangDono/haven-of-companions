@@ -238,7 +238,7 @@ export class ProceduralPropDistributor {
         asset: 'rocks-sand-b.glb',
         pack: 'environment',
         minDistance: 5.5,
-        targetCount: 6,
+        targetCount: 1,
         scaleRange: [1.5, 2.0],
         allowedBlocks: ['SAND'],
         elevationRange: [0.1, 0.6],

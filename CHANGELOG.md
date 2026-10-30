@@ -1,5 +1,43 @@
 # Changelog
 
+## [v7.2.0] - 2026-10-30
+
+### Added
+- **Phase 2: Comprehensive RPG Item & Inventory System (`src/types/inventory.ts`, `src/data/itemsData.ts`, `src/engine/inventory/InventoryManager.ts`)**:
+  - Full inventory backpack managing 30+ items across 6 categories (Weapons, Off-hands/Shields, Headgear/Hats, Capes & Mantles, Consumables, and World Collectibles).
+  - Item rarity tiers (Common, Uncommon, Rare, Epic, Legendary) with stat boosts (Attack, Defense, Magic, Speed, Healing) and whimsical Vietnamese lore tied to real-life memories.
+  - Persistent state in browser `localStorage` (`haven_inventory_items_v2`, `haven_equipment_v2`, `haven_active_buffs_v2`).
+  - Active consumable buffs (Đà Lạt Pine Tea providing +35% movement speed boost and floral particle aura; Sunspire Sparklers launching mini fireworks; Celebration Mead triggering party hops).
+  - Auto-loot synchronization: Collecting 3D coins, tea leaves, shells, and fireworks embers on the diorama directly adds them to the backpack inventory with visual toasts.
+- **Procedural Weapons, Armor, Robes, Hats & Capes Generator (`src/engine/three/equipment/EquipmentGenerator.ts`)**:
+  - Procedural 3D asset generation for fantasy equipment using Three.js geometries and materials:
+    - *Dragonflame Greatsword* (`proc:dragonflame_blade`): Runed broadsword with pulsating fiery orange core.
+    - *Tidecaller Trident* (`proc:ocean_trident`): 3-pronged cyan-pearl trident with golden shaft.
+    - *Archmage Pointy Wizard Hat* (`proc:wizard_hat`): Curved cone with wide brim and gold buckle band.
+    - *Crusader Knight Helm* (`proc:knight_helm`): Cylindrical helmet with eye visor slit and red feathered plume.
+    - *Huntsman Feathered Cap* (`proc:feather_cap`): Tilted felt cap with angled quill feather.
+    - *Captain's Tricorn Hat* (`proc:tricorn_hat`): 3-pointed pirate hat with gold trim folds.
+    - *Golden Laurels Halo* (`proc:golden_halo`): Floating emissive holy ring.
+    - *Dynamic Capes & Robes* (`proc:highland_cloak`, `proc:royal_mantle`, `proc:ocean_cape`): Draped back cloaks with gold clasps and faction colorways.
+- **Live Real-Time 3D Equipment Swapping (`CharacterMeshBuilder.ts`, `CharacterPreview3D.tsx`, `ThreeIsometricCanvas.tsx`)**:
+  - Dynamic attachment and removal of weapons, shields, headgear, and capes on skeletal bones (`head`, `handslot.r`, `handslot.l`, `chest`).
+  - `CharacterMeshHandle.refreshEquipment()` and `equipSlot()` allow instantaneous real-time gear changes across all in-world 3D characters in the village diorama and the 360° Character Preview.
+- **Inventory Drawer & Wardrobe Customizer UI (`src/components/ui/inventory/InventoryDrawer.tsx`, `CharacterModal.tsx`, `TopBar.tsx`)**:
+  - Modern bottom-docked Backpack HUD with category filters, item inspector, and 1-tap equipping per companion.
+  - Dedicated "Tủ Đồ & Ngoại Trang" (Wardrobe & Customization) tab inside the Character Modal with 4 gear slots (Main Weapon, Offhand/Shield, Headgear/Hat, Cape/Cloak) and live 360° 3D preview.
+  - TopBar Backpack button (`🎒 [count]`) and active buff indicator pill (`🍵 [Buff Name]`).
+
+---
+
+### Fixed & Calibrated
+- **Structure Scaling & Footprint Recalibration (`DynamicMeshLibrary.ts`)**: Scaled up all houses, buildings, and trees from diminutive sizes to authentic diorama proportions ($\ge 2\times 2$ and $3\times 3$ footprints; houses scaled to $4.0\text{--}5.2\times$, Da Lat pines to $4.8\times$), ensuring structures stand substantially taller and grander than human companion characters ($\approx 1.4\text{m}$).
+- **Ghost Mesh Lifecycle & Origin Glitch Fix (`CityBuilderController.ts`)**: Resolved issue where ghost structures persisted in teal/blue form at diorama center $(X: -0.09, Y: 1.50, Z: -0.22)$. Introduced isolated `ghostContainer: THREE.Group`, explicit memory clearing on structure switch, immediate ghost hide upon placement, pointer-leave canvas listening, and removed lingering orphan meshes.
+- **Beach Environment Cleanup (`propLayoutData.ts`, `ProceduralPropDistributor.ts`)**: Removed all coastal cannons (`cannon-mobile.glb`, `cannon.glb`, `cannon-ball.glb`) and shoreline rock clutter (`rocks-sand-a.glb`, `rocks-sand-b.glb`), restoring an open, pristine tropical sandy beach.
+- **Removed Cannon from City Builder Catalog**: Removed `cannon_battery` from placeable catalog for a peaceful village aesthetic.
+- **PWA Cache Invalidation**: Bumped service worker cache to `haven-companions-v7.2` in `public/sw.js`.
+
+---
+
 ## [v6.4.0] - 2026-10-30
 
 ### Added

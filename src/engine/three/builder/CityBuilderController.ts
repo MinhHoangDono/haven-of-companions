@@ -18,9 +18,10 @@ export class CityBuilderController {
   private callbacks: CityBuilderCallbacks;
 
   public userStructuresGroup: THREE.Group;
+  private ghostContainer: THREE.Group;
   private ghostGroup: THREE.Group | null = null;
   private currentGhostId: string | null = null;
-
+  private hasPointerIntersection: boolean = false;
   public activeTool: BuilderTool = 'place';
   public activeStructureId: string = 'cottage_small';
   public currentRotation: number = 0; // 0, PI/2, PI, 1.5*PI
@@ -56,12 +57,18 @@ export class CityBuilderController {
     this.userStructuresGroup = new THREE.Group();
     this.userStructuresGroup.name = 'userStructuresGroup';
     this.scene.add(this.userStructuresGroup);
+
+    this.ghostContainer = new THREE.Group();
+    this.ghostContainer.name = 'cityBuilderGhostContainer';
+    this.ghostContainer.visible = false;
+    this.scene.add(this.ghostContainer);
   }
 
   public setBuildMode(enabled: boolean): void {
     this.isBuildMode = enabled;
     if (!enabled) {
-      this.hideGhost();
+      this.clearGhost();
+      this.hasPointerIntersection = false;
     } else {
       this.updateGhostMesh();
     }
@@ -69,9 +76,9 @@ export class CityBuilderController {
 
   public setTool(tool: BuilderTool): void {
     this.activeTool = tool;
-    if (tool === 'demolish') {
+    if (tool !== 'place') {
       this.hideGhost();
-    } else if (tool === 'place') {
+    } else {
       this.updateGhostMesh();
     }
   }
@@ -93,37 +100,75 @@ export class CityBuilderController {
     if (this.ghostGroup) {
       this.ghostGroup.rotation.y = this.currentRotation;
     }
-    this.validateCurrentGridPosition();
+    if (this.hasPointerIntersection) {
+      this.validateCurrentGridPosition();
+    }
+  }
+
+  private clearGhost(): void {
+    this.ghostContainer.visible = false;
+    while (this.ghostContainer.children.length > 0) {
+      const child = this.ghostContainer.children[0];
+      this.ghostContainer.remove(child);
+      child.traverse((c) => {
+        if ((c as THREE.Mesh).isMesh) {
+          const mesh = c as THREE.Mesh;
+          if (mesh.material) {
+            if (Array.isArray(mesh.material)) {
+              mesh.material.forEach((m) => m.dispose());
+            } else {
+              mesh.material.dispose();
+            }
+          }
+        }
+      });
+    }
+    this.ghostGroup = null;
+    this.currentGhostId = null;
   }
 
   private async updateGhostMesh(): Promise<void> {
     if (!this.isBuildMode || this.activeTool !== 'place' || !this.activeStructureId) {
-      this.hideGhost();
+      this.clearGhost();
       return;
     }
 
     if (this.ghostGroup && this.currentGhostId === this.activeStructureId) {
-      this.ghostGroup.visible = true;
+      this.ghostContainer.visible = this.hasPointerIntersection;
       return;
     }
 
-    this.hideGhost();
+    const targetStructureId = this.activeStructureId;
+    this.clearGhost();
+
     try {
-      const ghost = await DynamicMeshLibrary.createGhostMesh(this.activeStructureId);
+      const ghost = await DynamicMeshLibrary.createGhostMesh(targetStructureId);
+      if (!this.isBuildMode || this.activeTool !== 'place' || this.activeStructureId !== targetStructureId) {
+        return;
+      }
+
       this.ghostGroup = ghost;
-      this.currentGhostId = this.activeStructureId;
+      this.currentGhostId = targetStructureId;
       this.ghostGroup.rotation.y = this.currentRotation;
-      this.scene.add(this.ghostGroup);
-      this.validateCurrentGridPosition();
+      this.ghostContainer.add(this.ghostGroup);
+
+      if (this.hasPointerIntersection) {
+        const def = DynamicMeshLibrary.getDefinition(targetStructureId);
+        const yOffset = def?.baseElevationOffset || 0;
+        this.ghostContainer.position.set(this.currentGridX, this.currentElevationY + yOffset, this.currentGridZ);
+        this.ghostContainer.visible = true;
+        this.validateCurrentGridPosition();
+      } else {
+        this.ghostContainer.visible = false;
+      }
     } catch (e) {
-      console.warn('Failed to generate ghost mesh for:', this.activeStructureId, e);
+      console.warn('Failed to generate ghost mesh for:', targetStructureId, e);
     }
   }
 
-  private hideGhost(): void {
-    if (this.ghostGroup) {
-      this.ghostGroup.visible = false;
-    }
+  public hideGhost(): void {
+    this.hasPointerIntersection = false;
+    this.ghostContainer.visible = false;
   }
 
   /**
@@ -153,13 +198,18 @@ export class CityBuilderController {
       this.currentGridX = gx;
       this.currentGridZ = gz;
       this.currentElevationY = trueY;
+      this.hasPointerIntersection = true;
 
       if (this.ghostGroup && this.activeTool === 'place') {
         const def = DynamicMeshLibrary.getDefinition(this.activeStructureId);
         const yOffset = def?.baseElevationOffset || 0;
-        this.ghostGroup.position.set(gx, trueY + yOffset, gz);
+        this.ghostContainer.position.set(gx, trueY + yOffset, gz);
+        this.ghostContainer.visible = true;
         this.validateCurrentGridPosition();
       }
+    } else {
+      this.hasPointerIntersection = false;
+      this.ghostContainer.visible = false;
     }
   }
 
@@ -296,7 +346,8 @@ export class CityBuilderController {
     this.placedMap.set(instanceId, { instance, data: record });
     audioManager.playBuildPlaceSound();
     this.callbacks.onStructuresChange?.(this.getPlacedList());
-    this.validateCurrentGridPosition();
+    this.hasPointerIntersection = false;
+    this.ghostContainer.visible = false;
     return true;
   }
 
@@ -450,10 +501,8 @@ export class CityBuilderController {
   }
 
   public destroy(): void {
-    this.hideGhost();
-    if (this.ghostGroup) {
-      this.scene.remove(this.ghostGroup);
-    }
+    this.clearGhost();
+    this.scene.remove(this.ghostContainer);
     this.clearAllStructures();
     this.scene.remove(this.userStructuresGroup);
   }

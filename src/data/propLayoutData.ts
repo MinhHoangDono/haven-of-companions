@@ -80,14 +80,6 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'flag-pirate.glb', pack: 'environment', pos: [-8.0, 1.5, 1.8], scale: 1.7 },
   { asset: 'tower-watch.glb', pack: 'environment', pos: [-19.5, 1.5, 2.5], scale: 2.2 },
 
-  // Coastal Pirate Artillery & Beach Fortifications
-  { asset: 'cannon-mobile.glb', pack: 'environment', pos: [-1.2, 0.5, 4.2], rot: [0, 3.14, 0], scale: 1.3 },
-  { asset: 'cannon.glb', pack: 'environment', pos: [-4.0, 0.5, 4.2], rot: [0, 3.0, 0], scale: 1.3 },
-  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-2.2, 0.5, 4.0], scale: 1.2 },
-  { asset: 'cannon.glb', pack: 'environment', pos: [-7.5, 1.5, 1.8], rot: [0, 3.2, 0], scale: 1.4 },
-  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-7.0, 1.5, 1.6], scale: 1.2 },
-  { asset: 'cannon-mobile.glb', pack: 'environment', pos: [-13.5, 1.5, 1.8], rot: [0, 2.9, 0], scale: 1.4 },
-  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-14.2, 1.5, 1.6], scale: 1.2 },
   { asset: 'structure-fence.glb', pack: 'environment', pos: [-15.5, 1.5, 2.8], rot: [0, 1.2, 0], scale: 1.4 },
   { asset: 'structure-fence.glb', pack: 'environment', pos: [-9.0, 1.5, 2.6], rot: [0, -1.0, 0], scale: 1.4 },
 
@@ -107,8 +99,6 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [-5.5, 1.5, 1.2], rot: [0, 0.8, 0], scale: 2.4 },
   { asset: 'palm-bend.glb', pack: 'environment', pos: [-10.8, 0.5, 5.8], rot: [0, 1.4, 0], scale: 2.3 },
   { asset: 'palm-straight.glb', pack: 'environment', pos: [-17.5, 1.5, 1.8], scale: 2.2 },
-  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [-13.5, 0.2, 8.5], scale: 2.4 },
-  { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [-18.5, 0.1, 12.0], scale: 2.2 },
   { asset: 'rocks-sand-c.glb', pack: 'environment', pos: [-22.0, 0.1, 16.0], scale: 2.5 },
   { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [-28.0, 0.1, 22.0], scale: 2.8 },
 

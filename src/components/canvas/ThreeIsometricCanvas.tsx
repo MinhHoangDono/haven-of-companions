@@ -13,6 +13,7 @@ import { CollectibleMeshBuilder } from '../../engine/three/CollectibleMeshBuilde
 import { DynamicPlatformManager } from '../../engine/three/DynamicPlatformManager';
 import { CollectibleItem } from '../../types/platformer';
 import { audioManager } from '../../audio/audioManager';
+import { inventoryManager } from '../../engine/inventory/InventoryManager';
 import { CityBuilderController } from '../../engine/three/builder/CityBuilderController';
 import { CitySaveManager } from '../../engine/three/builder/CitySaveManager';
 import { BuilderTool, PlacedStructure } from '../../types/cityBuilder';
@@ -191,6 +192,12 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     });
     characterHandlesRef.current = handles;
 
+    // 3b. Auto-sync equipment changes across all in-world character avatars
+    const unsubInventory = inventoryManager.subscribe(() => {
+      characterHandlesRef.current.forEach((h) => {
+        h.refreshEquipment?.();
+      });
+    });
     // 4. Lighting & Day/Night Manager
     const lighting = new LightingManager(scene);
     lightingRef.current = lighting;
@@ -357,11 +364,17 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       controls.handlePointerUp(e);
     };
     const onWheel = controls.handleWheel.bind(controls);
+    const onLeave = () => {
+      if (isBuildModeRef.current) {
+        builderController.hideGhost();
+      }
+    };
 
     const dom = renderer.domElement;
     dom.addEventListener('pointerdown', onDown);
     dom.addEventListener('pointermove', onMove);
     dom.addEventListener('pointerup', onUp);
+    dom.addEventListener('pointerleave', onLeave);
     dom.addEventListener('wheel', onWheel, { passive: false });
 
     const handleResize = () => {
@@ -601,13 +614,16 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     rafId = requestAnimationFrame(animate);
 
     return () => {
+      unsubInventory();
       cancelAnimationFrame(rafId);
       dynamicPlatforms.dispose(scene);
       collectibles.forEach((c) => c.mesh && scene.remove(c.mesh));
       dom.removeEventListener('pointerdown', onDown);
       dom.removeEventListener('pointermove', onMove);
       dom.removeEventListener('pointerup', onUp);
+      dom.removeEventListener('pointerleave', onLeave);
       dom.removeEventListener('wheel', onWheel);
+      builderController.destroy();
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
