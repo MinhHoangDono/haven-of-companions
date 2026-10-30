@@ -379,20 +379,20 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
         camRight.crossVectors(camDir, new THREE.Vector3(0, 1, 0)).normalize();
 
         if (keysPressed['KeyW'] || keysPressed['ArrowUp']) {
-          dirX += camDir.x;
-          dirZ += camDir.z;
-        }
-        if (keysPressed['KeyS'] || keysPressed['ArrowDown']) {
           dirX -= camDir.x;
           dirZ -= camDir.z;
         }
-        if (keysPressed['KeyD'] || keysPressed['ArrowRight']) {
-          dirX -= camRight.x;
-          dirZ -= camRight.z;
+        if (keysPressed['KeyS'] || keysPressed['ArrowDown']) {
+          dirX += camDir.x;
+          dirZ += camDir.z;
         }
-        if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) {
+        if (keysPressed['KeyD'] || keysPressed['ArrowRight']) {
           dirX += camRight.x;
           dirZ += camRight.z;
+        }
+        if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) {
+          dirX -= camRight.x;
+          dirZ -= camRight.z;
         }
 
         if (Math.abs(dirX) > 0.001 || Math.abs(dirZ) > 0.001) {

@@ -146,7 +146,7 @@ export class TouchControls3D {
 
     // Right-click drag rotation on PC
     if (this.isMouseRotating) {
-      this.azimuthAngle += dx * 0.008;
+      this.azimuthAngle -= dx * 0.008;
       this.targetAzimuth = this.azimuthAngle;
       this.updateCameraPosition();
       this.callbacks.onCameraChange?.();
@@ -165,9 +165,8 @@ export class TouchControls3D {
       const fwdZ = -Math.cos(this.azimuthAngle);
 
       const moveScale = (this.distance / 1000) * 0.9;
-      const groundDX = (-dx * rightX + dy * fwdX) * moveScale;
-      const groundDZ = (-dx * rightZ + dy * fwdZ) * moveScale;
-
+      const groundDX = (dx * rightX - dy * fwdX) * moveScale;
+      const groundDZ = (dx * rightZ - dy * fwdZ) * moveScale;
       this.target.x = THREE.MathUtils.clamp(this.target.x + groundDX, this.bounds.minX, this.bounds.maxX);
       this.target.z = THREE.MathUtils.clamp(this.target.z + groundDZ, this.bounds.minZ, this.bounds.maxZ);
 
