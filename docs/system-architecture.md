@@ -117,3 +117,34 @@ flowchart LR
    When placed, the bounding footprint is reserved in `passabilityGrid.markCustomObstacle(minX, maxX, minZ, maxZ, true)`, immediately updating companion A* navigation meshes.
 5. **Serialization Schema**:
    Structures are persisted to `localStorage` under `haven_city_layout_v1` as versioned JSON records containing `{ instanceId, structureId, gridX, gridZ, elevationY, rotationY }`.
+
+---
+
+## 7. 3D Platformer & Dynamic Mechanics Subsystem
+
+### 7.1 Collectibles Loop (`CollectibleMeshBuilder.ts`)
+- **Proximity Field**: Computed every frame via Euclidean 2D distance:
+  $$d_{\text{pickup}} = \sqrt{(x_{\text{hero}} - x_{\text{item}})^2 + (z_{\text{hero}} - z_{\text{item}})^2} \le 1.35\text{m}$$
+- **State Machine**: Active items bob with vertical sine wave $y(t) = y_0 + \sin(t \times 2.8) \times 0.08$ and rotate around the Y axis. On pickup, the item is hidden, plays a procedural Web Audio chime, increments `coinScore`, and schedules a respawn at $t + 25\text{s}$.
+
+### 7.2 Dynamic Interactive Platforms (`DynamicPlatformManager.ts`)
+- **Falling Pier Plank**: Sinks into the water $0.85\text{s}$ after character contact, temporarily removing walkability, and returns to surface level after $4.0\text{s}$.
+- **High-Jump Thermal Vent**: Stepping within $1.1\text{m}$ applies upward vertical launch velocity $v_y = 10.8\text{m/s}$, giving the hero sufficient vertical clearance ($>5\text{m}$) to reach high clifftops.
+
+---
+
+## 8. Automated Production Deployment Pipeline
+
+```mermaid
+flowchart LR
+    Dev[Developer / AI Agent] -->|git push origin master| GH[GitHub Repository]
+    GH -->|Trigger Workflow| Actions[GitHub Actions CI/CD]
+    Actions -->|Install & Verify| Build[npm run build: tsc + vite]
+    Build -->|Deploy Artifacts| Pages[GitHub Pages: /haven-of-companions/]
+    Pages -->|HTTP 200| Client[Live PWA: Mobile Safari & Android Chrome]
+```
+
+- **Workflow File**: `.github/workflows/deploy.yml`
+- **Build Invariant**: `vite.config.ts` must use relative base path (`base: './'`).
+- **Cache Invalidation**: Service Worker cache name (`CACHE_NAME` in `public/sw.js`) bumped on each release.
+- **Production URL**: `https://minhhoangdono.github.io/haven-of-companions/`

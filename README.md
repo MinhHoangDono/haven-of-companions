@@ -2,8 +2,8 @@
 
 An interactive, mobile-first 3D isometric medieval fantasy RPG web diorama celebrating friendship. Built with **React 18, Vite, TypeScript, and Three.js**, the world features 9 distinct character classes representing close friends across three interconnected realms inspired by real-life memories: the misty pine highlands of Đà Lạt, the celebratory New Year fireworks plaza, and the sunlit coastal waters of Nha Trang Bay.
 
-🌐 **Live Production Deployment**: [https://boisterous-raindrop-4dc674.netlify.app](https://boisterous-raindrop-4dc674.netlify.app)
-
+🌐 **Live Production Deployment**: [https://minhhoangdono.github.io/haven-of-companions/](https://minhhoangdono.github.io/haven-of-companions/)  
+📦 **GitHub Repository**: [https://github.com/MinhHoangDono/haven-of-companions](https://github.com/MinhHoangDono/haven-of-companions)
 ---
 
 ## Key Highlights
@@ -17,9 +17,10 @@ An interactive, mobile-first 3D isometric medieval fantasy RPG web diorama celeb
 - **Dynamic 3D Particle Spells**: Pressing "Cast" triggers character-specific 3D visual particle explosions (emerald leaf rings, golden eagle beacons, divine light pillars, pyrotechnic rockets, water slashes, shield domes, and gold coin showers).
 - **Interactive Village Props**: Bubbling campfire cauldron, coastal tide bell, festival fireworks mortar battery, and tatami tea pavilion.
 - **Party Reunion Feast (Hội Ngộ 9 Tri Kỷ)**: Single-tap party celebration trigger gathering all 9 friends with multi-harmonic audio chimes and simultaneous wave celebration hops.
+- **City Builder & Voxel Construction Mode**: In-game medieval construction sandbox with 22 CC0 structures across 5 categories, real-time green/red ghost preview, 90° rotation, bulldozer tool, dynamic passability synchronization, and `localStorage` layout persistence.
+- **3D Platformer & Collectibles**: 12 scattered 3D collectibles across 3 biomes (Gold Coins, Wild Tea Leaves, Conch Shells, Fireworks Embers) with magnetic proximity pickup, coin counter HUD in `TopBar`, fragile falling pier plank, and high-jump thermal wind vent.
 - **Atmospheric Day/Night & Weather**: 4-stage lighting (Dawn, Day, Sunset, Night) with PCF soft shadow mapping, campfire flame flicker, and Đà Lạt mountain mist.
-- **Mobile Performance & PWA**: 60 FPS active / 30 FPS idle battery-saving loop, manual vendor chunk splitting, and offline Service Worker support (`v3.3`).
-
+- **Mobile Performance & PWA**: 60 FPS active / 30 FPS idle battery-saving loop, manual vendor chunk splitting, and offline Service Worker support (`v6.4`).
 ---
 
 ## Quick Start
@@ -50,13 +51,16 @@ npm run build
 npm run preview
 ```
 
-### Deployment
-The project is configured for static hosting (Netlify, Vercel, or GitHub Pages):
+### Deployment Pipeline
+The application is continuously deployed to **GitHub Pages** via GitHub Actions:
 ```bash
-# Deploy to Netlify
-npx netlify deploy --prod --dir=dist
-```
+# 1. Verify build
+npm run build
 
+# 2. Push to master (GitHub Actions automatically builds and deploys in ~30s)
+git push origin master
+```
+*Note for AI Agents & Developers*: When shipping production changes, always bump `CACHE_NAME` in `public/sw.js` and ensure `base: './'` is maintained in `vite.config.ts`.
 ---
 
 ## Documentation Navigation

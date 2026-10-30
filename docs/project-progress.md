@@ -1,8 +1,9 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v5.3`)  
+> **Status**: Live in Production (`v6.4`)  
 > **Production URL**: [https://minhhoangdono.github.io/haven-of-companions/](https://minhhoangdono.github.io/haven-of-companions/)  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
+> **CI/CD Pipeline**: GitHub Actions (`.github/workflows/deploy.yml`) on `master` branch push  
 
 ---
 
@@ -30,6 +31,7 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **UI & Modal Architecture** | Modal Responsive Refinement & Spell Dialog Management (`v4.1`) | Full-screen modal on mobile phones, centered card on web/desktop, primary skill cast button repositioned above 360 preview, removed Raise Toast, dialog auto-dismissed during spell cast, and Memory Feature plan validated (`plans/261029-1724-memory-gallery/`) | **Completed** ✅ |
 | **Controls & Navigation** | Desktop WASD, Jumping Physics & Coordinate Inspector (`v5.2`) | Screen-relative WASD keyboard navigation, realistic gravity jump arc ($2.8\text{m}$ step clearance), camera follow tracking, in-game 3D Coordinate Inspector HUD, un-inverted mouse drag, and coastal shoreline encampment | **Completed** ✅ |
 | **City Builder Mode** | In-Game Construction, Smooth Camera & Persistence (`v5.3`) | Adapted Kenney City Builder into Three.js: 22 CC0 structures across 5 categories, DynamicMeshLibrary, real-time green/red ghost hologram, 90° rotation, demolish tool, smooth builder camera with LERP damping, localStorage persistence, JSON export/import, and West shore dock cleanup | **Completed** ✅ |
+| **Platformer & Deploy Pipeline** | 3D Collectibles, Gimmicks & Automated GitHub Pages CI/CD (`v6.4`) | 12 scattered 3D collectibles across 3 biomes with coin counter HUD in `TopBar`, fragile falling pier plank, high-jump thermal wind geyser, automated GitHub Actions deployment workflow with relative base pathing (`base: "./"`), and subpath asset resolution | **Completed** ✅ |
 ---
 
 ## 3. Technical Architecture
