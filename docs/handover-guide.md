@@ -85,32 +85,38 @@ src/
 ├── App.tsx                               # Root orchestrator: HUD, top bar, modals, spell & build triggers
 ├── main.tsx                              # React DOM mount point & Service Worker registration
 ├── types/
-│   ├── character.ts                      # Character interface, factions, stats, signature abilities
+│   ├── character.ts                      # Character interface, factions, stats, signature abilities, passives
+│   ├── inventory.ts                      # WieldType (1H/2H), WeaponArchetype, ArmorArchetype, ElementType, ItemStats
 │   ├── engine.ts                         # Coordinate types and screen dimensions
 │   ├── threeEngine.ts                    # 3D hit detection types and raycasting interfaces
-│   ├── cityBuilder.ts                    # Building categories, structure definitions, serialized layout
+│   ├── cityBuilder.ts                    # Building categories, structure definitions, serialized layout (v2)
 │   └── platformer.ts                     # 3D collectibles, falling planks, and jump vent interfaces
 ├── data/
-│   ├── charactersData.ts                 # Full 9-companion roster lore, bios, stats, and abilities
+│   ├── charactersData.ts                 # Full 9-companion roster lore, bios, stats, abilities, and 18 unique passives
+│   ├── itemsData.ts                      # Complete catalog of weapons (1H/2H), armors, hats, capes, and consumables
 │   └── propLayoutData.ts                 # Declarative placements for village buildings, galleon, and props
 ├── audio/
 │   └── audioManager.ts                   # Web Audio synthesizer: chimes, toasts, spells & builder SFX
 ├── engine/
+│   ├── inventory/
+│   │   └── InventoryManager.ts           # Central party inventory & equipment manager with localStorage persistence
 │   ├── map/
 │   │   └── passabilityMap.ts             # 2D discrete cell grid ($70 \times 70$) walkability & elevation
 │   └── three/
 │       ├── TouchControls3D.ts            # Touch controller: inertia pan, pinch zoom, rotation, raycast, follow
 │       ├── DioramaBuilder.ts             # 3-tier terrain, buildings, lighthouse, galleon, waves
 │       ├── VoxelTerrainBuilder.ts        # Stepped voxel terrain generator with coastal sand & coves
-│       ├── CharacterMeshBuilder.ts       # 9 humanoid hero avatars, 3D nameplates, runic pedestals
+│       ├── CharacterMeshBuilder.ts       # 9 humanoid hero avatars, WEAPON_GRIP_CONFIGS matrix, outfit/hat swapper
 │       ├── LightingManager.ts            # Directional sun, soft shadow mapping, day/night cycle
 │       ├── SpellEffect3D.ts              # Real-time 3D particle spell animations
 │       ├── CollectibleMeshBuilder.ts     # 12 scattered 3D collectibles with magnetic proximity pickup
 │       ├── DynamicPlatformManager.ts     # Fragile falling pier planks and high-jump thermal wind vents
+│       ├── equipment/
+│       │   └── EquipmentGenerator.ts     # Procedural 3D mesh generator: Greatsword, Katana, Scythe, Staff, Scepter, Hats, Capes
 │       └── builder/
 │           ├── CityBuilderController.ts  # In-game voxel construction, ghost hologram, rotation, bulldozer
-│           ├── CitySaveManager.ts        # LocalStorage persistence, JSON export/import for user villages
-│           └── DynamicMeshLibrary.ts     # 22 CC0 structures across 5 categories with footprint metadata
+│           ├── CitySaveManager.ts        # LocalStorage persistence, JSON export/import for village & wardrobe (v2)
+│           └── DynamicMeshLibrary.ts     # 53 CC0 structures across 5 categories with footprint metadata
 └── components/
     ├── canvas/
     │   └── ThreeIsometricCanvas.tsx      # React wrapper mounting Three.js WebGLRenderer & RAF loop
@@ -118,23 +124,23 @@ src/
         ├── TopBar.tsx                    # Time-of-day, weather, audio mute, build toggle, coin counter
         ├── CharacterCarousel.tsx         # Bottom thumb-zone carousel for instant character jumping
         ├── SpeechBubble.tsx              # In-world dialogue bubble projected from 3D head positions
-        ├── CharacterModal.tsx            # Slide-up bottom sheet with full RPG stats and "Cast" trigger
+        ├── CharacterModal.tsx            # Full RPG sheet: 360° viewport, 9-hero switcher, 3 functional tabs
+        ├── CharacterPreview3D.tsx        # Isolated 360° turntable WebGL canvas with ResizeObserver
         ├── InspectorBar.tsx              # In-engine 3D Coordinate & Object Inspector tool
         └── builder/
             ├── BuilderToolbar.tsx        # Bottom catalog drawer with categories & structure cards
             ├── StructureCard.tsx         # Item card with sprite preview, cost, and footprint
-            └── SaveLoadModal.tsx         # Village layout JSON import/export and reset modal
+            └── SaveLoadModal.tsx         # Village layout & character equipment JSON import/export modal
 ```
-
 ---
 
 ## 5. Major Subsystems & Packages
 
 ### 5.1 City Building & Sandbox Construction Package (`src/engine/three/builder/`)
 - **Controller (`CityBuilderController.ts`)**: Manages the construction lifecycle. Handles pointer hover raycasting over `VoxelTerrainBuilder`, projects real-time green/red ghost preview holograms, rotates structures 90° clockwise, executes placement, and dismantles structures via the Bulldozer tool.
-- **Dynamic Mesh Library (`DynamicMeshLibrary.ts`)**: Registers 22 medieval and nature structures categorized into Houses, Production, Fortifications, Decorations, and Nature. Encapsulates footprint bounding boxes ($1\times 1$, $2\times 2$, $3\times 3$), elevation offsets, and shared material pooling.
+- **Dynamic Mesh Library (`DynamicMeshLibrary.ts`)**: Registers 53 medieval and nature structures categorized into Houses, Production, Fortifications, Decorations, and Nature. Encapsulates footprint bounding boxes ($1\times 1$, $2\times 2$, $3\times 3$, $4\times 4$), elevation offsets, and shared material pooling.
 - **Dynamic Passability Sync**: When structures are placed or demolished, `CityBuilderController` calls `passabilityGrid.setWalkable(cellX, cellZ, isWalkable)` to ensure companions dynamically navigate around player structures without clipping.
-- **Persistence (`CitySaveManager.ts`)**: Automatically saves the village layout to `localStorage` under key `haven_city_layout_v1`. Supports downloading/uploading JSON files for sharing creations.
+- **Persistence (`CitySaveManager.ts`)**: Automatically saves both the village layout and all companions' customized equipment to `localStorage`. Supports version 2 JSON file export/import for backing up or sharing complete worlds.
 
 ### 5.2 3D Platformer & Collectibles Package (`src/engine/three/`)
 - **Collectibles (`CollectibleMeshBuilder.ts`)**: Spawns and manages 12 animated 3D collectibles across the 3 biomes (Gold Coins, Wild Tea Leaves, Conch Shells, Fireworks Embers). Features continuous rotation, vertical sine bobbing, magnetic proximity pickup ($<1.35\text{m}$), and a $25\text{s}$ respawn timer.
@@ -142,7 +148,32 @@ src/
   - **Falling Pier Plank**: Sinks into the water $0.85\text{s}$ after a hero steps on it; respawns and floats back after $4.0\text{s}$.
   - **Thermal Geyser / Wind Vent**: Ascending particle vortex that launches the stepping hero upward with `launchJump(10.8)` to scale steep mountain clifftops.
 
----
+### 5.3 RPG Inventory & Weapon Grip Socket System (`src/engine/three/CharacterMeshBuilder.ts`, `EquipmentGenerator.ts`)
+- **Handedness Classification (`WieldType`)**:
+  - `one_handed` (1H): Kiếm 1 tay, Dao găm, Katana, Đũa phép, Vương trượng. Permits equipping an offhand shield, tome, or mug in `handslot.l`.
+  - `two_handed` (2H): Đại kiếm, Lưỡi hái, Trượng đại pháp sư, Cung dài, Thương dài. Occupies both hands; automatically suppresses or un-equips hand-held shields to prevent mesh clipping.
+  - `dual_wield`: Paired daggers or twin swords in right & left hands.
+  - `offhand_only`: Tower shields, round shields, open spellbooks, and back-mounted quivers.
+- **`WEAPON_GRIP_CONFIGS` Matrix**:
+  - Encapsulates exact socket transforms (`socket`, `position`, `rotation`, `scale`) for all weapon models.
+  - Staves and Tridents are rotated by $R_x = -\pi/2$ so they stand upright vertically in the hand instead of pointing horizontally.
+  - Swords point forward; shields attach to outer left forearm ($R_y = \pi/2$); quivers attach to `chest`/`spine`.
+  - Headgear sits flush on top of the skull bone ($y \approx 0.04 - 0.05$) rather than floating at $+0.28$.
+- **Procedural 3D Weapon Generator (`EquipmentGenerator.ts`)**:
+  - Procedurally builds high-fidelity 3D meshes with emissive shaders: Dragonflame Greatsword (`proc:dragonflame_blade`), Glacial Katana (`proc:glacial_katana`), Abyssal Scythe (`proc:abyssal_scythe`), Celestial Staff (`proc:celestial_staff`), Dawn Scepter (`proc:dawn_scepter`), Ocean Trident (`proc:ocean_trident`), Wizard Hats, Knight Helms, Feathered Caps, and Capes.
+- **Thematic Outfits & Mannequin Lifecycle**:
+  - Smoothly swaps base models between civilian linen shirt & pants (`Rig_Medium_General.glb`), Kensei hakama, archmage robes, scout leathers, and class armor. Re-parents active weapons and hats cleanly without losing attachments.
+
+### 5.4 Unified Companion Armory & Modal Viewport (`src/components/ui/CharacterModal.tsx`, `CharacterPreview3D.tsx`)
+- **Unified 9-Companion Switcher Carousel**: A horizontal avatar strip allows 1-tap switching between all 9 companions inside the modal. Equipment is drawn from a shared party armory pool.
+- **3 Functional Navigation Tabs**:
+  - `🎒 Hành Trang & Tủ Đồ`: Slot selector strip (Weapons, Offhand, Headgear, Cape, Outfit), item inspection card with 1H/2H badges, and equip/unequip list.
+  - `⚡ Kỹ Năng`: Signature ability details, Mana/cooldown specs, big "Thi Triển Kỹ Năng" cast trigger, and the **18 unique companion passives** (2 per friend).
+  - `📜 Ký Ức Tri Kỷ`: Real-life memories from Đà Lạt, New Year Fireworks, and Nha Trang Bay, plus RPG stat bars.
+- **Responsive 360° Viewport**:
+  - On Mobile Phones: Dedicated top viewport (`h-[40vh] min-h-[280px]`) ensures the 3D rotating character is immediately visible above the scrollable tab panel.
+  - On Desktop: Full-height 2-column layout.
+  - Integrated `ResizeObserver`: Guarantees the WebGL canvas never collapses to zero height on orientation changes or modal transitions.
 
 ## 6. Critical Scars & Operational Gotchas
 

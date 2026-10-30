@@ -1,6 +1,6 @@
 ---
 title: "Phase 7: Remodel & Kenney GLB Asset Integration"
-status: todo
+status: completed
 priority: P1
 effort: 6h
 tags: [3d-models, gltf, kenney-assets, threejs, optimization]
@@ -71,14 +71,14 @@ Upgrade procedural 3D primitives (cones, cylinders, boxes) across the village di
 
 ## Todo List
 
-- [ ] Copy selected character `.glb` models from `kenney_blocky-characters_20` to `public/assets/models/characters/`
-- [ ] Copy selected pirate & coastal `.glb` models from `kenney_pirate-kit` to `public/assets/models/environment/`
-- [ ] Implement `GLTFAssetLoader.ts` with caching and shadow enablement
-- [ ] Refactor `CharacterMeshBuilder.ts` to mount Kenney GLB models with weapons & nameplates
-- [ ] Refactor `DioramaBuilder.ts` to mount Kenney galleon, lighthouse, dock, and clutter GLBs
-- [ ] Verify animations (idle breathing, hop reaction, ship bobbing) with GLTF models
-- [ ] Run production build and verify mobile load speed and frame rate
-- [ ] Deploy upgraded model release to Netlify
+- [x] Copy selected character `.glb` models from `kenney_blocky-characters_20` to `public/assets/models/characters/`
+- [x] Copy selected pirate & coastal `.glb` models from `kenney_pirate-kit` to `public/assets/models/environment/`
+- [x] Implement `GLTFAssetLoader.ts` with caching and shadow enablement
+- [x] Refactor `CharacterMeshBuilder.ts` to mount Kenney GLB models with weapons & nameplates
+- [x] Refactor `DioramaBuilder.ts` to mount Kenney galleon, lighthouse, dock, and clutter GLBs
+- [x] Verify animations (idle breathing, hop reaction, ship bobbing) with GLTF models
+- [x] Run production build and verify mobile load speed and frame rate
+- [x] Deploy upgraded model release to Netlify
 
 ---
 

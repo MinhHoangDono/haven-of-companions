@@ -1,6 +1,6 @@
 ---
 title: "Phase 4: Fantasy Skill VFX Engine (three.quarks & CC0 Textures)"
-status: todo
+status: done
 priority: P1
 effort: 3.0h
 ---
@@ -17,16 +17,16 @@ All 9 companion hero signature abilities are upgraded with custom particle burst
 
 ## Requirements
 
-- [ ] Install `three.quarks` via npm.
-- [ ] Download and bundle 6 key CC0 particle sprites from Kenney Particle Pack into `public/textures/particles/`:
+- [x] Install `three.quarks` via npm.
+- [x] Download and bundle 6 key CC0 particle sprites from Kenney Particle Pack into `public/textures/particles/`:
   - `circle_05.png` (Glowing magic ring)
   - `magic_03.png` (Runic circle)
   - `slash_02.png` (Water blade crescent)
   - `spark_04.png` (Golden sparkle mote)
   - `smoke_01.png` (Soft anime smoke puff)
   - `flame_01.png` (Firework spark shard)
-- [ ] Initialize `BatchedRenderer` in `SpellEffect3D.ts` and add it to the diorama scene.
-- [ ] Implement signature ability visual specifications for all 9 heroes:
+- [x] Initialize `BatchedRenderer` in `SpellEffect3D.ts` and add it to the diorama scene.
+- [x] Implement signature ability visual specifications for all 9 heroes:
   1. **Huỳnh Trần Anh Thi**: *Verdant Bloom* (Expanding emerald ring, upward botanical motes).
   2. **Lê Nguyễn Phương Quỳnh**: *Eagle Eye* (Aerodynamic wind tracer cone, falling feathers).
   3. **Trần Nguyễn Trâm Anh**: *Hymn of Antiquity* (Expanding harmonic acoustic rings, floating music runes).
@@ -36,7 +36,7 @@ All 9 companion hero signature abilities are upgraded with custom particle burst
   7. **Phạm Trần Thanh Phương**: *Aegis of the Coast* (Hexagonal Fresnel dome shield, protective ward seal).
   8. **Phạm Xuân Minh**: *Swashbuckler Flourish* (Golden coin flip arc, sparkling stardust shower).
   9. **Lâm Anh Thư**: *Tidal Embrace* (Swirling water vortex, upward geyser mist bubbles).
-- [ ] Update `ThreeIsometricCanvas.tsx` to drive `batchRenderer.update(dt)`.
+- [x] Update `ThreeIsometricCanvas.tsx` to drive `batchRenderer.update(dt)`.
 
 ---
 
@@ -91,19 +91,19 @@ All 9 companion hero signature abilities are upgraded with custom particle burst
 
 ## Todo List
 
-- [ ] Install `three.quarks`
-- [ ] Place CC0 particle sprites in `public/textures/particles/`
-- [ ] Initialize `BatchedRenderer` in `SpellEffect3D.ts`
-- [ ] Implement *Verdant Bloom* & *Grand Pyrotechnic*
-- [ ] Implement *Flowing Water Katas* & *Aegis of the Coast*
-- [ ] Implement *Dawn Radiance*, *Eagle Eye*, *Hymn of Antiquity*
-- [ ] Implement *Swashbuckler Flourish* & *Tidal Embrace*
-- [ ] Verify single draw call batching in Spector.js / Chrome DevTools
+- [x] Install `three.quarks`
+- [x] Place CC0 particle sprites in `public/textures/particles/`
+- [x] Initialize `BatchedRenderer` in `SpellEffect3D.ts`
+- [x] Implement *Verdant Bloom* & *Grand Pyrotechnic*
+- [x] Implement *Flowing Water Katas* & *Aegis of the Coast*
+- [x] Implement *Dawn Radiance*, *Eagle Eye*, *Hymn of Antiquity*
+- [x] Implement *Swashbuckler Flourish* & *Tidal Embrace*
+- [x] Verify single draw call batching in Spector.js / Chrome DevTools
 
 ---
 
 ## Success Criteria
 
-- [ ] All 9 companions cast visually distinct, high-impact fantasy effects.
-- [ ] Zero mesh cloning or unmanaged Three.js Object3Ds left in memory after cast.
-- [ ] Active spell casting produces zero frame drop on mobile devices.
+- [x] All 9 companions cast visually distinct, high-impact fantasy effects.
+- [x] Zero mesh cloning or unmanaged Three.js Object3Ds left in memory after cast.
+- [x] Active spell casting produces zero frame drop on mobile devices.

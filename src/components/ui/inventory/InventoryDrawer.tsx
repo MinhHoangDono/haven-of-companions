@@ -25,6 +25,7 @@ const RARITY_COLORS: Record<ItemRarity, { border: string; bg: string; text: stri
   rare: { border: 'border-blue-500/60', bg: 'bg-blue-950/40', text: 'text-blue-400' },
   epic: { border: 'border-purple-500/60', bg: 'bg-purple-950/40', text: 'text-purple-400' },
   legendary: { border: 'border-amber-400/80 shadow-[0_0_12px_rgba(251,191,36,0.3)]', bg: 'bg-amber-950/40', text: 'text-amber-300' },
+  mythic: { border: 'border-rose-400/80 shadow-[0_0_14px_rgba(244,63,94,0.4)]', bg: 'bg-rose-950/40', text: 'text-rose-300' },
 };
 
 export const InventoryDrawer: React.FC<InventoryDrawerProps> = ({

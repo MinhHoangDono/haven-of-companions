@@ -1,6 +1,6 @@
 export type ItemCategory = 'weapon' | 'offhand' | 'headgear' | 'cape' | 'outfit' | 'consumable' | 'collectible';
 
-export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
 
 export type EquipSlot = 'mainWeapon' | 'offhand' | 'headgear' | 'cape' | 'outfit';
 
@@ -20,7 +20,13 @@ export type WeaponArchetype =
   | 'rapier'
   | 'wand'
   | 'mace_scepter'
-  | 'shield';
+  | 'shield'
+  | 'magic_tome'
+  | 'colossal_hammer'
+  | 'dual_chakram'
+  | 'bardic_lute'
+  | 'relic_prism'
+  | 'tower_shield';
 
 export type ArmorArchetype =
   | 'heavy_plate'
@@ -29,7 +35,10 @@ export type ArmorArchetype =
   | 'scout_leathers'
   | 'swashbuckler_tunic'
   | 'tide_vestments'
-  | 'civilian_linen';
+  | 'civilian_linen'
+  | 'adaptive_armor'
+  | 'mythic_halo'
+  | 'mythic_cloak';
 
 export type ElementType =
   | 'dragon_fire'
@@ -39,7 +48,12 @@ export type ElementType =
   | 'verdant_nature'
   | 'sacred_light'
   | 'tidal_tempest'
-  | 'celestial_starlight';
+  | 'celestial_starlight'
+  | 'celestial_void'
+  | 'tidal_glacial'
+  | 'verdant_sacred'
+  | 'void_light'
+  | 'prismatic';
 
 export interface WeaponVFXConfig {
   primaryColor?: number;

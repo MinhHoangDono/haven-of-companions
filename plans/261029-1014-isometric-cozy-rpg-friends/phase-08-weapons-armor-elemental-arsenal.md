@@ -280,20 +280,20 @@ export interface GripTransformConfig {
 
 ## Todo Checklist
 
-- [ ] Define `WeaponArchetype`, `ArmorArchetype`, `ElementType`, and `GripTransformConfig` in `src/types/inventory.ts`
-- [ ] Add all 9 elemental weapons and 7 armor sets into `src/data/itemsData.ts`
-- [ ] Implement procedural 3D meshes for Katana, Scythe, and Archmage Staff in `EquipmentGenerator.ts`
-- [ ] Calibrate `WEAPON_GRIP_CONFIGS` in `CharacterMeshBuilder.ts` for staves, bows, greatswords, and shields
-- [ ] Fix headgear and cape attachment offsets so hats sit flush on character brows
-- [ ] Add 9-companion avatar switcher bar to `CharacterModal.tsx` for unified party equipment management
-- [ ] Add 18 unique passive skills into `src/types/character.ts` and `src/data/charactersData.ts`
-- [ ] Verify build with `npm run build` and test 360 rotation and equipment swapping
+- [x] Define `WeaponArchetype`, `ArmorArchetype`, `ElementType`, and `GripTransformConfig` in `src/types/inventory.ts`
+- [x] Add all 9 elemental weapons and 7 armor sets into `src/data/itemsData.ts`
+- [x] Implement procedural 3D meshes for Katana, Scythe, and Archmage Staff in `EquipmentGenerator.ts`
+- [x] Calibrate `WEAPON_GRIP_CONFIGS` in `CharacterMeshBuilder.ts` for staves, bows, greatswords, and shields
+- [x] Fix headgear and cape attachment offsets so hats sit flush on character brows
+- [x] Add 9-companion avatar switcher bar to `CharacterModal.tsx` for unified party equipment management
+- [x] Add 18 unique passive skills into `src/types/character.ts` and `src/data/charactersData.ts`
+- [x] Verify build with `npm run build` and test 360 rotation and equipment swapping
 
 ---
 
 ## Success Criteria
 
-- [ ] All 9 elemental weapons render with correct orientation and hand grip (staves point up, swords point forward, bows held vertically).
-- [ ] Outfits and hats switch smoothly in real-time on the 360° character preview without missing meshes.
-- [ ] Players can switch between any of the 9 companions inside the Character Modal from a unified armory.
-- [ ] The `⚡ Kỹ Năng` tab displays the 2 unique passives for each companion with rich lore and mechanical descriptions.
+- [x] All 9 elemental weapons render with correct orientation and hand grip (staves point up, swords point forward, bows held vertically).
+- [x] Outfits and hats switch smoothly in real-time on the 360° character preview without missing meshes.
+- [x] Players can switch between any of the 9 companions inside the Character Modal from a unified armory.
+- [x] The `⚡ Kỹ Năng` tab displays the 2 unique passives for each companion with rich lore and mechanical descriptions.

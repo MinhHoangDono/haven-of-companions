@@ -1,7 +1,7 @@
 ---
 title: "Zelda & Japanese Anime Stylized Environmental Animation, VFX & Weather"
 description: "Implementation plan to integrate Wind Waker stylized ocean, cel-shaded anime fire, Ghibli wind foliage sway, three.quarks spell VFX, and dynamic weather into Haven of Companions."
-status: pending
+status: completed
 priority: P1
 effort: 12h
 branch: feat/zelda-environmental-vfx-weather
@@ -65,12 +65,12 @@ flowchart TD
 
 | Phase | Name | Status | Key Deliverables |
 |---|---|---|---|
-| 1 | [Zelda Stylized Ocean & Coupled Ship Buoyancy](./phase-01-zelda-stylized-ocean.md) | Pending | GPU Gerstner waves, Voronoi foam, faceted normals, ship roll/heave math |
-| 2 | [Cel-Shaded Anime Fire & Hearth System](./phase-02-cel-shaded-anime-fire.md) | Pending | 3D flame cylinder with noise & toon thresholds, drifting embers, campfire hook |
-| 3 | [Ghibli Wind & Foliage Vertex Sway](./phase-03-ghibli-wind-foliage-sway.md) | Pending | `onBeforeCompile` wind displacement for pines, shrubs, banners, hanging lanterns |
-| 4 | [Fantasy Skill VFX Engine (`three.quarks`)](./phase-04-fantasy-skill-vfx-engine.md) | Pending | `three.quarks` batched renderer, CC0 Kenney textures, 9-hero custom spells |
-| 5 | [Dynamic Weather & Storm Atmospheric Controller](./phase-05-dynamic-weather-storm-controller.md) | Pending | Instanced rain & sakura petals, rolling fog planes, procedural lightning flash |
-| 6 | [Mobile Performance Profiling & Production Verification](./phase-06-performance-mobile-verification.md) | Pending | $\le 45$ draw calls, 60/30 FPS adaptive loop, PWA cache bump (`v3.6`), build pass |
+| 1 | [Zelda Stylized Ocean & Coupled Ship Buoyancy](./phase-01-zelda-stylized-ocean.md) | Completed | GPU Gerstner waves, Voronoi foam, faceted normals, ship roll/heave math |
+| 2 | [Cel-Shaded Anime Fire & Hearth System](./phase-02-cel-shaded-anime-fire.md) | Completed | 3D flame cylinder with noise & toon thresholds, drifting embers, campfire hook |
+| 3 | [Ghibli Wind & Foliage Vertex Sway](./phase-03-ghibli-wind-foliage-sway.md) | Completed | `onBeforeCompile` wind displacement for pines, shrubs, banners, hanging lanterns |
+| 4 | [Fantasy Skill VFX Engine (`three.quarks`)](./phase-04-fantasy-skill-vfx-engine.md) | Completed | `three.quarks` batched renderer, CC0 Kenney textures, 9-hero custom spells |
+| 5 | [Dynamic Weather & Storm Atmospheric Controller](./phase-05-dynamic-weather-storm-controller.md) | Completed | Instanced rain & sakura petals, rolling fog planes, procedural lightning flash |
+| 6 | [Mobile Performance Profiling & Production Verification](./phase-06-performance-mobile-verification.md) | Completed | $\le 45$ draw calls, 60/30 FPS adaptive loop, PWA cache bump (`v8.3`), build pass |
 
 ---
 
@@ -92,11 +92,11 @@ flowchart TD
 
 ## Success Criteria
 
-- [ ] CPU wave loop in `ThreeIsometricCanvas.tsx` is eliminated; ocean runs on `StylizedOceanMaterial`.
-- [ ] Large galleon ship and rowboat pitch and roll in exact synchronization with wave crests.
-- [ ] Campfire hearth features animated 3D cel-shaded flames with rising ember particles.
-- [ ] Highland pine trees, tea pavilion vegetation, and market awnings sway organically with global wind.
-- [ ] `three.quarks` particle engine powers signature abilities for all 9 heroes with a single batched draw call.
-- [ ] Weather system supports Clear Sun, Đà Lạt Highland Mist, Coastal Rain/Thunderstorm, and Sakura Petal Breeze.
-- [ ] Build succeeds with zero TypeScript or Vite errors (`npm run build`).
-- [ ] Mobile WebGL2 operates at stable 60 FPS during interactions and 30 FPS in idle state.
+- [x] CPU wave loop in `ThreeIsometricCanvas.tsx` is eliminated; ocean runs on `StylizedOceanMaterial`.
+- [x] Large galleon ship and rowboat pitch and roll in exact synchronization with wave crests.
+- [x] Campfire hearth features animated 3D cel-shaded flames with rising ember particles.
+- [x] Highland pine trees, tea pavilion vegetation, and market awnings sway organically with global wind.
+- [x] `three.quarks` particle engine powers signature abilities for all 9 heroes with a single batched draw call.
+- [x] Weather system supports Clear Sun, Đà Lạt Highland Mist, Coastal Rain/Thunderstorm, and Sakura Petal Breeze.
+- [x] Build succeeds with zero TypeScript or Vite errors (`npm run build`).
+- [x] Mobile WebGL2 operates at stable 60 FPS during interactions and 30 FPS in idle state.

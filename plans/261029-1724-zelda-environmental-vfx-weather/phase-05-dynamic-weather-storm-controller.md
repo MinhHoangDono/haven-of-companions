@@ -1,6 +1,6 @@
 ---
 title: "Phase 5: Dynamic Weather & Storm Atmospheric Controller"
-status: todo
+status: done
 priority: P1
 effort: 2.5h
 ---
@@ -17,18 +17,18 @@ Based on Three.js built-ins: `three/examples/jsm/geometries/LightningStrike.js` 
 
 ## Requirements
 
-- [ ] Implement `PrecipitationEngine` using `THREE.InstancedMesh` supporting both rain streaks and pink sakura petals.
-- [ ] Implement `WeatherSystem` class managing weather states and smooth LERP transitions for:
+- [x] Implement `PrecipitationEngine` using `THREE.InstancedMesh` supporting both rain streaks and pink sakura petals.
+- [x] Implement `WeatherSystem` class managing weather states and smooth LERP transitions for:
   - Directional sunlight color & intensity.
   - Fog density and color (`THREE.FogExp2`).
   - Wind speed and direction vector $\vec{W}_{\text{dir}}$ (linked to `FoliageWindHook` and water waves).
   - Precipitation active mode and particle fall speed.
-- [ ] Implement Đà Lạt Highland Mist: 3 horizontal plane meshes floating at $Y=1.0, 2.0, 3.0$ with scrolling Perlin cloud alpha noise.
-- [ ] Implement Storm Lightning:
-  - Procedural electric bolt using `LightningStrike`.
+- [x] Implement Đà Lạt Highland Mist: 3 horizontal plane meshes floating at $Y=1.0, 2.0, 3.0$ with scrolling Perlin cloud alpha noise.
+- [x] Implement Storm Lightning:
+  - Procedural electric bolt (custom subdivision-jitter line segments; `LightningStrike` addon not available in Three.js 0.186.1).
   - 2-stage sky strobe flash with rapid intensity spike.
   - Web Audio synthesized thunder rumble delayed by 1.2s.
-- [ ] Add a clean Weather Toggle button in `src/components/ui/TopBar.tsx`.
+- [x] Add a clean Weather Toggle button in `src/components/ui/TopBar.tsx`.
 
 ---
 
@@ -89,19 +89,19 @@ export interface WeatherPreset {
 
 ## Todo List
 
-- [ ] Create `src/engine/three/weather/PrecipitationEngine.ts`
-- [ ] Create `src/engine/three/weather/LightningEffect.ts`
-- [ ] Create `src/engine/three/weather/WeatherSystem.ts`
-- [ ] Add Đà Lạt rolling fog planes to Highland plateau
-- [ ] Wire lighting interpolation into `LightingManager.ts`
-- [ ] Add Weather Cycler icon button to `TopBar.tsx`
-- [ ] Verify seamless visual transitions between all 4 weather states
+- [x] Create `src/engine/three/weather/PrecipitationEngine.ts`
+- [x] Create `src/engine/three/weather/LightningEffect.ts`
+- [x] Create `src/engine/three/weather/WeatherSystem.ts`
+- [x] Add Đà Lạt rolling fog planes to Highland plateau
+- [x] Wire lighting interpolation into `LightingManager.ts`
+- [x] Add Weather Cycler icon button to `TopBar.tsx`
+- [x] Verify seamless visual transitions between all 5 weather states
 
 ---
 
 ## Success Criteria
 
-- [ ] Toggling weather transitions lighting, fog, and precipitation smoothly without visual pops.
-- [ ] Rain drops slant in alignment with the global wind vector.
-- [ ] Lightning flash illuminates the entire diorama followed by audio rumble.
-- [ ] Total weather rendering adds $\le 3$ draw calls to the scene.
+- [x] Toggling weather transitions lighting, fog, and precipitation smoothly without visual pops.
+- [x] Rain drops slant in alignment with the global wind vector.
+- [x] Lightning flash illuminates the entire diorama followed by audio rumble.
+- [x] Total weather rendering adds $\le 3$ draw calls to the scene.

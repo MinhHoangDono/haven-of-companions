@@ -166,7 +166,8 @@ export const App: React.FC = () => {
 
   const handleToggleWeather = useCallback(() => {
     audioManager.playTap();
-    setWeather((prev) => (prev === 'clear' ? 'mist' : 'clear'));
+    const cycle: WeatherType[] = ['clear', 'mist', 'rain', 'storm', 'blossom'];
+    setWeather((prev) => cycle[(cycle.indexOf(prev) + 1) % cycle.length]);
   }, []);
 
   const handleToggleMute = useCallback(() => {

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Sun, Moon, Sunrise, Sunset, Volume2, VolumeX, CloudFog, Crosshair, Hammer } from 'lucide-react';
+import { Sun, Moon, Sunrise, Sunset, Volume2, VolumeX, CloudFog, CloudRain, CloudLightning, Flower2, Crosshair, Hammer } from 'lucide-react';
 
 export type TimeOfDay = 'dawn' | 'day' | 'sunset' | 'night';
-export type WeatherType = 'clear' | 'mist' | 'rain';
+export type WeatherType = 'clear' | 'mist' | 'rain' | 'storm' | 'blossom';
 
 interface TopBarProps {
   timeOfDay: TimeOfDay;
@@ -118,19 +118,23 @@ export const TopBar: React.FC<TopBarProps> = ({
           <span className="capitalize text-[11px] font-semibold">{getTimeLabel()}</span>
         </button>
 
-        {/* Weather Toggle */}
+        {/* Weather Cycler */}
         <button
           onClick={onToggleWeather}
           className={`flex items-center gap-1.5 backdrop-blur-md border px-2.5 py-1.5 rounded-full text-xs font-sans font-medium active:scale-95 transition-all shadow-md ${
-            weather === 'mist'
+            weather !== 'clear'
               ? 'bg-fantasy-druid/30 border-fantasy-druid/60 text-emerald-200'
               : 'bg-ink-900/85 border-paper-800/60 text-paper-100'
           }`}
-          title="Toggle Weather"
+          title="Cycle Weather"
         >
-          <CloudFog className="w-4 h-4 text-cyan-300" />
+          {weather === 'clear' && <Sun className="w-4 h-4 text-amber-300" />}
+          {weather === 'mist' && <CloudFog className="w-4 h-4 text-indigo-300" />}
+          {weather === 'rain' && <CloudRain className="w-4 h-4 text-cyan-300" />}
+          {weather === 'storm' && <CloudLightning className="w-4 h-4 text-yellow-300" />}
+          {weather === 'blossom' && <Flower2 className="w-4 h-4 text-pink-300" />}
           <span className="capitalize text-[11px] font-semibold">
-            {weather === 'mist' ? 'Mist' : 'Clear'}
+            {weather === 'clear' ? 'Clear' : weather === 'mist' ? 'Mist' : weather === 'rain' ? 'Rain' : weather === 'storm' ? 'Storm' : 'Blossom'}
           </span>
         </button>
 

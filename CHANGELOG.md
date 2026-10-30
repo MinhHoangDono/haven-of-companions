@@ -1,5 +1,36 @@
 # Changelog
 
+## [v9.0.0] - 2026-10-30
+
+### Added
+- **Zelda: Wind Waker Stylized Ocean Shader (`StylizedOceanMaterial.ts`, `buoyancy.ts`)**:
+  - Replaced CPU vertex mutation loop with a high-performance GPU `ShaderMaterial` utilizing 2 trochoidal Gerstner wave components computed on world coordinates ($72\text{m} \times 40\text{m}$ plane).
+  - Faceted low-poly surface normals generated in real time using hardware screen derivatives (`dFdx` / `dFdy`).
+  - Procedural animated Voronoi foam cells along wave crests with grazing Fresnel glint and teal/deep navy depth gradient.
+  - Analytical wave equation sampler in JavaScript (`buoyancy.ts`) driving heave, pitch, and roll on the large galleon ship and rowboat without reading GPU VRAM buffers.
+- **Cel-Shaded Anime Flame & Campfire Hearth (`CartoonFireMesh.ts`)**:
+  - 3D tapered flame cylinder deformed by upward-scrolling 2D Simplex noise in GLSL with stepped anime cel bands (pure white core $\rightarrow$ golden yellow $\rightarrow$ vibrant orange $\rightarrow$ edge discard).
+  - 24 rising ember sparks (`THREE.Points`) with additive blending, horizontal swirl, and height-based reset wrapping.
+  - Mounted inside the highland campfire hearth at `(-15.5, 3.5, -14.5)`.
+- **Ghibli Wind & Foliage Vertex Sway (`FoliageWindHook.ts`)**:
+  - Reusable `onBeforeCompile` vertex shader injector for `MeshStandardMaterial` applying elevation-weighted wind sway: $(\max(0, Y - Y_0))^2 \cdot \sin(\omega t + \vec{k}\cdot\vec{x})$.
+  - Roots stay anchored to terrain while tree canopies and foliage sway smoothly with global wind vectors.
+- **GPU Batched 9-Hero Signature VFX Engine (`SpellEffect3D.ts`, `three.quarks`)**:
+  - Replaced ad-hoc mesh clones with the `three.quarks` particle engine, executing all active spell effects within a single batched draw call.
+  - Integrated 6 CC0 Kenney particle textures (`circle_05`, `magic_03`, `slash_02`, `spark_04`, `smoke_01`, `flame_01`).
+  - Custom signature VFX for all 9 heroes: Verdant Bloom, Eagle Eye, Hymn of Antiquity, Grand Pyrotechnic, Dawn Radiance, Flowing Water Katas, Aegis of the Coast, Swashbuckler Flourish, and Tidal Embrace.
+- **Dynamic 5-State Weather & Storm Engine (`WeatherSystem.ts`, `PrecipitationEngine.ts`, `LightningEffect.ts`)**:
+  - 5 atmospheric profiles with smooth 2-second LERP transitions: *Clear Sun*, *Đà Lạt Highland Mist*, *Coastal Rain*, *Thunderstorm*, and *Sakura Blossom Breeze*.
+  - `PrecipitationEngine` rendering 300 falling raindrops or fluttering pink sakura petals in a single `THREE.InstancedMesh` draw call.
+  - Procedural lightning bolt with 2-stage sky strobe flash and synthesized Web Audio thunder rumble.
+  - 3-tier rolling highland mist cloud planes for Đà Lạt's signature mountain atmosphere.
+  - 5-state interactive weather cycler in `TopBar.tsx`.
+- **Mobile Performance & PWA Verification**:
+  - Scene remains strictly under the $\le 45$ draw call mobile budget.
+  - PWA service worker cache incremented to `haven-companions-v8.3`.
+
+---
+
 ## [v8.0.0] - 2026-10-30
 
 ### Added

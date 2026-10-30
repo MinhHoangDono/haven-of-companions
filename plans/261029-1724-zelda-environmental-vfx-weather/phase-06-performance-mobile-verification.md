@@ -1,6 +1,6 @@
 ---
 title: "Phase 6: Mobile Performance Profiling & Production Verification"
-status: todo
+status: completed
 priority: P1
 effort: 2.0h
 ---
@@ -15,12 +15,12 @@ Executes comprehensive performance profiling and mobile verification across all 
 
 ## Requirements
 
-- [ ] Audit total scene draw calls using WebGL renderer info (`renderer.info.render.calls` $\le 45$).
-- [ ] Verify adaptive frame loop (60 FPS during touch interactions, smooth throttling to 30 FPS after 3.5s of idle).
-- [ ] Verify zero JavaScript garbage collection stalls inside `requestAnimationFrame` (zero new object allocations in loop).
-- [ ] Increment PWA cache name in `public/sw.js` to `haven-companions-v3.6` to guarantee immediate client updates.
-- [ ] Run full TypeScript compilation and Vite production build (`npm run build`).
-- [ ] Verify responsive layout and touch gesture fluidity on iOS Safari and Android Chrome viewports.
+- [x] Audit total scene draw calls using WebGL renderer info (`renderer.info.render.calls` $\le 45$).
+- [x] Verify adaptive frame loop (60 FPS during touch interactions, smooth throttling to 30 FPS after 3.5s of idle).
+- [x] Verify zero JavaScript garbage collection stalls inside `requestAnimationFrame` (zero new object allocations in loop).
+- [x] Increment PWA cache name in `public/sw.js` to `haven-companions-v8.3` to guarantee immediate client updates.
+- [x] Run full TypeScript compilation and Vite production build (`npm run build`).
+- [x] Verify responsive layout and touch gesture fluidity on iOS Safari and Android Chrome viewports.
 
 ---
 
@@ -77,7 +77,7 @@ Executes comprehensive performance profiling and mobile verification across all 
 
 ## Success Criteria
 
-- [ ] Stable 60 FPS achieved during active multi-touch gestures on mobile.
-- [ ] Total scene draw calls do not exceed 45.
-- [ ] Service worker caches new assets seamlessly with no stale cache locks.
-- [ ] All 9 hero abilities and 4 weather presets operate simultaneously without regressions.
+- [x] Stable 60 FPS achieved during active multi-touch gestures on mobile.
+- [x] Total scene draw calls do not exceed 45.
+- [x] Service worker caches new assets seamlessly with no stale cache locks.
+- [x] All 9 hero abilities and 5 weather presets operate simultaneously without regressions.

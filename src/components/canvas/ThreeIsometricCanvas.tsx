@@ -20,6 +20,7 @@ import { BuilderTool, PlacedStructure } from '../../types/cityBuilder';
 import { FoliageWindHook } from '../../engine/three/materials/FoliageWindHook';
 import { StylizedOceanMaterial } from '../../engine/three/materials/StylizedOceanMaterial';
 import { getWaveElevation } from '../../engine/three/buoyancy';
+import { WeatherSystem } from '../../engine/three/weather/WeatherSystem';
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -95,6 +96,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     }
   }, [activeStructureId]);
   const lightingRef = useRef<LightingManager | null>(null);
+  const weatherRef = useRef<WeatherSystem | null>(null);
   const characterHandlesRef = useRef<Map<string, CharacterMeshHandle>>(new Map());
   const interactivePropsRef = useRef<InteractivePropRef[]>([]);
   const waterMeshRef = useRef<THREE.Mesh | null>(null);
@@ -137,7 +139,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
   // React to Weather changes
   useEffect(() => {
-    // Weather effects handled in scene
+    weatherRef.current?.setWeather(weather);
   }, [weather]);
 
   // React to Inspector Mode toggle
@@ -205,6 +207,11 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     // 4. Lighting & Day/Night Manager
     const lighting = new LightingManager(scene);
     lightingRef.current = lighting;
+
+    // 4a. Dynamic Weather & Storm Atmospheric Controller
+    const weatherSystem = new WeatherSystem(scene, lighting);
+    scene.add(weatherSystem);
+    weatherRef.current = weatherSystem;
 
     // 4b. 3D Spell Particle Effect Manager
     const spellEffects = new SpellEffect3D(scene);
@@ -471,11 +478,12 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       // Update lighting flicker
       lighting.update(currentTime);
       // Update wind sway on foliage materials
-      FoliageWindHook.update(currentTime * 0.001);
+      const tSec = currentTime * 0.001;
+      FoliageWindHook.update(tSec);
+      // Update weather system (precipitation, lightning, fog transitions)
+      weatherSystem.update(minInterval / 1000, tSec);
       // Update cartoon fire shader and ember particles
       fireMesh.update(currentTime, minInterval / 1000);
-      // GPU ocean shader time update (replaces CPU vertex loop)
-      const tSec = currentTime * 0.001;
       if (waterMeshRef.current) {
         const oceanMat = waterMeshRef.current.material as StylizedOceanMaterial;
         oceanMat.update(tSec);
@@ -629,6 +637,9 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       cancelAnimationFrame(rafId);
       dynamicPlatforms.dispose(scene);
       fireMesh.dispose();
+      weatherSystem.dispose();
+      scene.remove(weatherSystem);
+      scene.remove(spellEffects.batchRenderer);
       collectibles.forEach((c) => c.mesh && scene.remove(c.mesh));
       dom.removeEventListener('pointerdown', onDown);
       dom.removeEventListener('pointermove', onMove);
