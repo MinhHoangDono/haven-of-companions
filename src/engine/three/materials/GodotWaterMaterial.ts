@@ -93,29 +93,27 @@ export class GodotWaterMaterial extends THREE.ShaderMaterial {
           float lightFactor = smoothstep(0.5 - uDiffuseSmoothness * 0.5, 0.5 + uDiffuseSmoothness * 0.5, lightMult - lightStepBase);
           float toonDiffuse = (lightStepBase + lightFactor) / uDiffuseSteps;
 
-          // 2. Toon Stepped Specular Lighting
+          // 2. Toon Specular Glint (Tight sparkling highlights only on wave crests, never broad glare circles)
           vec3 V = normalize(cameraPosition - vWorldPos);
           vec3 H = normalize(uLightDir + V);
           float ndoth = max(0.0, dot(N, H));
-          float specular = pow(ndoth, 24.0);
-          float specMult = specular * 8.0;
-          float specStepBase = floor(specMult);
-          float specFactor = smoothstep(0.4, 0.6, specMult - specStepBase);
-          float toonSpec = (specStepBase + specFactor) / 8.0;
+          float specular = pow(ndoth, 160.0);
+          float waveCrestFactor = smoothstep(0.55, 0.85, vWave);
+          float toonSpec = step(0.70, specular) * waveCrestFactor;
 
           // 3. Multi-toned Surface and Depth Color
           vec3 baseColor = mix(uDepthColor, uSurfaceColor, vWave * 0.65 + 0.35);
-          baseColor *= (0.65 + 0.35 * toonDiffuse);
+          baseColor *= (0.75 + 0.25 * toonDiffuse);
 
           // 4. Wave Crest Highlights
-          baseColor = mix(baseColor, uSurfaceColor * 1.2, vWave * uWaveHighlight);
+          baseColor = mix(baseColor, uSurfaceColor * 1.15, vWave * uWaveHighlight);
 
-          // 5. Stylized Wave Crest Foam
-          float foamMask = smoothstep(0.68, 0.88, vWave);
-          vec3 finalColor = mix(baseColor, uFoamColor, foamMask * 0.88);
+          // 5. Stylized Wave Crest Foam (Subtle animated edge rim)
+          float foamMask = smoothstep(0.74, 0.92, vWave);
+          vec3 finalColor = mix(baseColor, uFoamColor, foamMask * 0.65);
 
-          // Add Specular Glint
-          finalColor += uLightColor * toonSpec * 0.75;
+          // Add Subtle Sparkle Glint on Wave Peaks
+          finalColor += uLightColor * toonSpec * 0.40;
 
           gl_FragColor = vec4(finalColor, 0.90);
         }

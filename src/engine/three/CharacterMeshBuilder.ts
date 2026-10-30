@@ -170,32 +170,32 @@ export interface GripTransform {
 
 export const WEAPON_GRIP_CONFIGS: Record<string, GripTransform> = {
   // --- 2H TWO-HANDED HEAVY WEAPONS ---
-  'sword_2handed_color.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.02, 0.02], rotation: [Math.PI / 2 - 0.25, 0, -0.1], scale: [0.9, 0.9, 0.9] },
-  'proc:dragonflame_blade': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.02, 0.02], rotation: [Math.PI / 2 - 0.25, 0, -0.1], scale: [0.9, 0.9, 0.9] },
-  'proc:abyssal_scythe': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.05, 0.04], rotation: [Math.PI / 2 - 0.15, 0.1, -0.1], scale: [0.82, 0.82, 0.82] },
-  'staff.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [Math.PI / 2 - 0.15, 0, 0], scale: [0.82, 0.82, 0.82] },
-  'proc:celestial_staff': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [Math.PI / 2 - 0.15, 0, 0], scale: [0.82, 0.82, 0.82] },
-  'proc:ocean_trident': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [Math.PI / 2 - 0.15, 0, 0], scale: [0.82, 0.82, 0.82] },
+  'sword_2handed_color.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.02, 0.02], rotation: [-0.1 * Math.PI, 0, 0.1 * Math.PI], scale: [0.9, 0.9, 0.9] },
+  'proc:dragonflame_blade': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.02, 0.02], rotation: [-0.1 * Math.PI, 0, 0.1 * Math.PI], scale: [0.9, 0.9, 0.9] },
+  'proc:abyssal_scythe': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.05, 0.04], rotation: [-0.1 * Math.PI, 0.1, 0.1 * Math.PI], scale: [0.82, 0.82, 0.82] },
+  'staff.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [-0.08 * Math.PI, 0, 0.08 * Math.PI], scale: [0.82, 0.82, 0.82] },
+  'proc:celestial_staff': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [-0.08 * Math.PI, 0, 0.08 * Math.PI], scale: [0.82, 0.82, 0.82] },
+  'proc:ocean_trident': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [-0.08 * Math.PI, 0, 0.08 * Math.PI], scale: [0.82, 0.82, 0.82] },
   'bow_withString.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0, 0], rotation: [0, 0, Math.PI / 2], scale: [0.85, 0.85, 0.85] },
-  'proc:abyssal_anchor': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [Math.PI / 2 - 0.15, 0, 0], scale: [0.75, 0.75, 0.75] },
+  'proc:abyssal_anchor': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, -0.05, 0.02], rotation: [-0.08 * Math.PI, 0, 0.08 * Math.PI], scale: [0.75, 0.75, 0.75] },
   'proc:moonlit_lute': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.1, 0.05], rotation: [0.3, -0.2, -0.5], scale: [0.82, 0.82, 0.82] },
   // --- 1H ONE-HANDED WEAPONS ---
-  'dagger.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, -0.02, 0], rotation: [Math.PI / 2 - 0.25, 0, 0], scale: [0.85, 0.85, 0.85] },
-  'sword_1handed.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0, 0], rotation: [Math.PI / 2 - 0.25, 0, 0], scale: [0.85, 0.85, 0.85] },
-  'proc:glacial_katana': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.02, 0], rotation: [Math.PI / 2 - 0.25, 0, -0.05], scale: [0.85, 0.85, 0.85] },
-  'wand.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0, 0], rotation: [Math.PI / 2 - 0.25, 0, 0], scale: [0.85, 0.85, 0.85] },
-  'proc:dawn_scepter': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.05, 0], rotation: [Math.PI / 2 - 0.25, 0, 0], scale: [0.85, 0.85, 0.85] },
+  'dagger.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, -0.02, 0], rotation: [-0.1 * Math.PI, 0, 0.1 * Math.PI], scale: [0.85, 0.85, 0.85] },
+  'sword_1handed.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0, 0], rotation: [-0.1 * Math.PI, 0, 0.1 * Math.PI], scale: [0.85, 0.85, 0.85] },
+  'proc:glacial_katana': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.02, 0], rotation: [-0.1 * Math.PI, 0, 0.08 * Math.PI], scale: [0.85, 0.85, 0.85] },
+  'wand.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0, 0], rotation: [-0.1 * Math.PI, 0, 0.1 * Math.PI], scale: [0.85, 0.85, 0.85] },
+  'proc:dawn_scepter': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.05, 0], rotation: [-0.1 * Math.PI, 0, 0.1 * Math.PI], scale: [0.85, 0.85, 0.85] },
   'spellbook_open.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.05, 0.05], rotation: [0, 0, 0], scale: [0.75, 0.75, 0.75] },
   'proc:nine_destinies_prism': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.12, 0.06], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] },
   'proc:highland_chakrams': { socket: 'handslot.r', wieldType: 'dual_wield', position: [0, 0, 0], rotation: [Math.PI / 2, 0, 0], scale: [0.85, 0.85, 0.85] },
   // --- OFFHAND ONLY (SHIELDS ON OUTER FOREARM) ---
-  'shield_square_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [Math.PI / 2, -Math.PI / 2 - 0.3, 0], scale: [0.85, 0.85, 0.85] },
-  'shield_badge_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [Math.PI / 2, -Math.PI / 2 - 0.3, 0], scale: [0.85, 0.85, 0.85] },
-  'shield_round_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [Math.PI / 2, -Math.PI / 2 - 0.3, 0], scale: [0.85, 0.85, 0.85] },
+  'shield_square_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [-0.35 * Math.PI, 0, -0.5 * Math.PI], scale: [0.85, 0.85, 0.85] },
+  'shield_badge_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [-0.35 * Math.PI, 0, -0.5 * Math.PI], scale: [0.85, 0.85, 0.85] },
+  'shield_round_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [-0.35 * Math.PI, 0, -0.5 * Math.PI], scale: [0.85, 0.85, 0.85] },
   'quiver.gltf': { socket: 'chest', wieldType: 'offhand_only', position: [0, 0.1, -0.15], rotation: [0, Math.PI, 0.2], scale: [0.85, 0.85, 0.85] },
   'mug_full.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0, 0, 0], rotation: [Math.PI / 2, 0, 0], scale: [0.8, 0.8, 0.8] },
   'proc:chronicles_sunspire': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.08, 0.08], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] },
-  'proc:shared_hearth_aegis': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [Math.PI / 2, -Math.PI / 2 - 0.3, 0], scale: [0.85, 0.85, 0.85] },
+  'proc:shared_hearth_aegis': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [-0.35 * Math.PI, 0, -0.5 * Math.PI], scale: [0.85, 0.85, 0.85] },
   // --- HEADGEAR ---
   'proc:wizard_hat': { socket: 'head', position: [0, 0.06, -0.02], rotation: [0, 0, 0], scale: [0.72, 0.72, 0.72] },
   'proc:knight_helm': { socket: 'head', position: [0, 0.05, 0.01], rotation: [0, 0, 0], scale: [0.8, 0.8, 0.8] },
@@ -326,12 +326,14 @@ function applyOutfitStyle(avatarScene: THREE.Object3D, outfitId: string | null) 
     avatarScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        const name = mesh.name.toLowerCase();
+        if (name.includes('head') || name.includes('eye') || name.includes('face')) return;
         if (mesh.material) {
           const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
           mat.color = new THREE.Color(0x38bdf8);
           if ('emissive' in mat) {
             mat.emissive = new THREE.Color(0x0284c7);
-            mat.emissiveIntensity = 0.35;
+            mat.emissiveIntensity = 0.25;
           }
           mesh.material = mat;
         }
@@ -341,12 +343,14 @@ function applyOutfitStyle(avatarScene: THREE.Object3D, outfitId: string | null) 
     avatarScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        const name = mesh.name.toLowerCase();
+        if (name.includes('head') || name.includes('eye') || name.includes('face')) return;
         if (mesh.material) {
           const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
           mat.color = new THREE.Color(0xa855f7);
           if ('emissive' in mat) {
             mat.emissive = new THREE.Color(0x6b21a8);
-            mat.emissiveIntensity = 0.3;
+            mat.emissiveIntensity = 0.2;
           }
           mesh.material = mat;
         }
@@ -356,6 +360,8 @@ function applyOutfitStyle(avatarScene: THREE.Object3D, outfitId: string | null) 
     avatarScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        const name = mesh.name.toLowerCase();
+        if (name.includes('head') || name.includes('eye') || name.includes('face')) return;
         if (mesh.material) {
           const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
           mat.color = new THREE.Color(0x22c55e);
@@ -367,6 +373,8 @@ function applyOutfitStyle(avatarScene: THREE.Object3D, outfitId: string | null) 
     avatarScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        const name = mesh.name.toLowerCase();
+        if (name.includes('head') || name.includes('eye') || name.includes('face')) return;
         if (mesh.material) {
           const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
           mat.color = new THREE.Color(0xef4444);
@@ -378,6 +386,8 @@ function applyOutfitStyle(avatarScene: THREE.Object3D, outfitId: string | null) 
     avatarScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        const name = mesh.name.toLowerCase();
+        if (name.includes('head') || name.includes('eye') || name.includes('face')) return;
         if (mesh.material) {
           const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
           mat.color = new THREE.Color(0x38bdf8);
