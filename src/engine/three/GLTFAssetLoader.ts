@@ -25,14 +25,28 @@ export class GLTFAssetLoader {
   }
 
   /**
+   * Resolves model URL ensuring subpath hosting (GitHub Pages, Vercel, localhost) works seamlessly.
+   */
+  public resolveAssetUrl(url: string): string {
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+      return url;
+    }
+    const clean = url.replace(/^\.?\//, '');
+    const base = (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL || './';
+    return base.endsWith('/') ? `${base}${clean}` : `${base}/${clean}`;
+  }
+
+  /**
    * Loads a GLB or GLTF model with caching.
    * If isSkinned is true (rigged characters), SkeletonUtils.clone is strictly used.
    */
   public async loadModel(url: string, isSkinned: boolean = false): Promise<LoadedModelResult> {
-    if (!this.cache.has(url)) {
+    const targetUrl = this.resolveAssetUrl(url);
+
+    if (!this.cache.has(targetUrl)) {
       const loadPromise = new Promise<LoadedModelResult>((resolve) => {
         this.loader.load(
-          url,
+          targetUrl,
           (gltf) => {
             // Traverse meshes and configure materials & shadows
             gltf.scene.traverse((child) => {
@@ -57,21 +71,21 @@ export class GLTFAssetLoader {
               animations: gltf.animations || [],
             };
 
-            this.parsedCache.set(url, result);
+            this.parsedCache.set(targetUrl, result);
             resolve(result);
           },
           undefined,
           (err) => {
-            console.error(`[GLTFAssetLoader] Failed to load model at ${url}:`, err);
+            console.error(`[GLTFAssetLoader] Failed to load model at ${targetUrl}:`, err);
             resolve(this.createFallbackModel());
           }
         );
       });
 
-      this.cache.set(url, loadPromise);
+      this.cache.set(targetUrl, loadPromise);
     }
 
-    const cached = await this.cache.get(url)!;
+    const cached = await this.cache.get(targetUrl)!;
 
     // Clone safely: SkinnedMesh requires SkeletonUtils to preserve bone bindings
     const clonedScene = isSkinned
