@@ -149,24 +149,16 @@ flowchart LR
 
 ---
 
-## 9. Environmental Shaders & Nature Subsystem
+## 9. Environmental Animation & Effects Subsystem
 
-### 9.1 Godot Toon Water Material (`src/engine/three/materials/GodotWaterMaterial.ts`)
-- **GPU Wave Synthesis**: Dual-layer Simplex wave distortion executed directly in vertex and fragment shaders. Evaluates counter-propagating wave coordinates ($1.5\times$ scale layer offset) with zero CPU memory or vertex allocation loops.
-- **Toon Lighting Thresholds**: 12 discrete stepped diffuse bands and 8 stepped specular glints with `smoothstep` edge smoothing.
-- **Stylized Faceted Normals**: Hardware screen derivatives (`dFdx(vWorldPos)`, `dFdy(vWorldPos)`) produce faceted low-poly planar water facets.
-- **Wave Foam**: Procedural wave crest thresholding (`smoothstep(0.68, 0.88, vWave)`) yielding bright white foam crests against an aquatic cyan-to-deep navy gradient.
+### 9.1 Dynamic Physical 3D Ocean Waves (`ThreeIsometricCanvas.tsx`, `DioramaBuilder.ts`)
+- **Physical Low-Poly Simulation**: Mesh geometry vertices are displaced along local $Z$ (world vertical $+Y$) in real time with an undulating sinusoidal equation: $A_1 \sin(v_x \cdot 0.6 + t \cdot 1.8) + A_2 \cos(v_y \cdot 0.7 + t \cdot 1.3)$.
+- **Bounded Coastal Elevation**: Sea plane floats at $Y = 0.02$, with wave amplitude capped at $\le 0.06\text{m}$, guaranteeing water never submerges shoreline sand blocks ($Y \ge 0.20\text{m}$).
+- **Real-Time Normal Synthesis**: `computeVertexNormals()` updates low-poly facet orientations each frame, producing crisp, tactile light glints under sunlight without artificial texture dots or glare circles.
 
-### 9.2 Godot Instanced Grass & Dither System (`src/engine/three/nature/GodotGrassManager.ts`)
-- **Instanced Rendering**: Renders 1,200 instanced grass quads (`THREE.InstancedMesh`) positioned dynamically on top of terrain blocks using `VoxelTerrainBuilder.getTopElevation()`.
-- **Bayer 4x4 Ordered Dithering**: Ported from `dither.gdshaderinc`. Evaluates a $4\times 4$ Bayer matrix against alpha threshold to generate retro pixel-art dithering, completely avoiding WebGL alpha sorting contention and depth fighting.
-- **Root-Anchored Wind Sway**: Quadratic height dampening $\text{pow}(\text{uv.y}, 1.8)$ anchors the blade roots firmly to the ground while upper tips sway in real time with global wind vectors.
-- **3-Stop Color Palette**: Maps spatial noise across coordinates to Godot's `palette_01.tres` (deep forest green `#468232` $\rightarrow$ meadow green `#75a743` $\rightarrow$ lime `#a8ca58`).
-
-### 9.3 Cel-Shaded Anime Flame & Campfire Hearth (`src/engine/three/effects/CartoonFireMesh.ts`)
+### 9.2 Cel-Shaded Anime Flame & Campfire Hearth (`src/engine/three/effects/CartoonFireMesh.ts`)
 - **3D Procedural Flame**: Tapered cylinder deformed by upward-scrolling 2D Simplex noise with 3 stepped anime color bands (white core $>0.80$, gold $>0.62$, orange $>0.42$).
 - **24 Rising Ember Sparks**: `THREE.Points` with additive blending, horizontal sinusoidal swirl, and height reset wrapping.
-
 ---
 
 ## 10. Automated Production Deployment Pipeline

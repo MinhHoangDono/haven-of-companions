@@ -111,10 +111,6 @@ src/
 │       ├── SpellEffect3D.ts              # 18 GPU-batched active & ultimate 3D particle spell animations (three.quarks)
 │       ├── CollectibleMeshBuilder.ts     # 12 scattered 3D collectibles with magnetic proximity pickup
 │       ├── DynamicPlatformManager.ts     # Fragile falling pier planks and high-jump thermal wind vents
-│       ├── materials/
-│       │   └── GodotWaterMaterial.ts     # Port of Godot water_toon.gdshader: dual-wave distortion, 12-step toon lighting, foam
-│       ├── nature/
-│       │   └── GodotGrassManager.ts      # Port of Godot grass.gdshader: 1,200 instanced blades, Bayer 4x4 dither, wind sway
 │       ├── effects/
 │       │   └── CartoonFireMesh.ts        # Cel-shaded anime flame cylinder & rising ember sparks at campfire hearth
 │       ├── equipment/
@@ -181,9 +177,8 @@ src/
   - Integrated `ResizeObserver`: Guarantees the WebGL canvas never collapses to zero height on orientation changes or modal transitions.
 
 
-### 5.5 Environmental Shaders & Nature Package (`src/engine/three/materials/`, `nature/`, `effects/`)
-- **Godot Toon Water Shader (`GodotWaterMaterial.ts`)**: Direct Three.js port of Godot's `water_toon.gdshader`. Computes dual-layer Simplex wave offsets, 12-step banded diffuse, 8-step specular glints, faceted normals (`dFdx`/`dFdy`), and procedural wave crest foam entirely on the GPU in a single draw call.
-- **Godot Instanced Grass & Dither System (`GodotGrassManager.ts`)**: Port of Godot's `grass.gdshader`, `ground.gdshader`, and `dither.gdshaderinc`. Renders 1,200 instanced grass blades (`THREE.InstancedMesh`) across terrain tiers using `grass_basic_atlas.png`, Bayer 4x4 matrix ordered dithering, root-anchored wind sway, and a 3-stop spatial noise color gradient.
+### 5.5 Environmental Effects Package (`src/engine/three/effects/`)
+- **Dynamic Physical 3D Ocean Waves (`ThreeIsometricCanvas.tsx`, `DioramaBuilder.ts`)**: Authentic low-poly physical vertex wave displacement with real-time `computeVertexNormals()`. Sits at safe sea level ($Y = 0.02$) with gentle wave equation ($A \le 0.06\text{m}$) preventing coastline flooding while providing tactile 3D water motion.
 - **Cel-Shaded Anime Flame & Campfire Hearth (`CartoonFireMesh.ts`)**: Procedural 3D flame body deformed by upward-scrolling 2D Simplex noise with 3 stepped anime color bands and 24 rising ember sparks (`THREE.Points`).
 ## 6. Critical Scars & Operational Gotchas
 

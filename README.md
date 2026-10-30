@@ -19,7 +19,7 @@ An interactive, mobile-first 3D isometric medieval fantasy RPG web diorama celeb
 - **Party Reunion Feast (Hội Ngộ 9 Tri Kỷ)**: Single-tap party celebration trigger gathering all 9 friends with multi-harmonic audio chimes and simultaneous wave celebration hops.
 - **City Builder & Voxel Construction Mode**: In-game medieval construction sandbox with 22 CC0 structures across 5 categories, real-time green/red ghost preview, 90° rotation, bulldozer tool, dynamic passability synchronization, and `localStorage` layout persistence.
 - **3D Platformer & Collectibles**: 12 scattered 3D collectibles across 3 biomes (Gold Coins, Wild Tea Leaves, Conch Shells, Fireworks Embers) with magnetic proximity pickup, coin counter HUD in `TopBar`, fragile falling pier plank, and high-jump thermal wind vent.
-- **Godot Toon Shaders & Nature Subsystem**: Dual-layer Simplex wave distortion ocean water shader (`GodotWaterMaterial.ts`), 1,200 instanced grass blades (`GodotGrassManager.ts` with Bayer 4x4 matrix ordered dithering and root-anchored wind sway), and cel-shaded anime flame hearth (`CartoonFireMesh.ts`).
+- **Physical 3D Ocean Waves & Cel-Shaded Hearth**: Real dynamic low-poly physical ocean wave simulation with vertex normal computation ($Y = 0.02$, capped swell preventing shoreline flooding) and cel-shaded anime flame hearth (`CartoonFireMesh.ts`).
 - **Atmospheric Day/Night & Weather**: 4-stage lighting (Dawn, Day, Sunset, Night) with PCF soft shadow mapping, campfire flame flicker, and Đà Lạt mountain mist.
 - **Mobile Performance & PWA**: 60 FPS active / 30 FPS idle battery-saving loop, manual vendor chunk splitting, and offline Service Worker support (`v8.5`).
 ---

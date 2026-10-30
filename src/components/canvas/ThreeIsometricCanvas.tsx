@@ -182,8 +182,6 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       largeShipGroup,
       lighthouseBeaconLight,
       fireMesh,
-      waterMat,
-      grassManager,
     } = DioramaBuilder.buildDiorama(scene);
 
     interactivePropsRef.current = interactiveProps;
@@ -478,10 +476,20 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       // Update cartoon fire shader and ember particles
       fireMesh.update(currentTime, minInterval / 1000);
 
-      // Update Godot Toon Water & Grass Shaders
-      const tSec = currentTime * 0.001;
-      waterMat.update(tSec);
-      grassManager.update(tSec);
+      // Animate dynamic 3D physical ocean wave swell (undulating low-poly water with normals)
+      if (waterMeshRef.current) {
+        const posAttr = waterMeshRef.current.geometry.attributes.position;
+        const tSec = currentTime * 0.0015;
+        // Bounded physical wave equation: amplitude capped at 0.05m so waves NEVER drown the coast (sand at Y >= 0.20m)
+        for (let i = 0; i < posAttr.count; i++) {
+          const vx = posAttr.getX(i);
+          const vy = posAttr.getY(i);
+          const waveZ = Math.sin(vx * 0.6 + tSec * 1.8) * 0.035 + Math.cos(vy * 0.7 + tSec * 1.3) * 0.025;
+          posAttr.setZ(i, waveZ);
+        }
+        posAttr.needsUpdate = true;
+        waterMeshRef.current.geometry.computeVertexNormals();
+      }
       // Animate Large Galleon ship oceanic roll
       if (largeShipRef.current) {
         largeShipRef.current.position.y = -0.15 + Math.sin(currentTime * 0.0014) * 0.06;
@@ -612,7 +620,6 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       cancelAnimationFrame(rafId);
       dynamicPlatforms.dispose(scene);
       fireMesh.dispose();
-      grassManager.dispose(scene);
       scene.remove(spellEffects.batchRenderer);
       collectibles.forEach((c) => c.mesh && scene.remove(c.mesh));
       dom.removeEventListener('pointerdown', onDown);

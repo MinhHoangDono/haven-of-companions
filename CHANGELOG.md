@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [v8.5.2] - 2026-10-30
+
+### Removed
+- **Godot Grass Shader & Instanced Grass System (`GodotGrassManager.ts`)**: Completely removed the experimental grass shader, instanced mesh, and grass atlas rendering per user request, restoring the clean voxel terrain landscape.
+- **Godot Toon Water Shader (`GodotWaterMaterial.ts`)**: Removed the procedural shader material and associated texture glint / specular white dot artifacts.
+
+### Restored & Enhanced
+- **Physical 3D Ocean Wave Simulation (`ThreeIsometricCanvas.tsx`, `DioramaBuilder.ts`)**:
+  - Restored authentic low-poly physical vertex wave displacement with per-frame `computeVertexNormals()`.
+  - Anchored water plane to safe elevation ($Y = 0.02$) with bounded wave amplitude ($A \le 0.06\text{m}$), ensuring ocean waves physically roll and undulate without ever flooding shoreline sand and land blocks ($Y \ge 0.20\text{m}$).
+  - Reinstated clean `MeshStandardMaterial` with deep marine blue (`#0a4f6d`) and `flatShading: true`, providing natural sunlight facet reflections without artificial shader glare circles.
+
 ## [v8.5.1] - 2026-10-30
 
 ### Fixed & Optimized

@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import { PropPlacementManager } from './PropPlacementManager';
 import { VoxelTerrainBuilder } from './VoxelTerrainBuilder';
 import { CartoonFireMesh } from './effects/CartoonFireMesh';
-import { GodotWaterMaterial } from './materials/GodotWaterMaterial';
-import { GodotGrassManager } from './nature/GodotGrassManager';
 export interface InteractivePropRef {
   id: string;
   type: 'stew_pot' | 'sea_bell' | 'fireworks_mortar' | 'tea_pavilion';
@@ -19,8 +17,6 @@ export interface DioramaElements {
   lighthouseGroup: THREE.Group;
   lighthouseBeaconLight: THREE.PointLight;
   fireMesh: CartoonFireMesh;
-  waterMat: GodotWaterMaterial;
-  grassManager: GodotGrassManager;
 }
 export class DioramaBuilder {
   public static buildDiorama(scene: THREE.Scene): DioramaElements {
@@ -179,19 +175,13 @@ export class DioramaBuilder {
     lighthouseBeaconLight.castShadow = true;
     dioramaGroup.add(lighthouseBeaconLight);
 
-    // Ocean Water Plane (Floats at Y = 0.05, covering water blocks)
-    // Ocean Water Plane with Godot Toon Water Shader
+    // Ocean Water Plane (Physical low-poly 3D wave mesh, sits below land at Y = 0.02)
     const waterGeo = new THREE.PlaneGeometry(72.0, 40.0, 72, 40);
-    const waterMat = new GodotWaterMaterial();
-    const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+    const waterMesh = new THREE.Mesh(waterGeo, matWater);
     waterMesh.rotation.x = -Math.PI / 2;
-    waterMesh.position.set(0, 0.05, 16.0);
+    waterMesh.position.set(0, 0.02, 16.0);
     waterMesh.receiveShadow = true;
     dioramaGroup.add(waterMesh);
-
-    // Instantiate Godot Instanced Grass & Dither System
-    const grassManager = new GodotGrassManager(scene);
-
     // ==========================================
     // 5. Asynchronously Instantiate Declarative Props
     // ==========================================
@@ -207,8 +197,6 @@ export class DioramaBuilder {
       lighthouseGroup,
       lighthouseBeaconLight,
       fireMesh,
-      waterMat,
-      grassManager,
     };
   }
   // --- Sub-Builders ---
