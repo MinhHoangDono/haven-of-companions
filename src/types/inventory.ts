@@ -1,8 +1,8 @@
-export type ItemCategory = 'weapon' | 'offhand' | 'headgear' | 'cape' | 'consumable' | 'collectible';
+export type ItemCategory = 'weapon' | 'offhand' | 'headgear' | 'cape' | 'outfit' | 'consumable' | 'collectible';
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
-export type EquipSlot = 'mainWeapon' | 'offhand' | 'headgear' | 'cape';
+export type EquipSlot = 'mainWeapon' | 'offhand' | 'headgear' | 'cape' | 'outfit';
 
 export interface ItemStats {
   attack?: number;
@@ -37,8 +37,8 @@ export interface CharacterEquipment {
   offhand?: string | null;    // Item ID
   headgear?: string | null;   // Item ID
   cape?: string | null;       // Item ID
+  outfit?: string | null;     // Item ID
 }
-
 export type AllCompanionsEquipment = Record<string, CharacterEquipment>;
 
 export interface ActiveBuff {

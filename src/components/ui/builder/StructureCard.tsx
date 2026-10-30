@@ -22,6 +22,13 @@ import {
   Palmtree,
   Mountain,
   Hammer,
+  Castle,
+  Flag,
+  Anchor,
+  Ship,
+  Shovel,
+  Boxes,
+  Warehouse,
 } from 'lucide-react';
 import { StructureDefinition } from '../../../types/cityBuilder';
 
@@ -83,6 +90,20 @@ export const StructureCard: React.FC<StructureCardProps> = ({
         return <Palmtree {...props} className="w-5 h-5 text-teal-400" />;
       case 'Mountain':
         return <Mountain {...props} className="w-5 h-5 text-stone-300" />;
+      case 'Castle':
+        return <Castle {...props} className="w-5 h-5 text-indigo-300" />;
+      case 'Flag':
+        return <Flag {...props} className="w-5 h-5 text-rose-400" />;
+      case 'Anchor':
+        return <Anchor {...props} className="w-5 h-5 text-cyan-300" />;
+      case 'Ship':
+        return <Ship {...props} className="w-5 h-5 text-amber-300" />;
+      case 'Shovel':
+        return <Shovel {...props} className="w-5 h-5 text-lime-400" />;
+      case 'Boxes':
+        return <Boxes {...props} className="w-5 h-5 text-amber-500" />;
+      case 'Warehouse':
+        return <Warehouse {...props} className="w-5 h-5 text-orange-300" />;
       default:
         return <Hammer {...props} className="w-5 h-5 text-fantasy-gold" />;
     }

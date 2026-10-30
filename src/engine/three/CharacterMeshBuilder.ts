@@ -257,11 +257,75 @@ export class CharacterMeshBuilder {
     let rightHand: THREE.Object3D | null = null;
     let leftHand: THREE.Object3D | null = null;
     let chest: THREE.Object3D | null = null;
+    const BUILTIN_HEADGEAR = ['Knight_Helmet', 'Knight_HelmetVisor', 'Mage_Hat', 'Barbarian_BearHat', 'RogueHooded_Mask'];
+    const BUILTIN_CAPE = ['Knight_Cape', 'Mage_Cape', 'Ranger_Cape', 'Rogue_Cape', 'RogueHooded_Cape', 'Ranger_Quiver'];
 
     let currentMainWeaponMesh: THREE.Object3D | null = null;
     let currentOffhandMesh: THREE.Object3D | null = null;
     let currentHeadgearMesh: THREE.Object3D | null = null;
     let currentCapeMesh: THREE.Object3D | null = null;
+
+    let currentAvatarScene: THREE.Object3D | null = null;
+    let currentOutfitId: string | null = null;
+
+    const avatarGroup = new THREE.Group();
+    group.add(avatarGroup);
+
+    const setupAvatarBody = async (outfitId: string | null) => {
+      const isCivilian = outfitId === 'outfit_white_shirt_pants';
+      const targetModel = isCivilian ? 'Rig_Medium_General.glb' : config.model;
+
+      if (currentAvatarScene) {
+        avatarGroup.remove(currentAvatarScene);
+        currentAvatarScene = null;
+      }
+
+      const [{ scene: avatarScene }, anims] = await Promise.all([
+        assetLoader.loadModel(`assets/models/characters/${targetModel}`, true),
+        ensureAnimationsLoaded(),
+      ]);
+
+      currentAvatarScene = avatarScene;
+      avatarScene.scale.set(config.scale, config.scale, config.scale);
+      avatarGroup.add(avatarScene);
+
+      // Locate skeletal bones
+      headBone = avatarScene.getObjectByName('head') || null;
+      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
+      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
+      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
+
+      // Style civilian white shirt & dark pants if base outfit
+      if (isCivilian) {
+        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
+        const darkPantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+
+        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
+        if (bodyMesh) bodyMesh.material = whiteShirtMat;
+
+        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
+        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
+        if (leftLeg) leftLeg.material = darkPantsMat;
+        if (rightLeg) rightLeg.material = darkPantsMat;
+
+        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
+        if (headMesh) headMesh.material = skinMat;
+      }
+
+      // Bind AnimationMixer
+      mixer = new THREE.AnimationMixer(avatarScene);
+      if (anims.idle) {
+        idleAction = mixer.clipAction(anims.idle);
+        idleAction.play();
+        activeAction = idleAction;
+      }
+      if (anims.walk) {
+        walkAction = mixer.clipAction(anims.walk);
+      }
+
+      currentOutfitId = outfitId;
+    };
 
     const equipSlotFn = async (slot: EquipSlot, modelAsset: string | null) => {
       try {
@@ -320,6 +384,26 @@ export class CharacterMeshBuilder {
 
     const refreshEquipmentFn = async () => {
       const equipped = inventoryManager.getEquipped(character.id);
+      const targetOutfit = equipped.outfit || 'outfit_class_armor';
+
+      if (targetOutfit !== currentOutfitId || !currentAvatarScene) {
+        await setupAvatarBody(targetOutfit);
+      }
+
+      // Hide baked-in class helmets/hats/capes so custom gear doesn't clip
+      if (currentAvatarScene) {
+        const hasCustomHead = !!equipped.headgear;
+        BUILTIN_HEADGEAR.forEach((meshName) => {
+          const m = currentAvatarScene!.getObjectByName(meshName);
+          if (m) m.visible = !hasCustomHead && equipped.outfit !== 'outfit_white_shirt_pants';
+        });
+
+        const hasCustomCape = !!equipped.cape;
+        BUILTIN_CAPE.forEach((meshName) => {
+          const m = currentAvatarScene!.getObjectByName(meshName);
+          if (m) m.visible = !hasCustomCape && equipped.outfit !== 'outfit_white_shirt_pants';
+        });
+      }
 
       const mainItemId = equipped.mainWeapon;
       const mainItem = mainItemId ? inventoryManager.getItem(mainItemId) : null;
@@ -342,37 +426,9 @@ export class CharacterMeshBuilder {
       await equipSlotFn('cape', capeAsset);
     };
 
-    const avatarGroup = new THREE.Group();
-    group.add(avatarGroup);
-
-    // 5. Asynchronously Load Model, Weapons & Setup Animation Mixer
-    Promise.all([
-      assetLoader.loadModel(`assets/models/characters/${config.model}`, true),
-      ensureAnimationsLoaded(),
-    ]).then(async ([{ scene: avatarScene }, anims]) => {
-      avatarScene.scale.set(config.scale, config.scale, config.scale);
-      avatarGroup.add(avatarScene);
-
-      // Locate skeletal bones
-      headBone = avatarScene.getObjectByName('head') || null;
-      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
-      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
-      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
-
-      // Bind AnimationMixer to eliminate T-Pose!
-      mixer = new THREE.AnimationMixer(avatarScene);
-
-      if (anims.idle) {
-        idleAction = mixer.clipAction(anims.idle);
-        idleAction.play();
-        activeAction = idleAction;
-      }
-      if (anims.walk) {
-        walkAction = mixer.clipAction(anims.walk);
-      }
-
-      // Initial equipment mount based on persistent inventory
-      await refreshEquipmentFn();
+    // Initial equipment mount based on persistent inventory
+    setupAvatarBody(inventoryManager.getEquipped(character.id).outfit || 'outfit_class_armor').then(() => {
+      refreshEquipmentFn();
     });
 
     let currentSpotX = config.posX;
@@ -625,6 +681,9 @@ export class CharacterMeshBuilder {
       mainWeapon: 'sword_2handed_color.gltf',
     };
 
+    const BUILTIN_HEADGEAR = ['Knight_Helmet', 'Knight_HelmetVisor', 'Mage_Hat', 'Barbarian_BearHat', 'RogueHooded_Mask'];
+    const BUILTIN_CAPE = ['Knight_Cape', 'Mage_Cape', 'Ranger_Cape', 'Rogue_Cape', 'RogueHooded_Cape', 'Ranger_Quiver'];
+
     let mixer: THREE.AnimationMixer | null = null;
     let headBone: THREE.Object3D | null = null;
     let rightHand: THREE.Object3D | null = null;
@@ -635,6 +694,57 @@ export class CharacterMeshBuilder {
     let currentOffMesh: THREE.Object3D | null = null;
     let currentHeadMesh: THREE.Object3D | null = null;
     let currentCapeMesh: THREE.Object3D | null = null;
+
+    let currentAvatarScene: THREE.Object3D | null = null;
+    let currentOutfitId: string | null = null;
+
+    const setupAvatarBody = async (outfitId: string | null) => {
+      const isCivilian = outfitId === 'outfit_white_shirt_pants';
+      const targetModel = isCivilian ? 'Rig_Medium_General.glb' : config.model;
+
+      if (currentAvatarScene) {
+        group.remove(currentAvatarScene);
+        currentAvatarScene = null;
+      }
+
+      const [{ scene: avatarScene }, anims] = await Promise.all([
+        assetLoader.loadModel(`assets/models/characters/${targetModel}`, true),
+        ensureAnimationsLoaded(),
+      ]);
+
+      currentAvatarScene = avatarScene;
+      avatarScene.scale.set(config.scale, config.scale, config.scale);
+      group.add(avatarScene);
+
+      headBone = avatarScene.getObjectByName('head') || null;
+      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
+      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
+      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
+
+      if (isCivilian) {
+        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
+        const darkPantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+
+        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
+        if (bodyMesh) bodyMesh.material = whiteShirtMat;
+
+        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
+        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
+        if (leftLeg) leftLeg.material = darkPantsMat;
+        if (rightLeg) rightLeg.material = darkPantsMat;
+
+        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
+        if (headMesh) headMesh.material = skinMat;
+      }
+
+      mixer = new THREE.AnimationMixer(avatarScene);
+      if (anims.idle) {
+        mixer.clipAction(anims.idle).play();
+      }
+
+      currentOutfitId = outfitId;
+    };
 
     const equipSlotFn = async (slot: EquipSlot, modelAsset: string | null) => {
       try {
@@ -685,6 +795,25 @@ export class CharacterMeshBuilder {
 
     const refreshEquipmentFn = async () => {
       const equipped = inventoryManager.getEquipped(charId);
+      const targetOutfit = equipped.outfit || 'outfit_class_armor';
+
+      if (targetOutfit !== currentOutfitId || !currentAvatarScene) {
+        await setupAvatarBody(targetOutfit);
+      }
+
+      if (currentAvatarScene) {
+        const hasCustomHead = !!equipped.headgear;
+        BUILTIN_HEADGEAR.forEach((meshName) => {
+          const m = currentAvatarScene!.getObjectByName(meshName);
+          if (m) m.visible = !hasCustomHead && equipped.outfit !== 'outfit_white_shirt_pants';
+        });
+
+        const hasCustomCape = !!equipped.cape;
+        BUILTIN_CAPE.forEach((meshName) => {
+          const m = currentAvatarScene!.getObjectByName(meshName);
+          if (m) m.visible = !hasCustomCape && equipped.outfit !== 'outfit_white_shirt_pants';
+        });
+      }
 
       const mainItemId = equipped.mainWeapon;
       const mainItem = mainItemId ? inventoryManager.getItem(mainItemId) : null;
@@ -707,24 +836,8 @@ export class CharacterMeshBuilder {
       await equipSlotFn('cape', capeAsset);
     };
 
-    Promise.all([
-      assetLoader.loadModel(`assets/models/characters/${config.model}`, true),
-      ensureAnimationsLoaded(),
-    ]).then(async ([{ scene: avatarScene }, anims]) => {
-      avatarScene.scale.set(config.scale, config.scale, config.scale);
-      group.add(avatarScene);
-
-      headBone = avatarScene.getObjectByName('head') || null;
-      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
-      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
-      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
-
-      mixer = new THREE.AnimationMixer(avatarScene);
-      if (anims.idle) {
-        mixer.clipAction(anims.idle).play();
-      }
-
-      await refreshEquipmentFn();
+    setupAvatarBody(inventoryManager.getEquipped(charId).outfit || 'outfit_class_armor').then(() => {
+      refreshEquipmentFn();
     });
 
     return {

@@ -1,25 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Character } from '../../types/character';
-import { Sparkles, X, Shield, Trees, Compass, Shirt, BookOpen, Check } from 'lucide-react';
+import { Sparkles, X, Shield, Trees, Compass, Check, Heart, Zap, Weight, Wind } from 'lucide-react';
 import { CharacterPreview3D } from './CharacterPreview3D';
 import { inventoryManager } from '../../engine/inventory/InventoryManager';
 import { EquipSlot, InventoryItem } from '../../types/inventory';
 import { audioManager } from '../../audio/audioManager';
+
 interface CharacterModalProps {
   character: Character | null;
   onClose: () => void;
   onTriggerAbility: () => void;
 }
 
+const SLOT_CONFIG: { slot: EquipSlot; label: string; icon: string; category: string }[] = [
+  { slot: 'mainWeapon', label: 'Vũ Khí Chính (Primary)', icon: '⚔️', category: 'weapon' },
+  { slot: 'offhand', label: 'Tay Phụ / Khiên (Secondary)', icon: '🛡️', category: 'offhand' },
+  { slot: 'headgear', label: 'Mũ & Nón (Headgear)', icon: '🪖', category: 'headgear' },
+  { slot: 'cape', label: 'Áo Choàng (Cape & Mantle)', icon: '🧣', category: 'cape' },
+  { slot: 'outfit', label: 'Y Phục & Giáp (Outfit / Robe)', icon: '👕', category: 'outfit' },
+];
+
 export const CharacterModal: React.FC<CharacterModalProps> = ({
   character,
   onClose,
   onTriggerAbility,
 }) => {
-  const [activeTab, setActiveTab] = useState<'info' | 'wardrobe'>('info');
+  const [activeNavTab, setActiveNavTab] = useState<'inventory' | 'skills' | 'journal'>('inventory');
   const [selectedSlot, setSelectedSlot] = useState<EquipSlot>('mainWeapon');
+  const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [, setEquipVersion] = useState(0);
 
+  // Auto-sync with inventoryManager state
   useEffect(() => {
     const unsub = inventoryManager.subscribe(() => {
       setEquipVersion((v) => v + 1);
@@ -37,7 +48,12 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
     return id ? inventoryManager.getItem(id) : undefined;
   };
 
-  const slotItems = allItems.filter((it) => it.equippable && it.equipSlot === selectedSlot);
+  const currentSlotItems = allItems.filter((it) => it.equippable && it.equipSlot === selectedSlot);
+
+  // Set default inspected item for the slot
+  const currentlyEquippedInSlot = getEquippedItem(selectedSlot);
+  const displayItem = inspectedItem || currentlyEquippedInSlot || currentSlotItems[0] || null;
+
   const getFactionIcon = () => {
     switch (character.faction) {
       case 'highlands':
@@ -49,243 +65,549 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
     }
   };
 
+  const handleEquip = (item: InventoryItem) => {
+    inventoryManager.equipItem(character.id, selectedSlot, item.id);
+    setInspectedItem(item);
+  };
+
+  const handleUnequip = () => {
+    inventoryManager.unequipItem(character.id, selectedSlot);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex sm:items-center items-stretch justify-center pointer-events-auto bg-black/75 backdrop-blur-md animate-fade-in p-0 sm:p-4">
-      {/* Click outside backdrop to close on desktop */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/85 backdrop-blur-md animate-fade-in p-0 sm:p-3 lg:p-6 select-none">
+      {/* Backdrop */}
       <div className="absolute inset-0 hidden sm:block" onClick={onClose} />
 
-      {/* Modal Box: Full screen on phone, centered modal card on web */}
-      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-xl bg-ink-900 border-0 sm:border sm:border-paper-800/80 rounded-none sm:rounded-3xl shadow-2xl p-4 sm:p-6 overflow-y-auto flex flex-col pt-safe pb-safe">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 sm:top-5 right-4 sm:right-5 p-2 rounded-full bg-ink-800/90 border border-paper-800 text-paper-200/70 hover:text-paper-100 active:scale-95 transition-all z-10"
-          title="Đóng bảng nhân vật"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Profile Header */}
-        <div className="flex items-center gap-3.5 mb-4 pr-10">
-          <div
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border-2 shadow-lg shrink-0"
-            style={{
-              backgroundColor: character.color.primary,
-              borderColor: character.color.accent,
-            }}
-          >
-            {getFactionIcon()}
-          </div>
-
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-serif font-bold text-paper-100 truncate max-w-full" title={character.name}>
-                {character.name}
-              </h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-sans bg-ink-800 border border-paper-800 text-paper-200/80 shrink-0">
-                {character.pronoun}
-              </span>
-            </div>
-            <p className="text-xs font-serif font-semibold text-amber-300 truncate max-w-full" title={character.classTitle}>
-              {character.classTitle}
-            </p>
-            <p className="text-[11px] font-sans text-paper-200/60 flex items-center gap-1 mt-0.5 truncate">
-              <span>{character.factionName}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Tab Switcher */}
-        <div className="flex rounded-xl bg-ink-800 p-1 mb-3.5 border border-paper-800/60 shrink-0">
-          <button
-            onClick={() => {
-              audioManager.playTap();
-              setActiveTab('info');
-            }}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'info'
-                ? 'bg-fantasy-gold text-ink-950 shadow-sm'
-                : 'text-paper-200/70 hover:text-paper-100'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Hồ Sơ & Chiến Tích</span>
-          </button>
-
-          <button
-            onClick={() => {
-              audioManager.playTap();
-              setActiveTab('wardrobe');
-            }}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'wardrobe'
-                ? 'bg-fantasy-gold text-ink-950 shadow-sm'
-                : 'text-paper-200/70 hover:text-paper-100'
-            }`}
-          >
-            <Shirt className="w-3.5 h-3.5" />
-            <span>Tủ Đồ & Ngoại Trang</span>
-          </button>
-        </div>
-
-        {/* 3D Interactive Character Model Viewport */}
-        <CharacterPreview3D character={character} />
-        {activeTab === 'info' ? (
-          <>
-            {/* Primary Skill Cast Button */}
+      {/* Main RPG Screen Container (Widescreen Exodus Rising Style) */}
+      <div className="relative w-full h-full sm:h-[92vh] sm:max-w-7xl bg-ink-950 border-0 sm:border sm:border-paper-800/80 rounded-none sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden pt-safe pb-safe">
+        {/* ======================================================== */}
+        {/* TOP RPG NAVIGATION BAR (World Map, Skills, Inventory...) */}
+        {/* ======================================================== */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 bg-ink-900 border-b border-paper-800/80 shrink-0">
+          {/* Tabs */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
-              onClick={() => {
-                onTriggerAbility();
-                onClose();
-              }}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-sans font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-[0_4px_16px_rgba(223,166,66,0.35)] active:scale-95 transition-all mb-3.5 hover:brightness-105 border border-yellow-200 shrink-0"
-              title={`Thi triển kỹ năng đặc trưng ${character.signatureAbility.name}`}
+              onClick={onClose}
+              className="px-3 sm:px-4 py-1.5 rounded-lg text-xs font-serif font-semibold text-paper-200/70 hover:text-paper-100 hover:bg-ink-800 transition-colors flex items-center gap-1.5"
+              title="Quay lại bản đồ làng"
             >
-              <Sparkles className="w-4 h-4 text-ink-950 shrink-0" />
-              <span className="truncate">Thi triển: {character.signatureAbility.name}</span>
+              <span>🗺️</span>
+              <span className="hidden sm:inline">Bản Đồ Làng</span>
             </button>
 
-            {/* RPG Stat Bars */}
-            <div className="bg-ink-800/80 border border-paper-800/60 rounded-2xl p-3.5 mb-4 shadow-inner">
-              <h3 className="text-xs font-serif font-bold tracking-wider uppercase text-fantasy-gold mb-2.5">
-                Companion Attributes
-              </h3>
-              <div className="space-y-2">
-                {character.stats.map((stat, idx) => (
-                  <div key={idx}>
-                    <div className="flex items-center justify-between text-[11px] font-sans text-paper-200/80 mb-1">
-                      <span>{stat.label}</span>
-                      <span className="font-semibold text-paper-100">{stat.value}/{stat.max}</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-ink-900 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${(stat.value / stat.max) * 100}%`,
-                          backgroundColor: character.color.secondary,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <button
+              onClick={() => {
+                audioManager.playTap();
+                setActiveNavTab('skills');
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 ${
+                activeNavTab === 'skills'
+                  ? 'bg-fantasy-gold text-ink-950 shadow-md'
+                  : 'text-paper-200/70 hover:text-paper-100 hover:bg-ink-800'
+              }`}
+            >
+              <span>⚡</span>
+              <span>Kỹ Năng</span>
+            </button>
+
+            <button
+              onClick={() => {
+                audioManager.playTap();
+                setActiveNavTab('inventory');
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 ${
+                activeNavTab === 'inventory'
+                  ? 'bg-fantasy-gold text-ink-950 shadow-md'
+                  : 'text-paper-200/70 hover:text-paper-100 hover:bg-ink-800'
+              }`}
+            >
+              <span>🎒</span>
+              <span>Hành Trang & Tủ Đồ</span>
+            </button>
+
+            <button
+              onClick={() => {
+                audioManager.playTap();
+                setActiveNavTab('journal');
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 ${
+                activeNavTab === 'journal'
+                  ? 'bg-fantasy-gold text-ink-950 shadow-md'
+                  : 'text-paper-200/70 hover:text-paper-100 hover:bg-ink-800'
+              }`}
+            >
+              <span>📜</span>
+              <span className="hidden sm:inline">Ký Ức Tri Kỷ</span>
+            </button>
+          </div>
+
+          {/* Level / Close */}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 bg-ink-950 px-3 py-1 rounded-full border border-fantasy-gold/50 text-fantasy-gold font-serif font-bold text-xs shadow-inner">
+              <span>Cấp 42</span>
+              <span className="text-paper-800">•</span>
+              <span className="text-paper-200/70 font-sans text-[11px]">5 EXP</span>
             </div>
 
-            {/* The Chronicler's Lore (Real-Life Inspired Memories) */}
-            <div className="bg-paper-100 text-ink-900 border border-paper-800/80 rounded-2xl p-3.5 mb-4 shadow-md">
-              <h3 className="text-xs font-serif font-bold tracking-wider uppercase text-ink-800 mb-1.5 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                <span>Chronicle of Adventures</span>
-              </h3>
-              <p className="text-xs font-sans text-ink-800 leading-relaxed italic">
-                "{character.bio}"
-              </p>
-            </div>
-          </>
-        ) : (
-          <div className="space-y-3.5">
-            {/* Equipment Slots Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[
-                { slot: 'mainWeapon' as EquipSlot, label: 'Vũ Khí Chính', icon: '⚔️' },
-                { slot: 'offhand' as EquipSlot, label: 'Tay Phụ / Khiên', icon: '🛡️' },
-                { slot: 'headgear' as EquipSlot, label: 'Mũ & Nón', icon: '🧙' },
-                { slot: 'cape' as EquipSlot, label: 'Áo Choàng', icon: '🧣' },
-              ].map(({ slot, label, icon }) => {
-                const item = getEquippedItem(slot);
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg bg-ink-800 hover:bg-ink-700 text-paper-200 hover:text-paper-100 border border-paper-800 active:scale-95 transition-all"
+              title="Đóng (Close)"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* MAIN BODY: 3-COLUMN EXODUS RISING RPG LAYOUT */}
+        {/* ======================================================== */}
+        <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
+          {/* ---------------------------------------------------- */}
+          {/* COLUMN 1: INVENTORY & EQUIPMENT SELECTOR (LEFT) */}
+          {/* ---------------------------------------------------- */}
+          <div className="w-full lg:w-[380px] xl:w-[420px] bg-ink-950/90 border-b lg:border-b-0 lg:border-r border-paper-800/80 flex shrink-0 min-h-0 overflow-hidden">
+            {/* Leftmost Vertical Slot Strip */}
+            <div className="w-13 sm:w-14 bg-ink-950 border-r border-paper-800/60 flex flex-col items-center py-3 gap-2 shrink-0 overflow-y-auto scrollbar-none">
+              {SLOT_CONFIG.map(({ slot, icon, label }) => {
                 const isSelected = selectedSlot === slot;
+                const isEquipped = !!getEquippedItem(slot);
                 return (
                   <button
                     key={slot}
                     onClick={() => {
                       audioManager.playTap();
                       setSelectedSlot(slot);
+                      setInspectedItem(null);
                     }}
-                    className={`p-2.5 rounded-2xl border text-left flex flex-col justify-between transition-all active:scale-95 min-h-[76px] ${
+                    className={`relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-lg sm:text-xl transition-all active:scale-95 ${
                       isSelected
-                        ? 'bg-ink-800 border-fantasy-gold ring-1 ring-fantasy-gold shadow-md'
-                        : 'bg-ink-800/60 border-paper-800/60 hover:bg-ink-800/80'
+                        ? 'bg-fantasy-gold text-ink-950 shadow-[0_0_12px_rgba(223,166,66,0.5)] scale-105'
+                        : 'bg-ink-900 border border-paper-800/70 text-paper-200/70 hover:text-paper-100 hover:bg-ink-850'
                     }`}
+                    title={label}
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-lg">{item?.icon || icon}</span>
-                      <span className="text-[10px] font-sans font-semibold text-paper-200/50 uppercase">
-                        {label}
-                      </span>
-                    </div>
-                    <span className="text-xs font-serif font-bold text-paper-100 truncate w-full mt-1">
-                      {item ? item.name : '(Trống)'}
-                    </span>
+                    <span>{icon}</span>
+                    {isEquipped && (
+                      <span className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm" />
+                    )}
                   </button>
                 );
               })}
             </div>
 
-            {/* Available Items for the Selected Slot */}
-            <div className="bg-ink-800/80 border border-paper-800/60 rounded-2xl p-3 shadow-inner">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-serif font-bold text-fantasy-gold uppercase tracking-wider">
-                  Trang Bị Có Sẵn Cho Ô Này
-                </h4>
-                {getEquippedItem(selectedSlot) && (
-                  <button
-                    onClick={() => {
-                      inventoryManager.unequipItem(character.id, selectedSlot);
-                    }}
-                    className="text-[10px] font-sans text-red-400 hover:text-red-300 font-semibold px-2 py-0.5 rounded bg-red-950/40 border border-red-500/30"
-                  >
-                    Gỡ Bỏ
-                  </button>
-                )}
+            {/* Middle Inspection & Items List Panel */}
+            <div className="flex-1 flex flex-col p-3 sm:p-4 min-w-0 bg-ink-900/60 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-paper-800/40">
+                <h3 className="text-xs sm:text-sm font-serif font-bold text-fantasy-gold uppercase tracking-wider">
+                  {SLOT_CONFIG.find((s) => s.slot === selectedSlot)?.label}
+                </h3>
+                <span className="text-[11px] font-sans text-paper-200/60 font-mono">
+                  {currentSlotItems.length} vật phẩm
+                </span>
               </div>
 
-              {slotItems.length === 0 ? (
-                <div className="py-6 text-center text-paper-200/50 text-xs font-sans">
-                  Chưa mở khóa trang bị nào cho vị trí này.
+              {/* Upper Item Inspection Card */}
+              {displayItem ? (
+                <div className="bg-ink-950/80 border border-paper-800/60 rounded-2xl p-3 mb-3 shrink-0 shadow-lg">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-12 h-12 rounded-xl bg-ink-900 border border-paper-800/80 flex items-center justify-center text-2xl shrink-0 shadow-md">
+                      {displayItem.icon}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-xs sm:text-sm font-serif font-bold text-paper-100 truncate">
+                        {displayItem.name}
+                      </h4>
+                      <p className="text-[10px] font-sans text-paper-200/60 capitalize mt-0.5">
+                        Phẩm cấp: <span className="text-fantasy-gold font-semibold uppercase">{displayItem.rarity}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Attributes */}
+                  {displayItem.stats && Object.keys(displayItem.stats).length > 0 && (
+                    <div className="grid grid-cols-2 gap-1.5 bg-ink-900/80 rounded-lg p-2 mb-2 text-[11px] font-sans border border-paper-800/30">
+                      {displayItem.stats.attack && <span className="text-red-400">⚔️ Công: +{displayItem.stats.attack}</span>}
+                      {displayItem.stats.defense && <span className="text-blue-400">🛡️ Thủ: +{displayItem.stats.defense}</span>}
+                      {displayItem.stats.magic && <span className="text-purple-400">🔮 Phép: +{displayItem.stats.magic}</span>}
+                      {displayItem.stats.speed && <span className="text-emerald-400">💨 Tốc: +{displayItem.stats.speed}</span>}
+                      {displayItem.stats.healing && <span className="text-yellow-400">💚 Hồi: +{displayItem.stats.healing}</span>}
+                    </div>
+                  )}
+
+                  {/* Description & Lore */}
+                  <p className="text-[11px] font-sans text-paper-200/80 leading-relaxed mb-1.5 line-clamp-2">
+                    {displayItem.description}
+                  </p>
+                  <p className="text-[10px] font-sans text-paper-200/50 italic truncate">
+                    "{displayItem.lore}"
+                  </p>
+
+                  {/* Action Button */}
+                  <div className="mt-2.5 pt-2 border-t border-paper-800/40 flex gap-2">
+                    {equipped[selectedSlot] === displayItem.id ? (
+                      <button
+                        onClick={handleUnequip}
+                        className="w-full py-1.5 rounded-xl bg-ink-800 hover:bg-ink-700 text-red-400 border border-red-500/30 text-xs font-sans font-bold active:scale-95 transition-all"
+                      >
+                        Gỡ Trang Bị
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleEquip(displayItem)}
+                        className="w-full py-1.5 rounded-xl bg-gradient-to-r from-fantasy-gold to-amber-500 text-ink-950 text-xs font-sans font-bold shadow-md active:scale-95 transition-all hover:brightness-105 flex items-center justify-center gap-1.5"
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Trang Bị Vào Ô Này</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
-                  {slotItems.map((item) => {
-                    const isEquipped = equipped[selectedSlot] === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          if (isEquipped) {
-                            inventoryManager.unequipItem(character.id, selectedSlot);
-                          } else {
-                            inventoryManager.equipItem(character.id, selectedSlot, item.id);
-                          }
-                        }}
-                        className={`p-2 rounded-xl border flex items-center justify-between text-left transition-all active:scale-95 ${
-                          isEquipped
-                            ? 'bg-fantasy-gold/20 border-fantasy-gold text-fantasy-gold'
-                            : 'bg-ink-900 border-paper-800/60 hover:bg-ink-900/80 text-paper-100'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0 pr-2">
-                          <span className="text-xl shrink-0">{item.icon}</span>
-                          <div className="min-w-0">
-                            <p className="text-xs font-serif font-bold truncate">{item.name}</p>
-                            <p className="text-[10px] font-sans text-paper-200/60 truncate">{item.description}</p>
-                          </div>
-                        </div>
-
-                        {isEquipped ? (
-                          <div className="w-5 h-5 rounded-full bg-fantasy-gold text-ink-950 flex items-center justify-center shrink-0">
-                            <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          </div>
-                        ) : (
-                          <span className="text-[10px] font-sans text-paper-200/50 shrink-0">Trang bị</span>
-                        )}
-                      </button>
-                    );
-                  })}
+                <div className="py-6 text-center text-paper-200/40 text-xs font-sans bg-ink-950/40 rounded-xl mb-3">
+                  Chọn một vật phẩm bên dưới để xem chi tiết
                 </div>
               )}
+
+              {/* Lower Scrollable Gear List */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-1.5 min-h-0">
+                {/* Unequip / Bare option */}
+                <button
+                  onClick={() => {
+                    handleUnequip();
+                    setInspectedItem(null);
+                  }}
+                  className={`w-full p-2 rounded-xl border flex items-center justify-between text-left transition-all active:scale-98 ${
+                    !equipped[selectedSlot]
+                      ? 'bg-fantasy-gold/15 border-fantasy-gold text-fantasy-gold'
+                      : 'bg-ink-950/60 border-paper-800/40 hover:bg-ink-900 text-paper-200/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🚫</span>
+                    <span className="text-xs font-serif font-bold">(Để Trống / Tháo Ra)</span>
+                  </div>
+                  {!equipped[selectedSlot] && (
+                    <span className="text-[10px] font-mono font-bold bg-fantasy-gold text-ink-950 px-1.5 py-0.5 rounded">
+                      [E]
+                    </span>
+                  )}
+                </button>
+
+                {currentSlotItems.map((item) => {
+                  const isEquipped = equipped[selectedSlot] === item.id;
+                  const isInspected = displayItem?.id === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        audioManager.playTap();
+                        setInspectedItem(item);
+                      }}
+                      onDoubleClick={() => handleEquip(item)}
+                      className={`w-full p-2 rounded-xl border flex items-center justify-between text-left transition-all active:scale-98 ${
+                        isInspected
+                          ? 'ring-1 ring-fantasy-gold bg-ink-900 border-fantasy-gold/80'
+                          : 'bg-ink-950/70 border-paper-800/40 hover:bg-ink-900 text-paper-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                        <span className="text-xl shrink-0">{item.icon}</span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-serif font-bold text-paper-100 truncate">
+                            {item.name}
+                          </p>
+                          <p className="text-[10px] font-sans text-paper-200/50 truncate">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {isEquipped && (
+                        <div className="flex items-center gap-1 bg-fantasy-gold text-ink-950 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shadow-sm shrink-0">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                          <span>[E]</span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        )}
+
+          {/* ---------------------------------------------------- */}
+          {/* COLUMN 2: CENTER 3D TALL CHARACTER VIEWPORT */}
+          {/* ---------------------------------------------------- */}
+          <div className="flex-1 flex flex-col relative bg-ink-950/95 overflow-hidden min-h-[360px] lg:min-h-0">
+            {/* 3D Character Canvas */}
+            <div className="w-full h-full relative">
+              <CharacterPreview3D character={character} className="w-full h-full min-h-[360px] lg:min-h-full border-0 rounded-none" />
+
+              {/* Quick Equipped Slots HUD Flanking the Character */}
+              {/* Left Flank: Primary Weapon & Secondary Shield */}
+              <div className="absolute top-6 left-4 flex flex-col gap-3 pointer-events-auto">
+                <div className="bg-ink-950/85 backdrop-blur-md border border-paper-800/80 rounded-2xl p-2 shadow-xl flex flex-col items-center">
+                  <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-paper-200/50 mb-1">
+                    PRIMARY
+                  </span>
+                  <button
+                    onClick={() => {
+                      audioManager.playTap();
+                      setSelectedSlot('mainWeapon');
+                    }}
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center text-2xl transition-all active:scale-95 ${
+                      selectedSlot === 'mainWeapon'
+                        ? 'border-fantasy-gold bg-fantasy-gold/20 shadow-md ring-1 ring-fantasy-gold'
+                        : 'border-paper-800/60 bg-ink-900/80 hover:border-paper-700'
+                    }`}
+                    title="Vũ khí chính"
+                  >
+                    <span>{getEquippedItem('mainWeapon')?.icon || '⚔️'}</span>
+                  </button>
+                </div>
+
+                <div className="bg-ink-950/85 backdrop-blur-md border border-paper-800/80 rounded-2xl p-2 shadow-xl flex flex-col items-center">
+                  <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-paper-200/50 mb-1">
+                    SECONDARY
+                  </span>
+                  <button
+                    onClick={() => {
+                      audioManager.playTap();
+                      setSelectedSlot('offhand');
+                    }}
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center text-2xl transition-all active:scale-95 ${
+                      selectedSlot === 'offhand'
+                        ? 'border-fantasy-gold bg-fantasy-gold/20 shadow-md ring-1 ring-fantasy-gold'
+                        : 'border-paper-800/60 bg-ink-900/80 hover:border-paper-700'
+                    }`}
+                    title="Tay phụ / Khiên"
+                  >
+                    <span>{getEquippedItem('offhand')?.icon || '🛡️'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Flank: Headgear, Cape, Outfit */}
+              <div className="absolute top-6 right-4 flex flex-col gap-3 pointer-events-auto">
+                <div className="bg-ink-950/85 backdrop-blur-md border border-paper-800/80 rounded-2xl p-2 shadow-xl flex flex-col items-center">
+                  <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-paper-200/50 mb-1">
+                    HELMET
+                  </span>
+                  <button
+                    onClick={() => {
+                      audioManager.playTap();
+                      setSelectedSlot('headgear');
+                    }}
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center text-2xl transition-all active:scale-95 ${
+                      selectedSlot === 'headgear'
+                        ? 'border-fantasy-gold bg-fantasy-gold/20 shadow-md ring-1 ring-fantasy-gold'
+                        : 'border-paper-800/60 bg-ink-900/80 hover:border-paper-700'
+                    }`}
+                    title="Mũ & Nón"
+                  >
+                    <span>{getEquippedItem('headgear')?.icon || '🪖'}</span>
+                  </button>
+                </div>
+
+                <div className="bg-ink-950/85 backdrop-blur-md border border-paper-800/80 rounded-2xl p-2 shadow-xl flex flex-col items-center">
+                  <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-paper-200/50 mb-1">
+                    CAPE
+                  </span>
+                  <button
+                    onClick={() => {
+                      audioManager.playTap();
+                      setSelectedSlot('cape');
+                    }}
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center text-2xl transition-all active:scale-95 ${
+                      selectedSlot === 'cape'
+                        ? 'border-fantasy-gold bg-fantasy-gold/20 shadow-md ring-1 ring-fantasy-gold'
+                        : 'border-paper-800/60 bg-ink-900/80 hover:border-paper-700'
+                    }`}
+                    title="Áo choàng"
+                  >
+                    <span>{getEquippedItem('cape')?.icon || '🧣'}</span>
+                  </button>
+                </div>
+
+                <div className="bg-ink-950/85 backdrop-blur-md border border-paper-800/80 rounded-2xl p-2 shadow-xl flex flex-col items-center">
+                  <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-paper-200/50 mb-1">
+                    OUTFIT
+                  </span>
+                  <button
+                    onClick={() => {
+                      audioManager.playTap();
+                      setSelectedSlot('outfit');
+                    }}
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center text-2xl transition-all active:scale-95 ${
+                      selectedSlot === 'outfit'
+                        ? 'border-fantasy-gold bg-fantasy-gold/20 shadow-md ring-1 ring-fantasy-gold'
+                        : 'border-paper-800/60 bg-ink-900/80 hover:border-paper-700'
+                    }`}
+                    title="Trang phục & Giáp"
+                  >
+                    <span>{getEquippedItem('outfit')?.icon || '👕'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ---------------------------------------------------- */}
+          {/* COLUMN 3: CHARACTER DETAILS & RPG STATS (RIGHT) */}
+          {/* ---------------------------------------------------- */}
+          <div className="w-full lg:w-[340px] xl:w-[380px] bg-ink-900/95 border-t lg:border-t-0 lg:border-l border-paper-800/80 p-4 sm:p-5 flex flex-col justify-between shrink-0 overflow-y-auto">
+            <div>
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-paper-800/60 mb-3.5">
+                <span className="text-xs font-serif font-bold text-fantasy-gold uppercase tracking-wider">
+                  Chi Tiết Nhân Vật
+                </span>
+                <div className="flex items-center gap-1.5">
+                  {getFactionIcon()}
+                  <span className="text-[11px] font-sans text-paper-200/60 font-semibold">
+                    {character.factionName}
+                  </span>
+                </div>
+              </div>
+
+              {/* Name & Title */}
+              <div className="mb-3.5">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h2 className="text-lg sm:text-xl font-serif font-bold text-paper-100 truncate">
+                    {character.name}
+                  </h2>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-sans bg-ink-800 border border-paper-800 text-paper-200/80 shrink-0">
+                    {character.pronoun}
+                  </span>
+                </div>
+                <p className="text-xs font-serif font-semibold text-amber-300">
+                  {character.classTitle}
+                </p>
+              </div>
+
+              {/* Experience Bar (Level 42 -> 43) */}
+              <div className="bg-ink-950/80 border border-paper-800/40 rounded-xl p-2.5 mb-4 shadow-inner">
+                <div className="flex items-center justify-between text-[11px] font-sans text-paper-200/70 mb-1">
+                  <span>Cấp Độ: <strong className="text-fantasy-gold font-serif">42</strong></span>
+                  <span>Tiến độ EXP: 75%</span>
+                </div>
+                <div className="w-full h-2 bg-ink-900 rounded-full overflow-hidden flex items-center p-0.5">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-fantasy-gold transition-all duration-500 shadow-sm"
+                    style={{ width: '75%' }}
+                  />
+                </div>
+              </div>
+
+              {/* Big RPG Attribute Stat Blocks (Matching Exodus Rising Layout) */}
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-ink-950/70 border border-paper-800/40">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-red-950/40 border border-red-500/40 flex items-center justify-center text-red-400">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-sans uppercase text-paper-200/50 font-bold">Sinh Lực (HP)</p>
+                      <p className="text-xs font-serif font-bold text-paper-100">Khỏe mạnh</p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-mono font-bold text-red-400">500</span>
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-ink-950/70 border border-paper-800/40">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-purple-950/40 border border-purple-500/40 flex items-center justify-center text-purple-400">
+                      <Zap className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-sans uppercase text-paper-200/50 font-bold">Ma Lực (Mana)</p>
+                      <p className="text-xs font-serif font-bold text-paper-100">Dồi dào</p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-mono font-bold text-purple-400">930</span>
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-ink-950/70 border border-paper-800/40">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-950/40 border border-blue-500/40 flex items-center justify-center text-blue-400">
+                      <Weight className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-sans uppercase text-paper-200/50 font-bold">Phòng Ngự & Giáp</p>
+                      <p className="text-xs font-serif font-bold text-paper-100">Kiên cố</p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-mono font-bold text-blue-400">250</span>
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-ink-950/70 border border-paper-800/40">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-950/40 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                      <Wind className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-sans uppercase text-paper-200/50 font-bold">Tốc Độ Di Chuyển</p>
+                      <p className="text-xs font-serif font-bold text-paper-100">Nhanh nhẹn</p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-mono font-bold text-emerald-400">110</span>
+                </div>
+              </div>
+
+              {/* Chronicler's Lore (Real-Life Inspired Memories) */}
+              <div className="p-3 rounded-xl bg-paper-100 text-ink-900 border border-paper-800/80 shadow-md mb-4">
+                <h4 className="text-[11px] font-serif font-bold uppercase tracking-wider text-ink-800 mb-1 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                  <span>Kỷ Niệm Tri Kỷ</span>
+                </h4>
+                <p className="text-xs font-sans text-ink-800 leading-relaxed italic">
+                  "{character.bio}"
+                </p>
+              </div>
+            </div>
+
+            {/* Signature Spell Trigger Button */}
+            <button
+              onClick={() => {
+                onTriggerAbility();
+                onClose();
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-sans font-bold text-xs sm:text-sm shadow-[0_4px_16px_rgba(223,166,66,0.35)] active:scale-95 transition-all hover:brightness-105 border border-yellow-200 flex items-center justify-center gap-2 shrink-0"
+              title={`Thi triển kỹ năng đặc trưng ${character.signatureAbility.name}`}
+            >
+              <Sparkles className="w-4 h-4 text-ink-950 shrink-0" />
+              <span className="truncate">Thi triển: {character.signatureAbility.name}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* BOTTOM PROMPT HINTS BAR (Matching Exodus Rising Style) */}
+        {/* ======================================================== */}
+        <div className="px-4 sm:px-6 py-2 bg-ink-950 border-t border-paper-800/80 flex items-center justify-between text-[11px] font-sans text-paper-200/60 shrink-0">
+          <div className="flex items-center gap-4 flex-wrap">
+            <span className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-ink-800 border border-paper-800 font-mono text-[10px] text-paper-200 font-bold">RS</span>
+              <span>Vuốt chuột/tay để xoay 360°</span>
+            </span>
+            <span className="hidden sm:flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-ink-800 border border-paper-800 font-mono text-[10px] text-paper-200 font-bold">LS</span>
+              <span>Cuộn danh sách trang bị</span>
+            </span>
+            <span className="hidden sm:flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-ink-800 border border-paper-800 font-mono text-[10px] text-paper-200 font-bold">Y</span>
+              <span>Nhấp đúp hoặc chạm để trang bị</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] text-paper-200/50">Tự động lưu ngoại trang</span>
+          </div>
+        </div>
       </div>
     </div>
   );

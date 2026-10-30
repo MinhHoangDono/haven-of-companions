@@ -70,15 +70,15 @@ export class InventoryManager {
 
     // 3. Load companion equipment
     const defaultEquipment: AllCompanionsEquipment = {
-      'anh-thi-druid': { mainWeapon: 'weapon_druid_staff', cape: 'cape_highland_emerald' },
-      'phuong-quynh-ranger': { mainWeapon: 'weapon_elven_bow', offhand: 'offhand_quiver', headgear: 'headgear_feather_cap' },
-      'tram-anh-bard': { mainWeapon: 'weapon_rogue_dagger', offhand: 'offhand_festive_stein' },
-      'khai-van-sorcerer': { mainWeapon: 'weapon_sorcerer_grimoire', headgear: 'headgear_wizard_hat' },
-      'thao-uyen-cleric': { mainWeapon: 'weapon_starlight_wand', offhand: 'offhand_badge_shield', headgear: 'headgear_golden_halo' },
-      'ngoc-ha-monk': { mainWeapon: 'weapon_ronin_blade' },
-      'thanh-phuong-paladin': { mainWeapon: 'weapon_knight_sword', offhand: 'offhand_square_shield', headgear: 'headgear_knight_helm', cape: 'cape_royal_crimson' },
-      'xuan-minh-rogue': { mainWeapon: 'weapon_rogue_dagger', headgear: 'headgear_tricorn_hat' },
-      'anh-thu-cleric': { mainWeapon: 'weapon_ocean_trident', cape: 'cape_ocean_azure' },
+      'anh-thi-druid': { mainWeapon: 'weapon_druid_staff', cape: 'cape_highland_emerald', outfit: 'outfit_class_armor' },
+      'phuong-quynh-ranger': { mainWeapon: 'weapon_elven_bow', offhand: 'offhand_quiver', headgear: 'headgear_feather_cap', outfit: 'outfit_class_armor' },
+      'tram-anh-bard': { mainWeapon: 'weapon_rogue_dagger', offhand: 'offhand_festive_stein', outfit: 'outfit_class_armor' },
+      'khai-van-sorcerer': { mainWeapon: 'weapon_sorcerer_grimoire', headgear: 'headgear_wizard_hat', outfit: 'outfit_class_armor' },
+      'thao-uyen-cleric': { mainWeapon: 'weapon_starlight_wand', offhand: 'offhand_badge_shield', headgear: 'headgear_golden_halo', outfit: 'outfit_class_armor' },
+      'ngoc-ha-monk': { mainWeapon: 'weapon_ronin_blade', outfit: 'outfit_class_armor' },
+      'thanh-phuong-paladin': { mainWeapon: 'weapon_knight_sword', offhand: 'offhand_square_shield', headgear: 'headgear_knight_helm', cape: 'cape_royal_crimson', outfit: 'outfit_class_armor' },
+      'xuan-minh-rogue': { mainWeapon: 'weapon_rogue_dagger', headgear: 'headgear_tricorn_hat', outfit: 'outfit_class_armor' },
+      'anh-thu-cleric': { mainWeapon: 'weapon_ocean_trident', cape: 'cape_ocean_azure', outfit: 'outfit_class_armor' },
     };
 
     try {
@@ -213,6 +213,36 @@ export class InventoryManager {
     if (this.equipment[charId]) {
       this.equipment[charId][slot] = null;
       audioManager.playTap();
+      this.notify();
+    }
+  }
+
+  public getAllEquipment(): AllCompanionsEquipment {
+    return JSON.parse(JSON.stringify(this.equipment));
+  }
+
+  public loadEquipment(newEquip: AllCompanionsEquipment): void {
+    if (newEquip && typeof newEquip === 'object') {
+      this.equipment = { ...this.equipment, ...newEquip };
+      this.notify();
+    }
+  }
+
+  public getInventoryRecord(): Record<string, number> {
+    const record: Record<string, number> = {};
+    this.items.forEach((item, id) => {
+      record[id] = item.quantity;
+    });
+    return record;
+  }
+
+  public loadInventory(record: Record<string, number>): void {
+    if (record && typeof record === 'object') {
+      Object.entries(record).forEach(([id, qty]) => {
+        if (this.items.has(id)) {
+          this.items.get(id)!.quantity = qty;
+        }
+      });
       this.notify();
     }
   }

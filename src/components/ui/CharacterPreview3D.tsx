@@ -7,9 +7,10 @@ import { RotateCcw } from 'lucide-react';
 
 interface CharacterPreview3DProps {
   character: Character;
+  className?: string;
 }
 
-export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ character }) => {
+export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ character, className }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -21,11 +22,12 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
     scene.background = new THREE.Color(0x0c111c);
 
     const width = container.clientWidth || 360;
-    const height = container.clientHeight || 220;
+    const height = container.clientHeight || 520;
+    const aspect = width / height;
 
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 20);
-    camera.position.set(0, 1.15, 3.4);
-    camera.lookAt(0, 1.0, 0);
+    const camera = new THREE.PerspectiveCamera(aspect < 1 ? 42 : 36, aspect, 0.1, 20);
+    camera.position.set(0, 1.05, aspect < 1 ? 3.3 : 3.0);
+    camera.lookAt(0, 0.95, 0);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -166,14 +168,14 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
   }, [character]);
 
   return (
-    <div className="relative w-full h-56 rounded-2xl overflow-hidden bg-gradient-to-b from-ink-950 to-ink-900 border border-paper-800/80 shadow-2xl mb-4 group select-none">
+    <div className={`relative w-full rounded-2xl overflow-hidden bg-gradient-to-b from-ink-950 via-ink-900 to-ink-950 border border-paper-800/80 shadow-2xl group select-none ${className || 'h-64'}`}>
       {/* 3D WebGL Canvas Mount */}
       <div ref={containerRef} className="w-full h-full touch-none cursor-grab active:cursor-grabbing" />
 
       {/* Swipe hint chip */}
-      <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 pointer-events-none px-3 py-1 rounded-full bg-ink-900/80 border border-paper-800/80 text-[11px] font-sans text-paper-200/70 flex items-center gap-1.5 backdrop-blur-md shadow-md">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none px-3.5 py-1 rounded-full bg-ink-950/85 border border-paper-800/80 text-[11px] font-sans text-paper-200/80 flex items-center gap-1.5 backdrop-blur-md shadow-lg whitespace-nowrap">
         <RotateCcw className="w-3.5 h-3.5 text-fantasy-gold animate-spin-slow" />
-        <span>Vuốt để xoay 360° xem giáp & vũ khí</span>
+        <span>Vuốt chuột/tay để xoay 360°</span>
       </div>
     </div>
   );

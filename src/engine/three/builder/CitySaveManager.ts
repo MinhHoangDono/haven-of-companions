@@ -1,6 +1,6 @@
 import { PlacedStructure, CityLayoutSaveData } from '../../../types/cityBuilder';
 import { DynamicMeshLibrary } from './DynamicMeshLibrary';
-
+import { inventoryManager } from '../../inventory/InventoryManager';
 export class CitySaveManager {
   public static readonly STORAGE_KEY = 'haven_city_layout_v1';
 
@@ -51,12 +51,14 @@ export class CitySaveManager {
    * Serializes current village structures to formatted JSON string
    */
   public static exportToJsonString(structures: PlacedStructure[]): string {
-    const payload: CityLayoutSaveData = {
-      version: 1,
+    const payload = {
+      version: 2,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       mapDimensions: { width: 70, depth: 70 },
       structures,
+      charactersEquipment: inventoryManager.getAllEquipment(),
+      inventory: inventoryManager.getInventoryRecord(),
     };
     return JSON.stringify(payload, null, 2);
   }
@@ -82,12 +84,20 @@ export class CitySaveManager {
    */
   public static importFromJsonString(jsonStr: string): PlacedStructure[] {
     try {
-      const parsed = JSON.parse(jsonStr) as CityLayoutSaveData;
+      const parsed = JSON.parse(jsonStr) as any;
       if (!parsed || !Array.isArray(parsed.structures)) {
         throw new Error('Dữ liệu JSON không hợp lệ hoặc thiếu mảng structures.');
       }
 
-      const validList = parsed.structures.filter((item) => {
+      // Restore companion equipment and inventory if present in save file
+      if (parsed.charactersEquipment && typeof parsed.charactersEquipment === 'object') {
+        inventoryManager.loadEquipment(parsed.charactersEquipment);
+      }
+      if (parsed.inventory && typeof parsed.inventory === 'object') {
+        inventoryManager.loadInventory(parsed.inventory);
+      }
+
+      const validList = parsed.structures.filter((item: any) => {
         if (!item || typeof item.structureId !== 'string') return false;
         const def = DynamicMeshLibrary.getDefinition(item.structureId);
         return !!def;

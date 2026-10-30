@@ -66,9 +66,14 @@ export const SaveLoadModal: React.FC<SaveLoadModalProps> = ({
         <div className="flex items-center justify-between border-b border-paper-800/60 pb-3">
           <div className="flex items-center gap-2">
             <span className="text-lg">💾</span>
-            <h2 className="text-base font-serif font-bold text-fantasy-gold">
-              Quản Lý Lưu Trữ Bản Đồ
-            </h2>
+            <div>
+              <h2 className="text-base font-serif font-bold text-fantasy-gold">
+                Lưu & Tải Dữ Liệu Thế Giới
+              </h2>
+              <p className="text-[10px] font-sans text-paper-200/60">
+                Bao gồm công trình làng, ngoại trang nhân vật & túi đồ
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}

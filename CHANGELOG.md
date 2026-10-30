@@ -1,5 +1,19 @@
 # Changelog
 
+## [v7.3.0] - 2026-10-30
+
+### Added
+- **Complete 53-Asset City Builder Catalog (`DynamicMeshLibrary.ts`)**: Integrated all available 3D models from both **KayKit Medieval/Hexagon Packs** and **Kenney Pirate & Environment Kits** into the construction system:
+  - **Houses & Harbor (7 structures)**: Small/Large Cottages (`building_home_A/B_yellow.gltf`, $3\times 3$), Traveler's Tavern (`building_tavern_yellow.gltf`, $3\times 3$), Village Blacksmith (`building_blacksmith_yellow.gltf`, $3\times 3$), Sacred Cathedral (`building_church_yellow.gltf`, $4\times 4$), Coastal Timber Warehouse (`structure.glb`, $3\times 3$), Red-Roofed Port House (`structure-roof.glb`, $3\times 3$).
+  - **Production & Quarrying (5 structures)**: Hillside Windmill ($3\times 3$), Village Bazaar Market Stall ($2\times 2$), Wooden Wheelbarrow ($1\times 1$), Stone Mine & Quarry (`resource_stone.gltf`, $2\times 2$), Agricultural Shovel & Hoe (`tool-shovel.glb`, $1\times 1$).
+  - **Fortifications & Stone Castle (11 structures)**: Wooden Watchtower ($2\times 2$), Grand Stone Fortress Tower (`tower-complete-large.glb`, $3\times 3$), Plaza Bastion Tower (`tower-complete-small.glb`, $2\times 2$), Arched Castle Gatehouse (`castle-gate.glb`, $3\times 2$), Granite Castle Wall (`castle-wall.glb`, $2\times 1$), Arrow-Slit Lookout Wall (`castle-window.glb`, $2\times 1$), Fortress Dungeon Door (`castle-door.glb`, $2\times 1$), Stockade Wood Fence ($2\times 1$), Weapon Armory Rack ($1\times 1$), Archery Straw Dummy ($1\times 1$), High Royal Sunspire Banner (`flag-high.glb`, $1\times 1$).
+  - **Decorations, Trade & Waterfront (12 structures)**: Nomad Canvas Pavilion Tent ($2\times 2$), Ornate Treasure Chest ($1\times 1$), Pirate Rum Bottles Crate ($1\times 1$), Open Cargo Crate (`crate_open.gltf`, $1\times 1$), Oak Water Barrel ($1\times 1$), Sawn Lumber Stack ($2\times 2$), Giant Druidic Potion Demijohn (`bottle-large.glb`, $1\times 1$), Wooden Training Platform Planks ($2\times 2$), Grand Pier Dock (`structure-platform-dock.glb`, $3\times 2$), Small Mooring Pier (`structure-platform-dock-small.glb`, $2\times 2$), Large Wooden Rowboat (`boat-row-large.glb`, $3\times 2$), Coastal Fishing Dinghy (`boat-row-small.glb`, $2\times 1$).
+  - **Nature, Mountains & Flora (18 structures)**: Ancient Da Lat Pine ($2\times 2$, Scale 4.8), Medium Evergreen ($2\times 2$), Dual Pine Cluster (`trees_A_medium.gltf`, $3\times 3$), Grand Highland Pine Mountain Peak A (`mountain_A_grass_trees.gltf`, $4\times 4$), Sunspire Ridge Mountain Peak B (`mountain_B_grass_trees.gltf`, $4\times 4$), Curved Bay Palm ($2\times 2$), Straight Coastal Palm (`palm-detailed-straight.glb`, $2\times 2$), Beach Dune Palm ($2\times 2$), Coral Reef Boulder A ($2\times 2$), Coastal Coral Formation B ($2\times 2$), Marine Reef Outcrop C ($2\times 2$), Natural Highland Megalith A/B/C (`rock_single_A/B/C.gltf`, $2\times 2$), Mossy Forest Boulders A/B (`rocks-a/b.glb`, $2\times 2$), Wild Steppe Grass Tufts (`grass.glb`, $1\times 1$), Dense Shrub & Wildflowers (`grass-plant.glb`, $1\times 1$).
+- **Expanded Builder UI Icons (`StructureCard.tsx`)**: Added dedicated Lucide visual icons (`Castle`, `Flag`, `Anchor`, `Ship`, `Shovel`, `Boxes`, `Warehouse`) matching all newly available structural categories.
+- **Verified Scale & Footprint Integrity**: Every building is calibrated at $\ge 2\times 2$ or $3\times 3$ with heights ranging between $4.5\text{m}\text{--}7.5\text{m}$, ensuring player-built architecture dwarfs companion characters ($\approx 1.4\text{m}$).
+
+---
+
 ## [v7.2.0] - 2026-10-30
 
 ### Added
