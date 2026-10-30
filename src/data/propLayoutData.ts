@@ -14,11 +14,6 @@ export interface PropInstanceDef {
 }
 
 /**
- * Creates a cozy wooden boat pier row with neatly proportioned 1.0x scale segments
- */
-
-
-/**
  * 70x70 World Core Architectural Anchors
  * Strictly situated on level, non-mountainous ground with verified clearance:
  * - Village buildings sit at flat lowlands (Y = 1.5), completely clear of mountains and boulders
