@@ -81,20 +81,55 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'building_market_yellow.gltf', pack: 'props', pos: [9.5, 1.5, -13.5], rot: [0, -1.57, 0], scale: 2.8 },
 
   // ==========================================
-  // ZONE 3: VAST DEEP OCEAN BAY (SW)
+  // ZONE 3: VAST EXPANDED PIRATE BAY & BEACH (SW)
   // ==========================================
-  // Deep Ocean Ships & Fleet
+  // Deep Ocean Pirate Fleet
   { asset: 'ship-pirate-large.glb', pack: 'environment', pos: [-16.0, 0.1, 18.0], rot: [0, 0.55, 0], scale: 1.5 },
+  { asset: 'ship-pirate-medium.glb', pack: 'environment', pos: [-10.0, 0.1, 24.0], rot: [0, -0.85, 0], scale: 1.4 },
   { asset: 'ship-medium.glb', pack: 'environment', pos: [-24.0, 0.1, 11.0], rot: [0, -0.4, 0], scale: 1.4 },
   { asset: 'ship-wreck.glb', pack: 'environment', pos: [-26.0, -0.8, 25.0], rot: [0.15, 0.7, -0.2], scale: 1.6 },
   { asset: 'boat-row-large.glb', pack: 'environment', pos: [-4.8, 0.1, 14.5], rot: [0, 1.57, 0], scale: 1.4 },
   { asset: 'boat-row-small.glb', pack: 'environment', pos: [-0.5, 0.1, 18.0], rot: [0, -1.2, 0], scale: 1.3 },
+  { asset: 'boat-row-small.glb', pack: 'environment', pos: [-8.5, 0.4, 6.2], rot: [0.08, 0.7, 0], scale: 1.3 },
+  { asset: 'boat-row-large.glb', pack: 'environment', pos: [-14.5, 0.4, 7.8], rot: [0, 0.25, 0], scale: 1.4 },
 
-  // Coastal Defense & Harbor Props
+  // Pirate Flags & Lookouts
+  { asset: 'flag-pirate-high.glb', pack: 'environment', pos: [-2.5, 0.5, 4.0], scale: 2.2 },
+  { asset: 'flag-pirate.glb', pack: 'environment', pos: [-16.5, 1.5, 2.2], scale: 1.8 },
+  { asset: 'flag-pirate.glb', pack: 'environment', pos: [-8.0, 1.5, 1.8], scale: 1.7 },
+  { asset: 'tower-watch.glb', pack: 'environment', pos: [-19.5, 1.5, 2.5], scale: 2.2 },
+
+  // Coastal Pirate Artillery & Beach Fortifications
   { asset: 'cannon-mobile.glb', pack: 'environment', pos: [-1.2, 0.5, 4.2], rot: [0, 3.14, 0], scale: 1.3 },
   { asset: 'cannon.glb', pack: 'environment', pos: [-4.0, 0.5, 4.2], rot: [0, 3.0, 0], scale: 1.3 },
   { asset: 'cannon-ball.glb', pack: 'environment', pos: [-2.2, 0.5, 4.0], scale: 1.2 },
+  { asset: 'cannon.glb', pack: 'environment', pos: [-7.5, 1.5, 1.8], rot: [0, 3.2, 0], scale: 1.4 },
+  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-7.0, 1.5, 1.6], scale: 1.2 },
+  { asset: 'cannon-mobile.glb', pack: 'environment', pos: [-13.5, 1.5, 1.8], rot: [0, 2.9, 0], scale: 1.4 },
+  { asset: 'cannon-ball.glb', pack: 'environment', pos: [-14.2, 1.5, 1.6], scale: 1.2 },
+  { asset: 'structure-fence.glb', pack: 'environment', pos: [-15.5, 1.5, 2.8], rot: [0, 1.2, 0], scale: 1.4 },
+  { asset: 'structure-fence.glb', pack: 'environment', pos: [-9.0, 1.5, 2.6], rot: [0, -1.0, 0], scale: 1.4 },
+
+  // Buried Treasure, Smuggler Rum & Booty
   { asset: 'chest.glb', pack: 'environment', pos: [-3.2, 0.5, 6.2], rot: [0, 0.4, 0], scale: 1.2 },
+  { asset: 'chest.glb', pack: 'environment', pos: [-6.5, 1.5, 1.4], rot: [0, 0.5, 0], scale: 1.3 },
+  { asset: 'tool-shovel.glb', pack: 'environment', pos: [-6.0, 1.5, 1.6], rot: [0.25, 0, 0.3], scale: 1.6 },
+  { asset: 'chest.glb', pack: 'environment', pos: [-11.5, 0.5, 6.8], rot: [0, -0.6, 0], scale: 1.2 },
+  { asset: 'crate-bottles.glb', pack: 'environment', pos: [-4.6, 0.5, 5.2], scale: 1.6 },
+  { asset: 'crate-bottles.glb', pack: 'environment', pos: [-8.2, 0.5, 7.0], scale: 1.5 },
+  { asset: 'bottle-large.glb', pack: 'environment', pos: [-3.8, 0.5, 5.4], scale: 1.4 },
+  { asset: 'bottle-large.glb', pack: 'environment', pos: [-7.6, 0.5, 6.6], scale: 1.4 },
+  { asset: 'platform-planks.glb', pack: 'environment', pos: [-5.2, 0.45, 6.0], rot: [0, 1.57, 0], scale: 1.3 },
+  { asset: 'platform-planks.glb', pack: 'environment', pos: [-9.8, 0.45, 7.2], rot: [0, 0.8, 0], scale: 1.3 },
+
+  // Beach Reef Rocks & Coastal Palms
+  { asset: 'palm-detailed-bend.glb', pack: 'environment', pos: [-5.5, 1.5, 1.2], rot: [0, 0.8, 0], scale: 2.4 },
+  { asset: 'palm-bend.glb', pack: 'environment', pos: [-10.8, 0.5, 5.8], rot: [0, 1.4, 0], scale: 2.3 },
+  { asset: 'palm-straight.glb', pack: 'environment', pos: [-17.5, 1.5, 1.8], scale: 2.2 },
+  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [-13.5, 0.2, 8.5], scale: 2.4 },
+  { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [-18.5, 0.1, 12.0], scale: 2.2 },
+  { asset: 'rocks-sand-c.glb', pack: 'environment', pos: [-22.0, 0.1, 16.0], scale: 2.5 },
+  { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [-28.0, 0.1, 22.0], scale: 2.8 },
 
   // Cozy Narrow Boardwalk Pier Platform Walkway (Scale: 1.0)
   ...createPierRow(-2.5, 0.5, 5.5, 6),
