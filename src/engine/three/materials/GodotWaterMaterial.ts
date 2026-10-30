@@ -51,16 +51,19 @@ export class GodotWaterMaterial extends THREE.ShaderMaterial {
 
         void main() {
           vUv = uv;
-          vec4 worldPos = modelMatrix * vec4(position, 1.0);
-          vWorldPos = worldPos.xyz;
+          vec4 initialWorldPos = modelMatrix * vec4(position, 1.0);
 
-          float wave = sample_wave(vWorldPos.xz, uWaveVelocity);
+          float wave = sample_wave(initialWorldPos.xz, uWaveVelocity);
           vWave = wave;
 
+          // In PlaneGeometry rotated -PI/2 around X, local +Z points vertically upward (+Y in world)
           vec3 transformed = position;
-          transformed.y += wave * uDisplacementAmount;
+          transformed.z += wave * uDisplacementAmount;
 
-          gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(transformed, 1.0);
+          vec4 worldPos = modelMatrix * vec4(transformed, 1.0);
+          vWorldPos = worldPos.xyz;
+
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
         }
       `,
       fragmentShader: `

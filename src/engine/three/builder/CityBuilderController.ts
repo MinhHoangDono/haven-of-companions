@@ -403,15 +403,8 @@ export class CityBuilderController {
       );
     }
 
-    // Remove from scene and dispose
+    // Remove from scene (retaining shared cached template geometry in VRAM)
     this.userStructuresGroup.remove(instance);
-    instance.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        mesh.geometry.dispose();
-      }
-    });
-
     this.placedMap.delete(instanceId);
     audioManager.playDemolishSound();
     this.callbacks.onStructuresChange?.(this.getPlacedList());
@@ -435,11 +428,6 @@ export class CityBuilderController {
         );
       }
       this.userStructuresGroup.remove(instance);
-      instance.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          (child as THREE.Mesh).geometry.dispose();
-        }
-      });
     }
 
     this.placedMap.clear();

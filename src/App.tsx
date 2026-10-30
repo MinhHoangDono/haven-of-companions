@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCasting, setIsCasting] = useState(false);
   const [celebrationToast, setCelebrationToast] = useState<string | null>(null);
-  const [, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
+
   const [isInspectorActive, setIsInspectorActive] = useState(false);
   const [coinScore, setCoinScore] = useState<number>(() => {
     const saved = localStorage.getItem('haven_coin_score');
@@ -75,9 +75,7 @@ export const App: React.FC = () => {
     castSpellRef.current = castFn;
   }, []);
 
-  const handleCameraUpdate = useCallback((positions: Map<string, { x: number; y: number }>) => {
-    setScreenPositions(new Map(positions));
-  }, []);
+
 
   const panToCharacter = useCallback((char: Character) => {
     if (!controlsRef.current) return;
@@ -256,7 +254,7 @@ export const App: React.FC = () => {
         activeStructureId={activeStructureId}
         onSelectCharacter={handleSelectCharacter}
         onInteractProp={handleInteractProp}
-        onCameraUpdate={handleCameraUpdate}
+
         onInitControls={handleInitControls}
         onInitSpellCaster={handleInitSpellCaster}
         onInitJumper={(fn) => { jumpRef.current = fn; }}

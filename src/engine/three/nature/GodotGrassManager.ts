@@ -42,7 +42,7 @@ export class GodotGrassManager {
         varying float vHeightFactor;
 
         void main() {
-          vec4 worldPos = instanceMatrix * vec4(position, 1.0);
+          vec4 worldPos = modelMatrix * instanceMatrix * vec4(position, 1.0);
           vWorldPos = worldPos.xyz;
           vHeightFactor = uv.y;
 
@@ -52,14 +52,14 @@ export class GodotGrassManager {
           float row = floor(tile / 2.0);
           vAtlasUv = uv * 0.5 + vec2(col * 0.5, row * 0.5);
 
-          // Root-anchored wind sway (pow(uv.y, 2.0) keeps base fixed at 0 displacement)
+          // Root-anchored wind sway (pow(uv.y, 1.8) keeps base fixed at 0 displacement)
           vec3 transformed = position;
           float windNoise = sin(uTime * 3.2 + worldPos.x * 0.6 + worldPos.z * 0.7);
           float windStrength = pow(uv.y, 1.8) * 0.14;
           transformed.x += uWindVelocity.x * windNoise * windStrength;
           transformed.z += uWindVelocity.y * windNoise * windStrength;
 
-          gl_Position = projectionMatrix * viewMatrix * instanceMatrix * vec4(transformed, 1.0);
+          gl_Position = projectionMatrix * viewMatrix * modelMatrix * instanceMatrix * vec4(transformed, 1.0);
         }
       `,
       fragmentShader: `
@@ -69,20 +69,22 @@ export class GodotGrassManager {
         varying vec3 vWorldPos;
         varying float vHeightFactor;
 
-        // Port of dither.gdshaderinc Bayer 4x4 matrix
+        // Constant 4x4 Bayer Matrix lookup without dynamic array allocations
         float bayer4(vec2 frag) {
           int x = int(mod(frag.x, 4.0));
           int y = int(mod(frag.y, 4.0));
-          int idx = x + y * 4;
-          int m[16] = int[](
-            0,  8,  2, 10,
-            12, 4, 14,  6,
-            3, 11,  1,  9,
-            15, 7, 13,  5
-          );
-          return float(m[idx]) / 16.0;
+          float v = 0.0;
+          if (y == 0) {
+            v = (x == 0) ? 0.0 : (x == 1) ? 8.0 : (x == 2) ? 2.0 : 10.0;
+          } else if (y == 1) {
+            v = (x == 0) ? 12.0 : (x == 1) ? 4.0 : (x == 2) ? 14.0 : 6.0;
+          } else if (y == 2) {
+            v = (x == 0) ? 3.0 : (x == 1) ? 11.0 : (x == 2) ? 1.0 : 9.0;
+          } else {
+            v = (x == 0) ? 15.0 : (x == 1) ? 7.0 : (x == 2) ? 13.0 : 5.0;
+          }
+          return v / 16.0;
         }
-
         void main() {
           vec4 texColor = texture2D(uShapeAtlas, vAtlasUv);
           float shapeAlpha = texColor.a > 0.0 ? texColor.a : texColor.r;
@@ -119,7 +121,7 @@ export class GodotGrassManager {
     // Populate instances across valid grass terrain coordinates
     const count = 1200;
     this.instancedMesh = new THREE.InstancedMesh(geometry, this.material, count);
-    this.instancedMesh.castShadow = true;
+    this.instancedMesh.castShadow = false; // Prevents solid quad shadow artifacts on ground
     this.instancedMesh.receiveShadow = true;
 
     const tileIndices = new Float32Array(count);

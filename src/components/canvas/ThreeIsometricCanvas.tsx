@@ -17,7 +17,9 @@ import { inventoryManager } from '../../engine/inventory/InventoryManager';
 import { CityBuilderController } from '../../engine/three/builder/CityBuilderController';
 import { CitySaveManager } from '../../engine/three/builder/CitySaveManager';
 import { BuilderTool, PlacedStructure } from '../../types/cityBuilder';
-
+const _scratchCamDir = new THREE.Vector3();
+const _scratchCamRight = new THREE.Vector3();
+const _scratchUp = new THREE.Vector3(0, 1, 0);
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -437,6 +439,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
     // Project 3D character heads to 2D screen pixels for speech bubbles
     const updateScreenProjections = (cam: THREE.Camera) => {
+      if (!onCameraUpdateRef.current) return;
       const positions = new Map<string, { x: number; y: number }>();
       handles.forEach((handle, id) => {
         const headWorld = handle.getHeadWorldPosition();
@@ -513,30 +516,28 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
         let dirX = 0;
         let dirZ = 0;
 
-        // Camera forward and right vectors projected onto ground plane (XZ)
-        const camDir = new THREE.Vector3();
-        camera.getWorldDirection(camDir);
-        camDir.y = 0;
-        camDir.normalize();
+        // Camera forward and right vectors projected onto ground plane (XZ) without per-frame allocation
+        camera.getWorldDirection(_scratchCamDir);
+        _scratchCamDir.y = 0;
+        _scratchCamDir.normalize();
 
-        const camRight = new THREE.Vector3();
-        camRight.crossVectors(camDir, new THREE.Vector3(0, 1, 0)).normalize();
+        _scratchCamRight.crossVectors(_scratchCamDir, _scratchUp).normalize();
 
         if (keysPressed['KeyW'] || keysPressed['ArrowUp']) {
-          dirX += camDir.x;
-          dirZ += camDir.z;
+          dirX += _scratchCamDir.x;
+          dirZ += _scratchCamDir.z;
         }
         if (keysPressed['KeyS'] || keysPressed['ArrowDown']) {
-          dirX -= camDir.x;
-          dirZ -= camDir.z;
+          dirX -= _scratchCamDir.x;
+          dirZ -= _scratchCamDir.z;
         }
         if (keysPressed['KeyD'] || keysPressed['ArrowRight']) {
-          dirX += camRight.x;
-          dirZ += camRight.z;
+          dirX += _scratchCamRight.x;
+          dirZ += _scratchCamRight.z;
         }
         if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) {
-          dirX -= camRight.x;
-          dirZ -= camRight.z;
+          dirX -= _scratchCamRight.x;
+          dirZ -= _scratchCamRight.z;
         }
 
         if (Math.abs(dirX) > 0.001 || Math.abs(dirZ) > 0.001) {
@@ -603,11 +604,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
       // Render 3D Scene
       renderer.render(scene, camera);
-
-      // Keep screen projections updated during movements
-      updateScreenProjections(camera);
     };
-
     rafId = requestAnimationFrame(animate);
 
     return () => {

@@ -371,7 +371,7 @@ export class VoxelTerrainBuilder {
       const dirtMesh = new THREE.InstancedMesh(cubeGeo, matDirt, dirtTransforms.length);
       dirtTransforms.forEach((m, i) => dirtMesh.setMatrixAt(i, m));
       dirtMesh.instanceMatrix.needsUpdate = true;
-      dirtMesh.castShadow = true;
+      dirtMesh.castShadow = false; // Subterranean blocks do not need to cast shadows
       dirtMesh.receiveShadow = true;
       dioramaGroup.add(dirtMesh);
     }
@@ -380,8 +380,8 @@ export class VoxelTerrainBuilder {
       const sandMesh = new THREE.InstancedMesh(cubeGeo, matSand, sandTransforms.length);
       sandTransforms.forEach((m, i) => sandMesh.setMatrixAt(i, m));
       sandMesh.instanceMatrix.needsUpdate = true;
+      sandMesh.castShadow = false; // Sea-level sand receives shadows without self-shadow overdraw
       sandMesh.receiveShadow = true;
-      dioramaGroup.add(sandMesh);
     }
 
     if (stoneTransforms.length > 0) {

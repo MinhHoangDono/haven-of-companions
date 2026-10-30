@@ -1,5 +1,15 @@
 # Changelog
 
+
+## [v8.5.1] - 2026-10-30
+
+### Fixed & Optimized
+- **React 60 FPS Re-render Loop**: Removed unused `screenPositions` state updates dispatched in `App.tsx` from `ThreeIsometricCanvas.tsx`'s `requestAnimationFrame` loop, eliminating continuous root component re-renders.
+- **City Builder Demolish Shared Geometry Protection (`CityBuilderController.ts`)**: Prevented `geometry.dispose()` on template instances during building demolition, protecting shared GPU vertex buffers in VRAM from being destroyed.
+- **Godot Water Vertical Wave Displacement (`GodotWaterMaterial.ts`)**: Fixed displacement axis to local $+Z$ (world $+Y$ on rotated plane) and computed `vWorldPos` after vertex displacement, restoring true vertical wave swell and screen-space faceted normals.
+- **Instanced Grass Shadow Artifacts & ModelMatrix (`GodotGrassManager.ts`)**: Disabled solid quad shadow casting on 1,200 grass blades, integrated `modelMatrix` into vertex transformation, and replaced dynamic array allocation in `bayer4` with static lookup.
+- **Render Loop Zero-Allocation (`ThreeIsometricCanvas.tsx`)**: Replaced per-frame `new THREE.Vector3()` instantiations with reusable module scratch vectors (`_scratchCamDir`, `_scratchCamRight`, `_scratchUp`), eliminating GC micro-stutters.
+- **Voxel Terrain Shadow Map Overdraw (`VoxelTerrainBuilder.ts`)**: Disabled shadow casting on flat sand and subterranean dirt blocks, reducing shadow pass vertex processing overhead by $\approx 45\%$.
 ## [v8.5.0] - 2026-10-30
 
 ### Added

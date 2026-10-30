@@ -19,7 +19,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 1. Huỳnh Trần Anh Thi – The Herbal Ranger / Highland Guardian
 - **Pronoun**: she/her | **Faction**: Highland Pathfinders | **Color**: Emerald Green (`#2d6836`)
 - **Diorama Location**: Highlands Campfire Hearth at $(-2.8, 1.8, -3.0)$
-- **Real-Life Anchor**: Navigating misty pine forests of Đà Lạt and cooking hearty feasts around outdoor campfires.
+- **Kỷ Niệm Thực Tế**: "Nhớ những ngày lang thang giữa rừng thông ngập sương mù Đà Lạt. Thi luôn là người thầm lặng lo liệu góc nghỉ ngơi, nhóm lên ngọn lửa ấm áp giữa đêm sương mờ. Bữa tối ngoài trời hôm đó, bên ánh lửa bập bùng, sự tĩnh tại của cô ấy đã xoa dịu mọi mệt mỏi của cả nhóm."
+- **Vùng Đất Gắn Liền**: Rừng Thông Đà Lạt (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Nature Lore (96), Hearth Stew Mastery (99), Highland Foraging (94), Botanical Vitality (92).
 - **Active Ability**: `🌿 Hạt Giống Sinh Mệnh` (CD: 5s) – Ném hạt giống cây thông thảo mộc ban phước, hồi máu lập tức cho đồng minh và tạo vùng sương mù hồi máu theo thời gian (HoT).
 - **Ultimate Ability**: `🌲 Đại Ngàn Tỉnh Giấc` (CD: 24s) – Đánh thức linh hồn cổ thụ, rễ cây trồi lên trói chân kẻ địch trong vùng ảnh hưởng và làm nở rộ thảm hoa hồi sinh.
@@ -29,7 +30,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 2. Lê Nguyễn Phương Quỳnh – The Singing Ranger
 - **Pronoun**: she/her | **Faction**: Highland Pathfinders | **Color**: Hunter Green (`#385e38`)
 - **Diorama Location**: Highlands Rocky Overlook at $(-4.8, 1.8, -1.2)$
-- **Real-Life Anchor**: Wilderness survival in Đà Lạt blended with fine arts and cultural exhibitions.
+- **Kỷ Niệm Thực Tế**: "Dưới những tán cây cổ thụ của cao nguyên, Quỳnh thả hồn vào những giai điệu ngân vang núi rừng. Từng bước chân gập ghềnh leo dốc dường như nhẹ bẫng khi có tiếng hát của cô dẫn lối. Cô ấy ghi nhớ từng lối mòn và vẻ đẹp nguyên sơ của vùng đất này."
+- **Vùng Đất Gắn Liền**: Đường Dốc Đà Lạt (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Keen Sight & Tracking (98), Exhibition Curating (95), Wilderness Survival (93), Ancient Lore (91).
 - **Active Ability**: `🏹 Mũi Tên Âm Vang` (CD: 6s) – Bắn mũi tên cuộn xoáy giai điệu xuyên thấu theo đường thẳng gây sát thương và câm lặng kẻ địch trúng đòn.
 - **Ultimate Ability**: `🎶 Khúc Ca Đại Ngàn` (CD: 22s) – Tấu lên khúc hòa ca rừng thẳm phóng thích sóng âm mê hoặc, khuếch đại sát thương và tốc đánh cho toàn đội.
@@ -39,7 +41,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 3. Trần Nguyễn Trâm Anh – The Illusionist Painter
 - **Pronoun**: she/her | **Faction**: Scholars of the Mystic Arts | **Color**: Velvet Ruby (`#7a284e`)
 - **Diorama Location**: Town Square Cottage Stage at $(2.4, 0.9, -4.0)$
-- **Real-Life Anchor**: Exploring cultural exhibitions, ancient artifacts, and ringing in celebrations with dramatic theatrical flair.
+- **Kỷ Niệm Thực Tế**: "Không ngừng khám phá các buổi triển lãm văn hóa và trân trọng từng nét vẽ nghệ thuật, Trâm Anh là người lưu giữ những khung hình đẹp nhất của nhóm. Dưới bầu trời rực sáng pháo hoa đêm Giao Thừa, cô ấy luôn biết cách biến mọi khoảnh khắc thành một kiệt tác rực rỡ khó quên."
+- **Vùng Đất Gắn Liền**: Triển Lãm & Pháo Hoa Giao Thừa (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Historical Lore (99), Stage Presence (97), Artifact Discovery (93), Melodic Inspiration (95).
 - **Active Ability**: `🖌️ Vệt Cọ Hư Không` (CD: 5s) – Vung cọ vẽ vệt Mù Không hình nón gây sát thương phép và mù lòa mục tiêu trúng chiêu.
 - **Ultimate Ability**: `🎨 Kiệt Tác Không Gian` (CD: 25s) – Chiến trường trở thành khung tranh sơn dầu ảo ảnh, giam cầm và làm chậm mọi thực thể địch bên trong.
@@ -49,7 +52,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 4. Nguyễn Khải Vạn – Fireworks Vanguard
 - **Pronoun**: he/him | **Faction**: Scholars of the Mystic Arts | **Color**: Crimson Flame (`#c0392b`)
 - **Diorama Location**: Sunspire Mortar Battery at $(4.2, 0.9, -1.5)$
-- **Real-Life Anchor**: Ringing in the New Year under bursting midnight fireworks, providing explosive magical artillery.
+- **Kỷ Niệm Thực Tế**: "Đêm Giao Thừa không thể trọn vẹn nếu thiếu đi năng lượng bùng nổ của Văn. Khi những chùm pháo hoa đầu tiên vút lên không trung, nụ cười rạng rỡ và sự cuồng nhiệt của cậu ấy đã thắp sáng cả một góc trời, đánh dấu sự khởi đầu đầy hứng khởi cho năm mới của cả nhóm."
+- **Vùng Đất Gắn Liền**: Pháo Hoa Năm Mới (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Pyromancy Precision (98), Fireworks Artistry (100), Explosive Arcana (96), Festive Energy (94).
 - **Active Ability**: `🎇 Quả Cầu Pháo Hoa` (4s) – Bắn cầu pháo hoa phát nổ diện rộng thiêu đốt và đẩy lùi kẻ địch xung quanh.
 - **Ultimate Ability**: `🎆 Dạ Khúc Tinh Tú` (26s) – Cơn mưa pháo hoa tầm nhiệt oanh tạc toàn chiến trường, tạo chấn động liên hoàn nhiều đợt.
@@ -59,7 +63,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 5. Nguyễn Trần Thảo Uyên – The Cleric of the Light
 - **Pronoun**: she/her | **Faction**: Scholars of the Mystic Arts | **Color**: Radiant Gold (`#d4af37`)
 - **Diorama Location**: Sunspire Plaza Fountain Steps at $(0.8, 0.9, -1.2)$
-- **Real-Life Anchor**: Guiding radiant light of New Year celebrations, providing hope and restorative post-quest healing.
+- **Kỷ Niệm Thực Tế**: "Trong những chuyến đi dạo thâu đêm chờ đón năm mới, Uyên luôn mang đến một sự ấm áp, dịu dàng đến lạ thường. Giữa khoảnh khắc pháo hoa rợp trời, sự quan tâm ân cần của cô ấy chính là ánh sáng dịu êm nhất che chở và gắn kết mọi người."
+- **Vùng Đất Gắn Liền**: Đêm Giao Thừa (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Radiant Healing (99), Festive Cheer (98), Guiding Light (97), Sanctuary Aura (93).
 - **Active Ability**: `🛡️ Ánh Sáng Chở Che` (7s) – Ban khiên ánh sáng bảo hộ hấp thụ sát thương và thanh tẩy trạng thái bất lợi cho đồng minh.
 - **Ultimate Ability**: `☀️ Hừng Đông Tỏa Sáng` (30s) – Cột sáng bình minh rực rỡ hồi sinh đồng minh, hồi phục lượng lớn HP và làm lóa mắt toàn bộ địch.
@@ -69,7 +74,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 6. Nguyễn Thị Ngọc Hà – The Athletic Monk
 - **Pronoun**: she/her | **Faction**: Vanguard of the Eastern Seas | **Color**: Serene Teal (`#16a085`)
 - **Diorama Location**: Seaside Pier Edge by the Waves at $(-0.5, 0.15, 4.8)$
-- **Real-Life Anchor**: Traditional Japanese banquets, coastal journeys to Nha Trang Bay, disciplined connection to water and tea ceremony zen.
+- **Kỷ Niệm Thực Tế**: "Những bữa tiệc sinh nhật ngập tràn đồ ăn Nhật Bản luôn rộn rã tiếng cười nhờ nguồn năng lượng không bao giờ vơi của Hà. Sự năng động, đam mê thể thao và tinh thần xông xáo của cô ấy biến mọi cuộc vui thành những kỷ niệm đầy ắp sức sống."
+- **Vùng Đất Gắn Liền**: Bàn Tiệc Kỷ Niệm (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Kensei Kata Form (99), Tea Ceremony Zen (98), Tidal Discipline (95), Coastal Insight (92).
 - **Active Ability**: `⚡ Nhịp Độ Thể Thao` (4s) – Lướt nhanh tăng tốc độ di chuyển và né tránh, để lại vệt năng lượng kinetique bứt phá.
 - **Ultimate Ability**: `🥋 Chân Ngôn Bất Tận` (20s) – Chuỗi 3 đòn cước liên hoàn nện đất tạo sóng xung chấn địa chấn hất tung kẻ địch.
@@ -79,7 +85,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 7. Phạm Trần Thanh Phương – The Highland Water Guardian
 - **Pronoun**: she/her | **Faction**: Vanguard of the Eastern Seas | **Color**: Azure Lacquer (`#1c3d6e`)
 - **Diorama Location**: Coastal Pier Entrance at $(0.5, 0.25, 2.4)$
-- **Real-Life Anchor**: Coastal voyages to Nha Trang Bay and Japanese feasts; acts as the party’s steadfast, honorable protector.
+- **Kỷ Niệm Thực Tế**: "Sinh ra ở miền núi đá nhưng lại trót yêu những cơn sóng Vịnh Nha Trang. Phương luôn thể hiện sự vững chãi, đĩnh đạc của một người bảo vệ thực thụ, dù là khi cạn ly trong những bữa tối trang trọng hay khi đứng trước biển lớn đón gió ngàn."
+- **Vùng Đất Gắn Liền**: Vịnh Biển Nha Trang (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Aegis Defense (99), Honor & Loyalty (100), Coastal Vigilance (96), Banquet Protector (98).
 - **Active Ability**: `💧 Dòng Suối Quật Cường` (6s) – Khiên nước luân chuyển phản vệ, hất văng và làm chậm mọi kẻ địch cận chiến áp sát.
 - **Ultimate Ability**: `🌊 Khát Vọng Trùng Khơi` (28s) – Cuộn trào cơn cuồng nộ đại dương, triệu hồi xoáy nước và sóng thần quét sạch quân địch.
@@ -89,7 +96,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 8. Phạm Xuân Minh – The Swashbuckler Rogue
 - **Pronoun**: he/him | **Faction**: Vanguard of the Eastern Seas | **Color**: Pirate Charcoal & Crimson (`#2c3e50`)
 - **Diorama Location**: Moored Galleon Gangway at $(2.6, 0.25, 4.2)$
-- **Real-Life Anchor**: High-seas maritime expeditions in Nha Trang Bay, charismatic energy, and rapid dueling rapier flourishes.
+- **Kỷ Niệm Thực Tế**: "Từ những di tích cổ kính ở Huế cho đến bãi biển đầy nắng Nha Trang, Minh luôn thể hiện bản lĩnh của một người quản lý kiêm thủ lĩnh 'quẩy' hết mình. Chẳng biết sợ hãi là gì, cậu ấy luôn lao lên phía trước, kéo cả đám vào những cuộc phiêu lưu rực rỡ nhất."
+- **Vùng Đất Gắn Liền**: Cung Đường Dọc Biển (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Swashbuckling Agility (99), Charismatic Wit (97), High-Seas Navigation (94), Gold Coin Sleight (96).
 - **Active Ability**: `🎯 Lệnh Xung Phong` (5s) – Đâm thương kích hoạt điểm yếu mục tiêu, gia tăng tốc đánh và tỷ lệ bạo kích cho đồng đội đánh cùng mục tiêu.
 - **Ultimate Ability**: `🔥 Bữa Tiệc Cuồng Nộ` (22s) – Chém lướt cuồng loạn liên hoàn xung quanh mục tiêu, gây bão sét lan tỏa và tăng 100% tốc chạy.
@@ -99,7 +107,8 @@ This document records the domain contract, real-life inspirations, statistical b
 ### 9. Lâm Anh Thư – Tide Priestess
 - **Pronoun**: she/her | **Faction**: Vanguard of the Eastern Seas | **Color**: Oceanic Cyan (`#0984e3`)
 - **Diorama Location**: Tidal Sea Rocks in Ocean Surf at $(5.0, 0.05, 5.2)$
-- **Real-Life Anchor**: Drawing magic and tranquility from Nha Trang's coastal surf, commanding tides to shield the party.
+- **Kỷ Niệm Thực Tế**: "Ngồi trước biển Nha Trang, Thư mang dáng vẻ trầm lắng nhưng ẩn sâu bên trong là sự nhiệt tình vô bờ bến. Lắng nghe tiếng sóng vỗ, cô ấy như hòa mình vào đại dương, đem lại một khoảng lặng bình yên nhưng đầy sức mạnh xoa dịu cho cả nhóm."
+- **Vùng Đất Gắn Liền**: Biển Xanh Nha Trang (Gắn kết: 100% Thuần Khiết)
 - **Stats**: Tempest Domain Magic (98), Maritime Serenity (99), Tidal Protection (96), Sea Sanctuary Lore (95).
 - **Active Ability**: `🫧 Làn Sóng Tĩnh Lặng` (5s) – Phóng luồng nước dịu êm làm chậm và xoa dịu cuồng nộ của kẻ địch, chữa lành nhẹ cho đồng minh.
 - **Ultimate Ability**: `⛲ Nhiệt Huyết Đại Dương` (25s) – Cột nước nóng ngầm phun trào đẩy bay kẻ địch lên không trung và hồi phục sinh lực ồ ạt cho đồng đội.
