@@ -126,6 +126,19 @@ export class EquipmentGenerator {
         return this.createExhibitionCloak();
       case 'proc:shared_hearth_aegis':
         return this.createSharedHearthAegis();
+      // --- Thematic Wearable Outfits & Armor (Chest Overlays) ---
+      case 'proc:kensei_gi':
+        return this.createKenseiGi();
+      case 'proc:tide_silks':
+        return this.createTideSilks();
+      case 'proc:mage_robe':
+        return this.createMageRobe();
+      case 'proc:scout_leathers':
+        return this.createScoutLeathers();
+      case 'proc:ocean_corsair':
+        return this.createOceanCorsair();
+      case 'proc:civilian_tunic':
+        return this.createCivilianTunic();
       default:
         return new THREE.Group();
     }
@@ -442,18 +455,19 @@ export class EquipmentGenerator {
     capeGeo.computeVertexNormals();
 
     const cape = new THREE.Mesh(capeGeo, capeMat);
-    cape.position.set(0, -0.4, -0.12);
+    cape.position.set(0, -0.42, -0.06);
+    cape.rotation.x = -0.15; // Drapes naturally backward behind the body
     group.add(cape);
 
-    // Collar / clasp
-    const claspGeo = new THREE.BoxGeometry(0.35, 0.05, 0.08);
+    // Collar / clasp resting on back of shoulders
+    const claspGeo = new THREE.BoxGeometry(0.36, 0.05, 0.08);
     const claspMat = new THREE.MeshStandardMaterial({
       color: trimHex,
       metalness: 0.8,
       roughness: 0.3,
     });
     const clasp = new THREE.Mesh(claspGeo, claspMat);
-    clasp.position.set(0, 0.12, -0.08);
+    clasp.position.set(0, 0.09, -0.02);
     group.add(clasp);
 
     group.scale.set(0.9, 0.9, 0.9);
@@ -1099,21 +1113,21 @@ export class EquipmentGenerator {
     const group = new THREE.Group();
 
     // Flowing Cape Body
-    const capeGeo = new THREE.BoxGeometry(0.52, 0.92, 0.04);
+    const capeGeo = new THREE.BoxGeometry(0.52, 0.96, 0.04);
     const mantleMat = new THREE.MeshStandardMaterial({
       color: 0x0f172a,
       roughness: 0.85,
       metalness: 0.1,
     });
     const cape = new THREE.Mesh(capeGeo, mantleMat);
-    cape.position.set(0, -0.42, 0.02);
-    cape.rotation.x = 0.12;
+    cape.position.set(0, -0.42, -0.06);
+    cape.rotation.x = -0.15; // Drapes naturally backward behind the body
     group.add(cape);
 
     // Silver Embroidered Hem
     const hemGeo = new THREE.BoxGeometry(0.54, 0.04, 0.05);
     const hem = new THREE.Mesh(hemGeo, this.silverMat);
-    hem.position.set(0, -0.88, 0.08);
+    hem.position.set(0, -0.86, -0.16);
     group.add(hem);
 
     // Shoulder Brooch Clasps
@@ -1126,16 +1140,16 @@ export class EquipmentGenerator {
       roughness: 0.2,
     });
     const leftBrooch = new THREE.Mesh(broochGeo, broochMat);
-    leftBrooch.position.set(-0.2, 0.02, 0.02);
+    leftBrooch.position.set(-0.2, 0.08, -0.02);
     group.add(leftBrooch);
 
     const rightBrooch = new THREE.Mesh(broochGeo, broochMat);
-    rightBrooch.position.set(0.2, 0.02, 0.02);
+    rightBrooch.position.set(0.2, 0.08, -0.02);
     group.add(rightBrooch);
 
     // Void Mist PointLight
     const light = new THREE.PointLight(0xa855f7, 1.4, 2.5);
-    light.position.set(0, -0.2, 0.1);
+    light.position.set(0, -0.2, -0.15);
     group.add(light);
 
     group.scale.set(0.85, 0.85, 0.85);
@@ -1202,6 +1216,337 @@ export class EquipmentGenerator {
     group.add(light);
 
     group.scale.set(0.85, 0.85, 0.85);
+    return group;
+  }
+
+  /**
+   * Way of the Waves Gi: Traditional Japanese martial arts dogi with Obi sash & gold clan crest
+   */
+  private static createKenseiGi(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Deep Indigo Dogi Chest Wrap
+    const giMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.85,
+    });
+    const giGeo = new THREE.CylinderGeometry(0.26, 0.24, 0.36, 16, 1, false, 0, Math.PI);
+    const gi = new THREE.Mesh(giGeo, giMat);
+    gi.rotation.y = -Math.PI / 2;
+    group.add(gi);
+
+    // Contrasting Midnight Blue Lapel (Eri)
+    const lapelMat = new THREE.MeshStandardMaterial({
+      color: 0x1e3a8a,
+      roughness: 0.7,
+    });
+    const lapelGeo = new THREE.TorusGeometry(0.25, 0.016, 8, 24, Math.PI * 0.75);
+    const lapel = new THREE.Mesh(lapelGeo, lapelMat);
+    lapel.position.set(0, 0.08, 0.02);
+    lapel.rotation.x = Math.PI / 2;
+    group.add(lapel);
+
+    // Martial Arts Obi Belt (Waist)
+    const obiMat = new THREE.MeshStandardMaterial({
+      color: 0x020617,
+      roughness: 0.9,
+    });
+    const obiGeo = new THREE.CylinderGeometry(0.27, 0.27, 0.08, 16, 1, false, 0, Math.PI);
+    const obi = new THREE.Mesh(obiGeo, obiMat);
+    obi.position.y = -0.12;
+    obi.rotation.y = -Math.PI / 2;
+    group.add(obi);
+
+    // Gold Clan Crest (Mon) on Left Chest
+    const crestGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.015, 16);
+    const crest = new THREE.Mesh(crestGeo, this.goldMat);
+    crest.position.set(0.1, 0.08, 0.24);
+    crest.rotation.x = Math.PI / 2;
+    group.add(crest);
+
+    group.scale.set(0.88, 0.88, 0.88);
+    return group;
+  }
+
+  /**
+   * Tide Priestess Silks: Pearlescent flowing sea-silk robes with water droplet talisman & wave sash
+   */
+  private static createTideSilks(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Pearlescent Ocean Silk Wrap
+    const silkMat = new THREE.MeshStandardMaterial({
+      color: 0xe0f2fe,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.15,
+      roughness: 0.35,
+      metalness: 0.1,
+    });
+    const silkGeo = new THREE.CylinderGeometry(0.26, 0.23, 0.38, 16, 1, false, 0, Math.PI);
+    const silk = new THREE.Mesh(silkGeo, silkMat);
+    silk.rotation.y = -Math.PI / 2;
+    group.add(silk);
+
+    // Turquoise Brocade Trim
+    const trimMat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      metalness: 0.6,
+      roughness: 0.3,
+    });
+    const trimGeo = new THREE.TorusGeometry(0.255, 0.015, 8, 24, Math.PI);
+    const trim = new THREE.Mesh(trimGeo, trimMat);
+    trim.position.set(0, 0.12, 0.01);
+    trim.rotation.x = Math.PI / 2;
+    group.add(trim);
+
+    // Ocean Pearl Talisman (Chest Brooch)
+    const pearlMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x0ea5e9,
+      emissiveIntensity: 0.5,
+      metalness: 0.8,
+      roughness: 0.1,
+    });
+    const pearlGeo = new THREE.SphereGeometry(0.045, 16, 16);
+    const pearl = new THREE.Mesh(pearlGeo, pearlMat);
+    pearl.position.set(0, 0.08, 0.25);
+    group.add(pearl);
+
+    // Deep Azure Wave Waist Sash
+    const sashMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      roughness: 0.6,
+    });
+    const sashGeo = new THREE.CylinderGeometry(0.272, 0.272, 0.06, 16, 1, false, 0, Math.PI);
+    const sash = new THREE.Mesh(sashGeo, sashMat);
+    sash.position.y = -0.12;
+    sash.rotation.y = -Math.PI / 2;
+    group.add(sash);
+
+    // Trailing Silk Streamers
+    const ribbonGeo = new THREE.BoxGeometry(0.04, 0.22, 0.015);
+    const leftRibbon = new THREE.Mesh(ribbonGeo, silkMat);
+    leftRibbon.position.set(-0.06, -0.22, 0.26);
+    leftRibbon.rotation.z = -0.1;
+    group.add(leftRibbon);
+
+    const rightRibbon = new THREE.Mesh(ribbonGeo, silkMat);
+    rightRibbon.position.set(0.06, -0.22, 0.26);
+    rightRibbon.rotation.z = 0.1;
+    group.add(rightRibbon);
+
+    // Soft Aquatic Ambient Glow
+    const light = new THREE.PointLight(0x38bdf8, 1.2, 2.0);
+    light.position.set(0, 0.08, 0.26);
+    group.add(light);
+
+    group.scale.set(0.88, 0.88, 0.88);
+    return group;
+  }
+
+  /**
+   * Sunspire Starfire Robes: Midnight violet royal velvet mantle with golden sun embroidery
+   */
+  private static createMageRobe(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Deep Amethyst Velvet Mantle
+    const velvetMat = new THREE.MeshStandardMaterial({
+      color: 0x2e1065,
+      roughness: 0.75,
+    });
+    const velvetGeo = new THREE.CylinderGeometry(0.26, 0.23, 0.38, 16, 1, false, 0, Math.PI);
+    const velvet = new THREE.Mesh(velvetGeo, velvetMat);
+    velvet.rotation.y = -Math.PI / 2;
+    group.add(velvet);
+
+    // Gold Embroidered V-Collar
+    const collarGeo = new THREE.TorusGeometry(0.255, 0.018, 8, 24, Math.PI * 0.75);
+    const collar = new THREE.Mesh(collarGeo, this.goldMat);
+    collar.position.set(0, 0.12, 0.01);
+    collar.rotation.x = Math.PI / 2;
+    group.add(collar);
+
+    // Sunburst Medallion at Solar Plexus
+    const sunGeo = new THREE.IcosahedronGeometry(0.055, 0);
+    const sun = new THREE.Mesh(sunGeo, this.goldMat);
+    sun.position.set(0, 0.06, 0.25);
+    group.add(sun);
+
+    // Celestial Firework Core inside Sun Medallion
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      emissive: 0xfbbf24,
+      emissiveIntensity: 0.8,
+      roughness: 0.2,
+    });
+    const coreGeo = new THREE.SphereGeometry(0.03, 12, 12);
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.position.set(0, 0.06, 0.27);
+    group.add(core);
+
+    // Royal Purple Waist Sash with Gold Clasp
+    const sashMat = new THREE.MeshStandardMaterial({
+      color: 0x581c87,
+      roughness: 0.6,
+    });
+    const sashGeo = new THREE.CylinderGeometry(0.272, 0.272, 0.07, 16, 1, false, 0, Math.PI);
+    const sash = new THREE.Mesh(sashGeo, sashMat);
+    sash.position.y = -0.12;
+    sash.rotation.y = -Math.PI / 2;
+    group.add(sash);
+
+    // Radiant Arcane Light
+    const light = new THREE.PointLight(0xf59e0b, 1.2, 2.2);
+    light.position.set(0, 0.06, 0.28);
+    group.add(light);
+
+    group.scale.set(0.88, 0.88, 0.88);
+    return group;
+  }
+
+  /**
+   * Highland Scout Leathers: Studded pine-forest leather jerkin with cross-body harness & pouches
+   */
+  private static createScoutLeathers(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Forest Green Leather Jerkin
+    const leatherMat = new THREE.MeshStandardMaterial({
+      color: 0x14532d,
+      roughness: 0.8,
+    });
+    const jerkinGeo = new THREE.CylinderGeometry(0.26, 0.23, 0.36, 16, 1, false, 0, Math.PI);
+    const jerkin = new THREE.Mesh(jerkinGeo, leatherMat);
+    jerkin.rotation.y = -Math.PI / 2;
+    group.add(jerkin);
+
+    // Diagonal Scout Cross-Harness
+    const harnessMat = new THREE.MeshStandardMaterial({
+      color: 0x451a03,
+      roughness: 0.85,
+    });
+    const harnessGeo = new THREE.BoxGeometry(0.045, 0.42, 0.018);
+    const harness = new THREE.Mesh(harnessGeo, harnessMat);
+    harness.position.set(0, 0.02, 0.24);
+    harness.rotation.z = -0.38;
+    group.add(harness);
+
+    // Brass Buckle on Harness
+    const buckleGeo = new THREE.BoxGeometry(0.06, 0.06, 0.024);
+    const buckle = new THREE.Mesh(buckleGeo, this.goldMat);
+    buckle.position.set(0.02, 0.04, 0.25);
+    buckle.rotation.z = -0.38;
+    group.add(buckle);
+
+    // Hunter Utility Belt
+    const beltGeo = new THREE.CylinderGeometry(0.27, 0.27, 0.06, 16, 1, false, 0, Math.PI);
+    const belt = new THREE.Mesh(beltGeo, harnessMat);
+    belt.position.y = -0.12;
+    belt.rotation.y = -Math.PI / 2;
+    group.add(belt);
+
+    // Scout Supply Pouch on Hip
+    const pouchGeo = new THREE.BoxGeometry(0.075, 0.085, 0.05);
+    const pouch = new THREE.Mesh(pouchGeo, harnessMat);
+    pouch.position.set(0.16, -0.14, 0.22);
+    pouch.rotation.y = -0.2;
+    group.add(pouch);
+
+    group.scale.set(0.88, 0.88, 0.88);
+    return group;
+  }
+
+  /**
+   * Swashbuckler Corsair Gile: Open pirate leather vest with cross-body bandolier & gold skull buckle
+   */
+  private static createOceanCorsair(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Dark Distressed Leather Vest
+    const vestMat = new THREE.MeshStandardMaterial({
+      color: 0x261208,
+      roughness: 0.85,
+    });
+    const vestGeo = new THREE.CylinderGeometry(0.26, 0.23, 0.36, 16, 1, false, 0, Math.PI);
+    const vest = new THREE.Mesh(vestGeo, vestMat);
+    vest.rotation.y = -Math.PI / 2;
+    group.add(vest);
+
+    // Corsair Cross-Body Bandolier
+    const strapMat = new THREE.MeshStandardMaterial({
+      color: 0x451a03,
+      roughness: 0.75,
+    });
+    const strapGeo = new THREE.BoxGeometry(0.05, 0.42, 0.02);
+    const strap = new THREE.Mesh(strapGeo, strapMat);
+    strap.position.set(0, 0.02, 0.24);
+    strap.rotation.z = 0.35;
+    group.add(strap);
+
+    // Bold Crimson Cloth Waist Sash
+    const sashMat = new THREE.MeshStandardMaterial({
+      color: 0xb91c1c,
+      roughness: 0.6,
+    });
+    const sashGeo = new THREE.CylinderGeometry(0.272, 0.272, 0.08, 16, 1, false, 0, Math.PI);
+    const sash = new THREE.Mesh(sashGeo, sashMat);
+    sash.position.y = -0.12;
+    sash.rotation.y = -Math.PI / 2;
+    group.add(sash);
+
+    // Gold Corsair Skull Emblem
+    const skullGeo = new THREE.IcosahedronGeometry(0.045, 0);
+    const skull = new THREE.Mesh(skullGeo, this.goldMat);
+    skull.position.set(0, -0.12, 0.28);
+    group.add(skull);
+
+    group.scale.set(0.88, 0.88, 0.88);
+    return group;
+  }
+
+  /**
+   * Traveler Linen Tunic: Clean white traveler shirt with folded collar & leather cord belt
+   */
+  private static createCivilianTunic(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Crisp White Linen Tunic
+    const linenMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.85,
+    });
+    const tunicGeo = new THREE.CylinderGeometry(0.26, 0.23, 0.36, 16, 1, false, 0, Math.PI);
+    const tunic = new THREE.Mesh(tunicGeo, linenMat);
+    tunic.rotation.y = -Math.PI / 2;
+    group.add(tunic);
+
+    // Folded Lapel Collar
+    const collarGeo = new THREE.TorusGeometry(0.25, 0.016, 8, 24, Math.PI * 0.75);
+    const collar = new THREE.Mesh(collarGeo, linenMat);
+    collar.position.set(0, 0.12, 0.01);
+    collar.rotation.x = Math.PI / 2;
+    group.add(collar);
+
+    // Leather Cord Belt
+    const cordMat = new THREE.MeshStandardMaterial({
+      color: 0x78350f,
+      roughness: 0.8,
+    });
+    const cordGeo = new THREE.TorusGeometry(0.265, 0.016, 8, 24, Math.PI);
+    const cord = new THREE.Mesh(cordGeo, cordMat);
+    cord.position.set(0, -0.12, 0);
+    cord.rotation.x = Math.PI / 2;
+    group.add(cord);
+
+    // Brass Toggle Clasp
+    const toggleGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.05, 8);
+    const toggle = new THREE.Mesh(toggleGeo, this.goldMat);
+    toggle.position.set(0, -0.12, 0.27);
+    toggle.rotation.z = Math.PI / 2;
+    group.add(toggle);
+
+    group.scale.set(0.88, 0.88, 0.88);
     return group;
   }
 }
