@@ -203,11 +203,11 @@ export class TouchControls3D {
       const fwdZ = -Math.cos(this.azimuthAngle);
 
       const moveScale = (this.distance / 1000) * 0.9;
-      const groundDX = (-dx * rightX - dy * fwdX) * moveScale;
-      const groundDZ = (-dx * rightZ - dy * fwdZ) * moveScale;
+      // Inverted vertical drag: dragging mouse down (dy > 0) moves target forward/up (camera goes up)
+      const groundDX = (-dx * rightX + dy * fwdX) * moveScale;
+      const groundDZ = (-dx * rightZ + dy * fwdZ) * moveScale;
       this.target.x = THREE.MathUtils.clamp(this.target.x + groundDX, this.bounds.minX, this.bounds.maxX);
       this.target.z = THREE.MathUtils.clamp(this.target.z + groundDZ, this.bounds.minZ, this.bounds.maxZ);
-
       this.velocityX = (groundDX / dt) * 16;
       this.velocityZ = (groundDZ / dt) * 16;
       this.lastMoveTime = now;
