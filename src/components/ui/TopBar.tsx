@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, Sunrise, Sunset, Volume2, VolumeX, CloudFog, Crosshair } from 'lucide-react';
+import { Sun, Moon, Sunrise, Sunset, Volume2, VolumeX, CloudFog, Crosshair, Hammer } from 'lucide-react';
 
 export type TimeOfDay = 'dawn' | 'day' | 'sunset' | 'night';
 export type WeatherType = 'clear' | 'mist' | 'rain';
@@ -10,10 +10,12 @@ interface TopBarProps {
   isMuted: boolean;
   isInspectorActive?: boolean;
   coinScore?: number;
+  isBuildMode?: boolean;
   onToggleTimeOfDay: () => void;
   onToggleWeather: () => void;
   onToggleMute: () => void;
   onToggleInspector?: () => void;
+  onToggleBuildMode?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -22,10 +24,12 @@ export const TopBar: React.FC<TopBarProps> = ({
   isMuted,
   isInspectorActive,
   coinScore,
+  isBuildMode,
   onToggleTimeOfDay,
   onToggleWeather,
   onToggleMute,
   onToggleInspector,
+  onToggleBuildMode,
 }) => {
   const getTimeIcon = () => {
     switch (timeOfDay) {
@@ -114,6 +118,22 @@ export const TopBar: React.FC<TopBarProps> = ({
           >
             <Crosshair className="w-4 h-4 text-fantasy-gold" />
             <span className="text-[11px]">Tọa Độ</span>
+          </button>
+        )}
+
+        {/* Build Mode Toggle Button */}
+        {onToggleBuildMode && (
+          <button
+            onClick={onToggleBuildMode}
+            className={`flex items-center gap-1.5 backdrop-blur-md border px-2.5 py-1.5 rounded-full text-xs font-sans font-medium active:scale-95 transition-all shadow-md ${
+              isBuildMode
+                ? 'bg-fantasy-gold border-fantasy-gold text-ink-950 font-bold shadow-[0_0_15px_rgba(223,166,66,0.6)]'
+                : 'bg-ink-900/85 border-paper-800/60 text-paper-100 hover:border-fantasy-gold/50'
+            }`}
+            title="Bật/Tắt chế độ xây dựng công trình (Build Mode)"
+          >
+            <Hammer className={`w-4 h-4 ${isBuildMode ? 'text-ink-950 animate-bounce' : 'text-fantasy-gold'}`} />
+            <span className="text-[11px] font-semibold">Xây Dựng</span>
           </button>
         )}
 
