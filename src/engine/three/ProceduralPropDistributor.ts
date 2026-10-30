@@ -32,8 +32,8 @@ export class ProceduralPropDistributor {
 
   /**
    * Generates procedurally scattered vegetation, rocks, and environmental assets.
-   * Specifically balanced to avoid over-density and centralization in the Forest/Mountain
-   * and Lighthouse zones, while guaranteeing zero overlap with houses.
+   * Completely excludes giant overlapping ground patches (patch-grass/foliage),
+   * guaranteeing clean, unobstructed village town squares and house grounds.
    */
   public static generateWorldProps(baseSeed = 1337): PropInstanceDef[] {
     const seed = { value: baseSeed };
@@ -45,7 +45,8 @@ export class ProceduralPropDistributor {
     // Zero rocks, mountains, or trees may spawn within these clearance radii
     // =========================================================================
     const exclusionZones: ExclusionZone[] = [
-      // Major Interactive Points of Interest
+      // Major Interactive Points of Interest & Open Plaza
+      { x: 1.5, z: -1.0, radius: 7.0, label: 'Town Center Open Plaza (Protected Ground)' },
       { x: 5.5, z: -2.5, radius: 5.5, label: 'Central Town Fountain' },
       { x: -15.5, z: -14.5, radius: 5.0, label: 'Highland Campsite Stew Cauldron' },
       { x: 13.0, z: -2.5, radius: 4.0, label: 'Fireworks Mortar Battery' },
@@ -80,7 +81,8 @@ export class ProceduralPropDistributor {
 
     // =========================================================================
     // 2. Biome Scattering Rules across the 70x70 World
-    // De-centralized, widely spaced rules for Mountains/Forest and Lighthouse
+    // Notice: Giant patch-grass/patch-grass-foliage ground slabs are REMOVED!
+    // Only small 3D discrete props (trees, rocks, small grass blade tufts) are used.
     // =========================================================================
     const scatterRules: ScatterRule[] = [
       // -----------------------------------------------------------------------
@@ -89,7 +91,7 @@ export class ProceduralPropDistributor {
       {
         asset: 'mountain_A_grass_trees.gltf',
         pack: 'props',
-        minDistance: 11.0, // Wide spacing to prevent centralization
+        minDistance: 11.0, // Wide spacing prevents crowding
         targetCount: 4,
         scaleRange: [2.6, 3.2],
         allowedBlocks: ['STONE', 'GRASS'],
@@ -108,12 +110,12 @@ export class ProceduralPropDistributor {
       },
 
       // -----------------------------------------------------------------------
-      // B. HIGHLANDS ALPINE PINE FOREST (Evenly spread, not clumped: minDistance 6.2m)
+      // B. HIGHLANDS ALPINE PINE FOREST (Evenly spread: minDistance 6.2m)
       // -----------------------------------------------------------------------
       {
         asset: 'trees_A_large.gltf',
         pack: 'props',
-        minDistance: 6.2, // Generous spacing prevents claustrophobic clumping
+        minDistance: 6.2,
         targetCount: 14,
         scaleRange: [3.8, 4.8],
         allowedBlocks: ['GRASS', 'STONE'],
@@ -132,13 +134,12 @@ export class ProceduralPropDistributor {
       },
 
       // -----------------------------------------------------------------------
-      // C. LIGHTHOUSE PROMONTORY (SE Cape: Widely distributed across X: 14..34, Z: 4..34)
-      // Not clumped around tower; open scenic coastal promontory
+      // C. LIGHTHOUSE PROMONTORY (SE Cape: Open scenic coastal promontory)
       // -----------------------------------------------------------------------
       {
         asset: 'palm-detailed-bend.glb',
         pack: 'environment',
-        minDistance: 6.8, // Wide distribution prevents clump at lighthouse
+        minDistance: 6.8,
         targetCount: 7,
         scaleRange: [2.0, 2.5],
         allowedBlocks: ['GRASS', 'SAND'],
@@ -176,18 +177,18 @@ export class ProceduralPropDistributor {
         bounds: { minX: 15, maxX: 34, minZ: 6, maxZ: 33 },
       },
       {
-        asset: 'patch-grass-foliage.glb',
+        asset: 'grass.glb', // Small discrete 3D grass tuft (NOT a giant ground slab!)
         pack: 'environment',
-        minDistance: 4.5,
-        targetCount: 12,
-        scaleRange: [2.0, 2.6],
+        minDistance: 5.0,
+        targetCount: 10,
+        scaleRange: [1.0, 1.4],
         allowedBlocks: ['GRASS'],
         elevationRange: [0.8, 2.2],
         bounds: { minX: 14, maxX: 34, minZ: 5, maxZ: 33 },
       },
 
       // -----------------------------------------------------------------------
-      // D. VILLAGE MEADOW & OUTSKIRTS (Strictly outside house exclusion zones)
+      // D. VILLAGE MEADOW & OUTSKIRTS (Strictly outside house & plaza exclusion zones)
       // -----------------------------------------------------------------------
       {
         asset: 'tree_single_A.gltf',
@@ -200,21 +201,11 @@ export class ProceduralPropDistributor {
         bounds: { minX: -3, maxX: 33, minZ: -32, maxZ: 1 },
       },
       {
-        asset: 'patch-grass-foliage.glb',
+        asset: 'grass-plant.glb', // Tiny discrete wild flower plant
         pack: 'environment',
-        minDistance: 3.5,
-        targetCount: 18,
-        scaleRange: [2.0, 2.6],
-        allowedBlocks: ['GRASS'],
-        elevationRange: [1.0, 2.0],
-        bounds: { minX: -3, maxX: 33, minZ: -30, maxZ: 2 },
-      },
-      {
-        asset: 'grass-patch.glb',
-        pack: 'environment',
-        minDistance: 3.5,
-        targetCount: 16,
-        scaleRange: [2.0, 2.6],
+        minDistance: 5.0,
+        targetCount: 12,
+        scaleRange: [1.0, 1.4],
         allowedBlocks: ['GRASS'],
         elevationRange: [1.0, 2.0],
         bounds: { minX: -3, maxX: 33, minZ: -30, maxZ: 2 },
@@ -222,8 +213,8 @@ export class ProceduralPropDistributor {
       {
         asset: 'rock_single_A.gltf',
         pack: 'props',
-        minDistance: 5.5, // Generous clearance from homes
-        targetCount: 10,
+        minDistance: 5.5,
+        targetCount: 8,
         scaleRange: [1.4, 1.8],
         allowedBlocks: ['GRASS'],
         elevationRange: [1.0, 2.0],
@@ -269,7 +260,7 @@ export class ProceduralPropDistributor {
         const rx = rule.bounds.minX + this.seededRandom(seed) * (rule.bounds.maxX - rule.bounds.minX);
         const rz = rule.bounds.minZ + this.seededRandom(seed) * (rule.bounds.maxZ - rule.bounds.minZ);
 
-        // Clearance check: Exclusion zones (houses, buildings, POIs, characters)
+        // Clearance check: Exclusion zones (houses, buildings, POIs, characters, open plaza)
         const insideExclusion = exclusionZones.some(
           (zone) => Math.hypot(rx - zone.x, rz - zone.z) < zone.radius
         );
