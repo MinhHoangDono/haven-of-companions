@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Character } from '../../types/character';
+import { allCharacters } from '../../data/charactersData';
 import {
   Sparkles,
   X,
@@ -13,6 +14,7 @@ import {
   RotateCcw,
   BookOpen,
   Award,
+  Users,
 } from 'lucide-react';
 import { CharacterPreview3D } from './CharacterPreview3D';
 import { inventoryManager } from '../../engine/inventory/InventoryManager';
@@ -23,6 +25,7 @@ interface CharacterModalProps {
   character: Character | null;
   onClose: () => void;
   onTriggerAbility: () => void;
+  onSelectCharacter?: (char: Character) => void;
 }
 
 const SLOT_CONFIG: { slot: EquipSlot; label: string; icon: string; short: string }[] = [
@@ -37,11 +40,17 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
   character,
   onClose,
   onTriggerAbility,
+  onSelectCharacter,
 }) => {
   const [activeNavTab, setActiveNavTab] = useState<'inventory' | 'skills' | 'journal'>('inventory');
   const [selectedSlot, setSelectedSlot] = useState<EquipSlot>('mainWeapon');
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
+  const [localCharacter, setLocalCharacter] = useState<Character | null>(character);
   const [, setEquipVersion] = useState(0);
+
+  useEffect(() => {
+    setLocalCharacter(character);
+  }, [character]);
 
   useEffect(() => {
     const unsub = inventoryManager.subscribe(() => {
@@ -50,9 +59,10 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
     return unsub;
   }, []);
 
-  if (!character) return null;
+  const currentCharacter = localCharacter || character;
+  if (!currentCharacter) return null;
 
-  const equipped = inventoryManager.getEquipped(character.id);
+  const equipped = inventoryManager.getEquipped(currentCharacter.id);
   const allItems: InventoryItem[] = inventoryManager.getItems();
 
   const getEquippedItem = (slot: EquipSlot): InventoryItem | undefined => {
@@ -61,12 +71,16 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
     return inventoryManager.getItem(itemId);
   };
 
-  const currentSlotItems = allItems.filter((it: InventoryItem) => it.equippable && it.equipSlot === selectedSlot);
+  const currentSlotItems = allItems.filter(
+    (it: InventoryItem) => it.equippable && it.equipSlot === selectedSlot
+  );
+
+  // Default inspected item
   const currentlyEquippedInSlot = getEquippedItem(selectedSlot);
   const displayItem = inspectedItem || currentlyEquippedInSlot || currentSlotItems[0] || null;
 
   const getFactionIcon = () => {
-    switch (character.faction) {
+    switch (currentCharacter.faction) {
       case 'highlands':
         return <Trees className="w-4 h-4 text-emerald-400" />;
       case 'vanguard':
@@ -77,23 +91,47 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
   };
 
   const getFactionName = () => {
-    switch (character.faction) {
+    switch (currentCharacter.faction) {
       case 'highlands':
-        return 'Highland Pathfinders (Cao Nguyên Đà Lạt)';
+        return 'Cao Nguyên Đà Lạt (Highlands)';
       case 'vanguard':
-        return 'Vanguard of Eastern Seas (Biển Đông Nha Trang)';
+        return 'Vịnh Biển Nha Trang (Eastern Vanguard)';
       default:
-        return 'Scholars of Mystic Arts (Quảng Trường Lễ Hội)';
+        return 'Quảng Trường Pháo Hoa (Mystic Scholars)';
     }
   };
 
   const handleEquip = (item: InventoryItem) => {
-    inventoryManager.equipItem(character.id, selectedSlot, item.id);
+    // If equipping a 2-handed weapon, unequip bulky shields to avoid clipping
+    const is2H =
+      item.wieldType === 'two_handed' ||
+      item.weaponType === 'greatsword' ||
+      item.weaponType === 'scythe' ||
+      item.weaponType === 'archmage_staff' ||
+      item.weaponType === 'elemental_bow';
+
+    if (item.equipSlot === 'mainWeapon' && is2H) {
+      const offItem = getEquippedItem('offhand');
+      if (offItem && offItem.modelAsset !== 'quiver.gltf') {
+        inventoryManager.unequipItem(currentCharacter.id, 'offhand');
+      }
+    }
+
+    inventoryManager.equipItem(currentCharacter.id, selectedSlot, item.id);
     setInspectedItem(item);
   };
 
   const handleUnequip = () => {
-    inventoryManager.unequipItem(character.id, selectedSlot);
+    inventoryManager.unequipItem(currentCharacter.id, selectedSlot);
+  };
+
+  const handleSwitchCompanion = (c: Character) => {
+    audioManager.playTap();
+    setLocalCharacter(c);
+    setInspectedItem(null);
+    if (onSelectCharacter) {
+      onSelectCharacter(c);
+    }
   };
 
   return (
@@ -102,12 +140,12 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
       <div className="absolute inset-0 hidden sm:block" onClick={onClose} />
 
       {/* Main RPG Screen Container (Widescreen 2-Column Split Layout) */}
-      <div className="relative w-full h-full sm:h-[92vh] sm:max-w-7xl bg-ink-950 border-0 sm:border sm:border-paper-800/80 rounded-none sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden pt-safe pb-safe">
+      <div className="relative w-full h-full sm:h-[94vh] sm:max-w-7xl bg-ink-950 border-0 sm:border sm:border-paper-800/80 rounded-none sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden pt-safe pb-safe">
         {/* ======================================================== */}
         {/* TOP RPG NAVIGATION BAR                                   */}
         {/* ======================================================== */}
         <div className="flex items-center justify-between px-3 sm:px-6 py-2.5 bg-ink-900 border-b border-paper-800/80 shrink-0 z-20">
-          {/* Left: Back / Close */}
+          {/* Left: Back / Map */}
           <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={onClose}
@@ -186,27 +224,57 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
         </div>
 
         {/* ======================================================== */}
+        {/* UNIFIED 9-COMPANION CAROUSEL STRIP (SHARED ARMORY)       */}
+        {/* Allows instant 1-tap switching between all 9 friends!   */}
+        {/* ======================================================== */}
+        <div className="flex items-center gap-1.5 px-3 sm:px-6 py-2 bg-ink-950/95 border-b border-paper-800/60 overflow-x-auto scrollbar-none shrink-0 z-10">
+          <div className="flex items-center gap-1 text-[11px] font-serif uppercase tracking-wider text-fantasy-gold shrink-0 mr-2">
+            <Users className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Kho Đồ Tri Kỷ:</span>
+          </div>
+
+          {allCharacters.map((c) => {
+            const isSelected = c.id === currentCharacter.id;
+            return (
+              <button
+                key={c.id}
+                onClick={() => handleSwitchCompanion(c)}
+                className={`px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all shrink-0 text-xs font-serif active:scale-95 ${
+                  isSelected
+                    ? 'bg-fantasy-gold text-ink-950 font-bold shadow-md ring-2 ring-fantasy-gold/60 scale-105'
+                    : 'bg-ink-900 border border-paper-800/60 text-paper-200/70 hover:text-paper-100 hover:bg-ink-850'
+                }`}
+                title={`${c.name} - ${c.classTitle}`}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color.primary }} />
+                <span>{c.nickname}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ======================================================== */}
         {/* MAIN BODY: 2-COLUMN VIEWPORT (3D HERO + TAB CONTENT)      */}
         {/* ======================================================== */}
         <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
           {/* ------------------------------------------------------ */}
           {/* COLUMN 1: THE PROMINENT 3D 360 CHARACTER VIEWPORT       */}
-          {/* Guaranteed visible on phones (top 42vh) and desktop!   */}
+          {/* Guaranteed visible on phones (top 40vh) and desktop!   */}
           {/* ------------------------------------------------------ */}
-          <div className="w-full lg:flex-1 h-[42vh] lg:h-full min-h-[290px] relative bg-ink-950 flex flex-col border-b lg:border-b-0 lg:border-r border-paper-800/80 shrink-0 overflow-hidden">
+          <div className="w-full lg:flex-1 h-[40vh] lg:h-full min-h-[280px] relative bg-ink-950 flex flex-col border-b lg:border-b-0 lg:border-r border-paper-800/80 shrink-0 overflow-hidden">
             {/* Top Floating Character Info Header */}
             <div className="absolute top-3 left-4 right-4 z-10 flex items-start justify-between pointer-events-none">
               <div className="bg-ink-900/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-paper-800/80 shadow-lg pointer-events-auto">
                 <div className="flex items-center gap-2">
                   {getFactionIcon()}
                   <h2 className="text-base sm:text-lg font-serif font-bold text-fantasy-gold leading-tight">
-                    {character.name}
+                    {currentCharacter.name}
                   </h2>
                 </div>
                 <p className="text-xs font-serif text-paper-200/80 flex items-center gap-1.5 mt-0.5">
-                  <span className="text-fantasy-gold">{character.classTitle}</span>
+                  <span className="text-fantasy-gold">{currentCharacter.classTitle}</span>
                   <span className="text-paper-800">•</span>
-                  <span className="text-paper-200/50">{character.nickname}</span>
+                  <span className="text-paper-200/50">{currentCharacter.nickname}</span>
                 </p>
               </div>
 
@@ -289,7 +357,7 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
             {/* The 3D WebGL Canvas Component */}
             <div className="flex-1 w-full h-full relative">
               <CharacterPreview3D
-                character={character}
+                character={currentCharacter}
                 className="w-full h-full border-0 rounded-none bg-gradient-to-b from-ink-950 via-ink-900 to-ink-950"
               />
             </div>
@@ -297,16 +365,15 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
 
           {/* ------------------------------------------------------ */}
           {/* COLUMN 2: TAB CONTENT (INVENTORY / SKILLS / JOURNAL)   */}
-          {/* Responsive scrollable container                        */}
           {/* ------------------------------------------------------ */}
-          <div className="flex-1 lg:w-[460px] xl:w-[500px] lg:flex-none flex flex-col bg-ink-900/95 overflow-hidden">
+          <div className="flex-1 lg:w-[480px] xl:w-[520px] lg:flex-none flex flex-col bg-ink-900/95 overflow-hidden">
             {/* ==================================================== */}
             {/* TAB 1: INVENTORY & WARDROBE                          */}
             {/* ==================================================== */}
             {activeNavTab === 'inventory' && (
               <div className="flex-1 flex flex-col min-h-0 overflow-hidden animate-fade-in">
                 {/* Horizontal Slot Tabs */}
-                <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 bg-ink-950/70 border-b border-paper-800/80 overflow-x-auto scrollbar-none gap-1.5 shrink-0">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-ink-950/70 border-b border-paper-800/80 overflow-x-auto scrollbar-none gap-1.5 shrink-0">
                   {SLOT_CONFIG.map(({ slot, icon, short }) => {
                     const isSelected = selectedSlot === slot;
                     const isEquipped = !!getEquippedItem(slot);
@@ -338,14 +405,34 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                 {displayItem && (
                   <div className="p-3 sm:p-4 bg-ink-950/60 border-b border-paper-800/60 shrink-0">
                     <div className="flex items-start justify-between gap-2">
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-xl">{displayItem.icon}</span>
-                          <h4 className="text-sm sm:text-base font-serif font-bold text-fantasy-gold">
+                          <span className="text-xl shrink-0">{displayItem.icon}</span>
+                          <h4 className="text-sm sm:text-base font-serif font-bold text-fantasy-gold truncate">
                             {displayItem.name}
                           </h4>
                         </div>
-                        <p className="text-[11px] font-sans text-paper-200/60 mt-0.5">
+
+                        {/* Badges for Handedness (1H vs 2H) and Element */}
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          {displayItem.wieldType === 'two_handed' && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-600/60">
+                              2H (Hai Tay)
+                            </span>
+                          )}
+                          {displayItem.wieldType === 'one_handed' && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-600/60">
+                              1H (Một Tay)
+                            </span>
+                          )}
+                          {displayItem.element && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-950/70 text-cyan-300 border border-cyan-600/60">
+                              Hệ {displayItem.element.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-[11px] font-sans text-paper-200/60 mt-1">
                           {displayItem.description}
                         </p>
                       </div>
@@ -411,8 +498,8 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                 {/* Available Gear List */}
                 <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-2">
                   <div className="text-[11px] font-serif uppercase tracking-wider text-paper-200/50 mb-1 flex items-center justify-between">
-                    <span>Vật phẩm khả dụng ({currentSlotItems.length})</span>
-                    <span className="text-emerald-400">Tự động đồng bộ 3D</span>
+                    <span>Kho Trang Bị Toàn Đội ({currentSlotItems.length})</span>
+                    <span className="text-emerald-400">Dùng chung cả nhóm</span>
                   </div>
 
                   {currentSlotItems.length === 0 ? (
@@ -497,15 +584,15 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
             {activeNavTab === 'skills' && (
               <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 flex flex-col gap-4 animate-fade-in">
                 {/* Header */}
-                <div className="border-b border-paper-800/50 pb-3">
+                <div className="border-b border-paper-800/50 pb-2">
                   <div className="flex items-center gap-2">
                     <Zap className="w-5 h-5 text-fantasy-gold" />
                     <h3 className="text-base font-serif font-bold text-fantasy-gold">
                       Kỹ Năng & Pháp Thuật Trấn Phái
                     </h3>
                   </div>
-                  <p className="text-xs font-sans text-paper-200/60 mt-1">
-                    Mỗi tri kỷ sở hữu năng lực ma thuật và võ thuật độc bản lấy cảm hứng từ tính cách và kỷ niệm đời thực.
+                  <p className="text-xs font-sans text-paper-200/60 mt-0.5">
+                    Hệ thống tuyệt kỹ chủ động và 2 nội tại độc bản gắn liền với kỷ niệm của {currentCharacter.name}.
                   </p>
                 </div>
 
@@ -523,7 +610,7 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                           Tuyệt Kỹ Chủ Động
                         </span>
                         <h4 className="text-base sm:text-lg font-serif font-bold text-paper-100 leading-tight">
-                          {character.signatureAbility.name}
+                          {currentCharacter.signatureAbility.name}
                         </h4>
                       </div>
                     </div>
@@ -535,26 +622,8 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
 
                   {/* Spell Details */}
                   <p className="text-xs font-sans text-paper-200/80 mt-3 leading-relaxed bg-ink-950/60 p-3 rounded-xl border border-paper-800/50">
-                    {character.signatureAbility.description}
+                    {currentCharacter.signatureAbility.description}
                   </p>
-
-                  {/* Effect Badges */}
-                  <div className="grid grid-cols-3 gap-2 mt-3 text-center text-[11px] font-sans">
-                    <div className="bg-ink-950/80 p-2 rounded-xl border border-paper-800/60">
-                      <span className="text-paper-200/50 block text-[10px]">Hệ Phép</span>
-                      <span className="font-bold text-cyan-300">
-                        {character.faction === 'highlands' ? 'Tự Nhiên' : character.faction === 'vanguard' ? 'Thủy Lưu' : 'Hỏa Quang'}
-                      </span>
-                    </div>
-                    <div className="bg-ink-950/80 p-2 rounded-xl border border-paper-800/60">
-                      <span className="text-paper-200/50 block text-[10px]">Tiêu Tốn</span>
-                      <span className="font-bold text-amber-300">45 Mana</span>
-                    </div>
-                    <div className="bg-ink-950/80 p-2 rounded-xl border border-paper-800/60">
-                      <span className="text-paper-200/50 block text-[10px]">Hiệu Ứng 3D</span>
-                      <span className="font-bold text-emerald-300">Toàn Bản Đồ</span>
-                    </div>
-                  </div>
 
                   {/* Cast Spell Button */}
                   <button
@@ -562,46 +631,55 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                       audioManager.playTap();
                       onTriggerAbility();
                     }}
-                    className="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-serif font-bold text-sm shadow-lg shadow-fantasy-gold/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="w-full mt-3 py-2.5 rounded-xl bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-serif font-bold text-sm shadow-lg shadow-fantasy-gold/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4 text-ink-950 fill-ink-950" />
                     <span>Thi Triển Tuyệt Kỹ Ngay</span>
                   </button>
                 </div>
 
-                {/* Passive Traits & Masteries */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-serif uppercase tracking-wider text-paper-200/60">
-                    Nội Tại & Tinh Thông Bang Hội
-                  </h4>
-
-                  <div className="p-3 rounded-xl bg-ink-950/70 border border-paper-800/60 flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-ink-900 border border-paper-800/80 text-amber-400 shrink-0">
-                      <Shield className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h5 className="text-xs font-serif font-bold text-paper-100">
-                        Bảo Hộ Tri Kỷ (Friendship Aegis)
-                      </h5>
-                      <p className="text-[11px] font-sans text-paper-200/60 mt-0.5">
-                        Giảm 15% sát thương khi đứng gần các đồng đội khác trong bán kính 10 mét quanh quảng trường làng.
-                      </p>
-                    </div>
+                {/* The 2 Custom Passives from User */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-paper-800/40 pb-1.5">
+                    <h4 className="text-xs font-serif uppercase tracking-wider text-fantasy-gold font-bold">
+                      Nội Tại Độc Bản & Kỷ Niệm Tri Kỷ
+                    </h4>
+                    <span className="text-[10px] text-paper-200/50">Tự động kích hoạt</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-ink-950/70 border border-paper-800/60 flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-ink-900 border border-paper-800/80 text-emerald-400 shrink-0">
-                      <Wind className="w-4 h-4" />
+                  {currentCharacter.passives && currentCharacter.passives.length > 0 ? (
+                    currentCharacter.passives.map((p, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-2xl bg-ink-950/80 border border-paper-800/70 hover:border-fantasy-gold/60 transition-all shadow-md group"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl p-2 rounded-xl bg-ink-900 border border-paper-800/80 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                            {p.icon || '✨'}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <h5 className="text-xs sm:text-sm font-serif font-bold text-fantasy-gold">
+                                {p.name}
+                              </h5>
+                              {p.loreAnchor && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-sans font-semibold bg-fantasy-gold/15 text-fantasy-gold border border-fantasy-gold/40 shrink-0">
+                                  {p.loreAnchor}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] font-sans text-paper-200/70 mt-1 leading-relaxed">
+                              {p.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-3 rounded-xl bg-ink-950/70 border border-paper-800/60 text-center text-xs text-paper-200/50 font-serif">
+                      Chưa có kỹ năng nội tại.
                     </div>
-                    <div>
-                      <h5 className="text-xs font-serif font-bold text-paper-100">
-                        Bộ Hành Thong Dong (Highland Stride)
-                      </h5>
-                      <p className="text-[11px] font-sans text-paper-200/60 mt-0.5">
-                        Tăng tốc độ di chuyển cơ bản thêm +10% trên mọi địa hình sỏi đá, cát bờ biển và đồi thông.
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
@@ -631,16 +709,16 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                   </div>
 
                   <p className="text-xs font-serif leading-relaxed text-paper-100 bg-ink-900/60 p-3.5 rounded-xl border border-paper-800/50">
-                    "{character.bio}"
+                    "{currentCharacter.bio}"
                   </p>
 
                   <div className="grid grid-cols-2 gap-2 pt-2 text-[11px] font-sans">
                     <div className="p-2.5 rounded-xl bg-ink-900/80 border border-paper-800/60">
                       <span className="text-paper-200/50 block text-[10px]">Vùng Đất Gắn Liền</span>
                       <span className="font-bold text-paper-100">
-                        {character.faction === 'highlands'
+                        {currentCharacter.faction === 'highlands'
                           ? 'Đồi Thông Đà Lạt'
-                          : character.faction === 'vanguard'
+                          : currentCharacter.faction === 'vanguard'
                           ? 'Vịnh Biển Nha Trang'
                           : 'Pháo Hoa Năm Mới'}
                       </span>

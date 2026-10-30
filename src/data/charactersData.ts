@@ -41,6 +41,20 @@ export const allCharacters: Character[] = [
       description: 'Summons a circular bloom of wild mountain herbs and emerald light motes.',
       effectType: 'nature_bloom',
     },
+    passives: [
+      {
+        name: 'Hearth of the Highlands',
+        description: 'Resting in mountainous or forested terrain grants the party rapid stamina regeneration, drawing from the calming energy of outdoor dinners in Da Lat.',
+        loreAnchor: 'Đà Lạt Misty Pine Highlands',
+        icon: '🏕️',
+      },
+      {
+        name: 'Canopy’s Embrace',
+        description: 'The party gains passive camouflage against ambushes during twilight hours, reflecting a quiet, observant presence thriving in shadowed natural environments.',
+        loreAnchor: 'Shadowed Twilight Forest',
+        icon: '🌲',
+      },
+    ],
   },
   {
     id: 'phuong-quynh-ranger',
@@ -79,6 +93,20 @@ export const allCharacters: Character[] = [
       description: 'Dispatches her scouting hawk, revealing hidden paths with a golden guiding flash.',
       effectType: 'eagle_scout',
     },
+    passives: [
+      {
+        name: 'Curator’s Eye',
+        description: 'Automatically highlights hidden lore, ancient runes, and valuable artifacts in ruins or dungeons, honed by frequent visits to cultural exhibitions.',
+        loreAnchor: 'Cultural & Art Exhibitions',
+        icon: '🔍',
+      },
+      {
+        name: 'Highland Strider',
+        description: 'Negates movement penalties in difficult terrain like mud, thick brush, or steep hills, honed by trekking scenic Da Lat trails.',
+        loreAnchor: 'Da Lat Highland Trails',
+        icon: '🥾',
+      },
+    ],
   },
 
   // ==========================================
@@ -121,6 +149,20 @@ export const allCharacters: Character[] = [
       description: 'Strums her golden lute, releasing shimmering musical notes that inspire all nearby friends.',
       effectType: 'lute_hymn',
     },
+    passives: [
+      {
+        name: 'Echoes of Antiquity',
+        description: 'Grants passive resistance against mind-altering spells and illusions, anchored by deep appreciation for art, history, and ancient artifacts.',
+        loreAnchor: 'Museum of Antiquities',
+        icon: '📜',
+      },
+      {
+        name: 'Festival’s Glow',
+        description: 'Allies standing within her aura gain a slight boost to critical strike chance, fueled by the bright, celebratory energy of New Year fireworks displays.',
+        loreAnchor: 'New Year Fireworks Celebrations',
+        icon: '🎆',
+      },
+    ],
   },
   {
     id: 'khai-van-sorcerer',
@@ -159,6 +201,20 @@ export const allCharacters: Character[] = [
       description: 'Launches a shower of multicolored explosive sparks illuminating the town sky.',
       effectType: 'firework_burst',
     },
+    passives: [
+      {
+        name: 'Spark of the New Year',
+        description: 'The first fire or light-based attack in any encounter ignores enemy elemental resistances, capturing the explosive brilliance of midnight fireworks.',
+        loreAnchor: 'Midnight Fireworks Blast',
+        icon: '🎇',
+      },
+      {
+        name: 'Ember’s Ward',
+        description: 'Automatically triggers a blinding flash of light when an ally is flanked, disorienting attackers with a fiercely protective festive barrier.',
+        loreAnchor: 'Protective Flash Ward',
+        icon: '🛡️',
+      },
+    ],
   },
   {
     id: 'thao-uyen-cleric',
@@ -197,6 +253,20 @@ export const allCharacters: Character[] = [
       description: 'Channeling divine sunshine, she creates a warm pillar of light that blesses the town plaza.',
       effectType: 'dawn_light',
     },
+    passives: [
+      {
+        name: 'Radiant Companion',
+        description: 'Proximity to her naturally accelerates the party\'s wound mending outside of combat, inspired by her restorative, warm energy at long social outings.',
+        loreAnchor: 'Warmth of Friendship Outings',
+        icon: '☀️',
+      },
+      {
+        name: 'Midnight Luminescence',
+        description: 'Grants the party clear vision in total darkness, fog, or smoke, drawing on the memory of watching the sky light up together on New Year\'s Eve.',
+        loreAnchor: 'New Year Midnight Sky',
+        icon: '✨',
+      },
+    ],
   },
 
   // ==========================================
@@ -239,6 +309,20 @@ export const allCharacters: Character[] = [
       description: 'Executes fluid martial blade slashes accompanied by swirling azure water streams.',
       effectType: 'water_slash',
     },
+    passives: [
+      {
+        name: 'Coastal Serenity',
+        description: 'Grants complete immunity to fear and panic effects, forged by tranquil coastal journeys to Nha Trang and quiet moments exploring nature.',
+        loreAnchor: 'Nha Trang Bay Expeditions',
+        icon: '🌊',
+      },
+      {
+        name: 'Banquet’s Blessing',
+        description: 'Consuming any food item or potion grants double healing and extends buff durations, channeling the joy of milestone Japanese feasts.',
+        loreAnchor: 'Traditional Japanese Banquets',
+        icon: '🍱',
+      },
+    ],
   },
   {
     id: 'thanh-phuong-paladin',
@@ -277,6 +361,20 @@ export const allCharacters: Character[] = [
       description: 'Raises her towering crest shield, projecting a shimmering barrier of radiant azure protection.',
       effectType: 'aegis_shield',
     },
+    passives: [
+      {
+        name: 'Ocean’s Resolve',
+        description: 'Increases base armor and defensive stance whenever fighting adjacent to water or in heavy rain, drawing strength from the tides of Nha Trang Bay.',
+        loreAnchor: 'Nha Trang Seaside Tides',
+        icon: '🛡️',
+      },
+      {
+        name: 'Honored Guest',
+        description: 'Passively increases persuasion and reputation gains when negotiating with merchants or faction leaders, reflecting an honorable and composed demeanor.',
+        loreAnchor: 'Formal Milestone Banquets',
+        icon: '🤝',
+      },
+    ],
   },
   {
     id: 'xuan-minh-rogue',
@@ -315,6 +413,20 @@ export const allCharacters: Character[] = [
       description: 'Flips a gleaming gold doubloon coin followed by lightning-fast dueling rapier flourishes.',
       effectType: 'swashbuckle_coin',
     },
+    passives: [
+      {
+        name: 'Imperial Scout',
+        description: 'Passively detects the exact number of enemies in enclosed spaces or behind walls, honed from navigating ancient Hue architecture and natural reserves.',
+        loreAnchor: 'Imperial Citadel & Nature Reserves',
+        icon: '🧭',
+      },
+      {
+        name: 'Tidal Footwork',
+        description: 'Grants a passive chance to seamlessly dodge opportunity attacks when weaving through enemy lines, embodying the fluid rhythm of the sea.',
+        loreAnchor: 'Nha Trang Ocean Waves',
+        icon: '🌊',
+      },
+    ],
   },
   {
     id: 'anh-thu-cleric',
@@ -353,6 +465,20 @@ export const allCharacters: Character[] = [
       description: 'Rings her sacred sea bell, calling forth swirling seafoam water rings and coastal mist.',
       effectType: 'tidal_wave',
     },
+    passives: [
+      {
+        name: 'Soothing Tides',
+        description: 'Negative status effects like poisons or curses wash away twice as fast, drawing on the restorative, cleansing energy of coastal getaways.',
+        loreAnchor: 'Coastal Waves & Sea Breeze',
+        icon: '💧',
+      },
+      {
+        name: 'Mariner’s Luck',
+        description: 'Increases the party\'s chance of finding rare loot or crafting materials when exploring shores, islands, or sunken ruins.',
+        loreAnchor: 'High Seas Maritime Expeditions',
+        icon: '🐚',
+      },
+    ],
   },
 ];
 

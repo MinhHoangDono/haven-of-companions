@@ -4,6 +4,56 @@ export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 export type EquipSlot = 'mainWeapon' | 'offhand' | 'headgear' | 'cape' | 'outfit';
 
+export type WieldType =
+  | 'one_handed'   // 1H: Daggers, 1H Swords, Rapiers, Wands, Scepters
+  | 'two_handed'   // 2H: Greatswords, Scythes, Archmage Staves, Longbows, Polearms
+  | 'dual_wield'   // Dual: Paired daggers or twin blades
+  | 'offhand_only'; // Offhand: Tower shields, round shields, spellbooks, quivers
+export type WeaponArchetype =
+  | 'greatsword'
+  | 'katana'
+  | 'scythe'
+  | 'dual_daggers'
+  | 'archmage_staff'
+  | 'elemental_bow'
+  | 'polearm'
+  | 'rapier'
+  | 'wand'
+  | 'mace_scepter'
+  | 'shield';
+
+export type ArmorArchetype =
+  | 'heavy_plate'
+  | 'martial_gi'
+  | 'archmage_robe'
+  | 'scout_leathers'
+  | 'swashbuckler_tunic'
+  | 'tide_vestments'
+  | 'civilian_linen';
+
+export type ElementType =
+  | 'dragon_fire'
+  | 'glacial_frost'
+  | 'chain_lightning'
+  | 'abyssal_void'
+  | 'verdant_nature'
+  | 'sacred_light'
+  | 'tidal_tempest'
+  | 'celestial_starlight';
+
+export interface WeaponVFXConfig {
+  primaryColor?: number;
+  emissiveColor?: number;
+  emissiveIntensity?: number;
+  particleType?: 'sparks' | 'flames' | 'frost_crystals' | 'void_smoke' | 'leaves' | 'water_ripples';
+}
+
+export interface GripTransformConfig {
+  socket: 'handslot.r' | 'handslot.l' | 'chest' | 'head';
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: [number, number, number];
+}
 export interface ItemStats {
   attack?: number;
   defense?: number;
@@ -26,6 +76,11 @@ export interface InventoryItem {
   equippable: boolean;
   equipSlot?: EquipSlot;
   modelAsset?: string; // gltf model name or 'proc:wizard_hat', etc.
+  weaponType?: WeaponArchetype;
+  armorType?: ArmorArchetype;
+  wieldType?: WieldType;
+  element?: ElementType;
+  vfx?: WeaponVFXConfig;
   usable: boolean;
   useEffect?: ConsumableEffect;
   effectDuration?: number; // duration in ms

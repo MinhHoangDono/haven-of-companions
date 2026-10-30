@@ -43,6 +43,14 @@ export class EquipmentGenerator {
         return this.createDragonflameBlade();
       case 'proc:ocean_trident':
         return this.createOceanTrident();
+      case 'proc:glacial_katana':
+        return this.createGlacialKatana();
+      case 'proc:abyssal_scythe':
+        return this.createAbyssalScythe();
+      case 'proc:celestial_staff':
+        return this.createCelestialStaff();
+      case 'proc:dawn_scepter':
+        return this.createDawnScepter();
       case 'proc:wizard_hat':
         return this.createWizardHat(0x4c2882, 0xd4af37);
       case 'proc:knight_helm':
@@ -388,6 +396,192 @@ export class EquipmentGenerator {
     const clasp = new THREE.Mesh(claspGeo, claspMat);
     clasp.position.set(0, 0.12, -0.08);
     group.add(clasp);
+
+    group.scale.set(0.9, 0.9, 0.9);
+    return group;
+  }
+
+  /**
+   * Glacial Tide Katana: Curved blade with wave hamon and frosty cyan glow
+   */
+  private static createGlacialKatana(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Tsuka (Handle)
+    const handleGeo = new THREE.CylinderGeometry(0.024, 0.026, 0.28, 8);
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 });
+    const handle = new THREE.Mesh(handleGeo, handleMat);
+    handle.position.y = -0.14;
+    group.add(handle);
+
+    // Kashira (Pommel)
+    const pommelGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.03, 8);
+    const pommel = new THREE.Mesh(pommelGeo, this.goldMat);
+    pommel.position.y = -0.28;
+    group.add(pommel);
+
+    // Tsuba (Circular wave guard)
+    const tsubaGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.02, 16);
+    const tsuba = new THREE.Mesh(tsubaGeo, this.goldMat);
+    tsuba.position.y = 0;
+    group.add(tsuba);
+
+    // Blade (Curved slender blade with icy cyan glow)
+    const bladeGeo = new THREE.BoxGeometry(0.045, 0.85, 0.018);
+    const bladeMat = new THREE.MeshStandardMaterial({
+      color: 0xbae6fd,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.5,
+      metalness: 0.9,
+      roughness: 0.15,
+    });
+    const blade = new THREE.Mesh(bladeGeo, bladeMat);
+    blade.position.set(0.015, 0.44, 0);
+    blade.rotation.z = -0.04; // subtle authentic katana curve
+    group.add(blade);
+
+    // Tip
+    const tipGeo = new THREE.ConeGeometry(0.032, 0.14, 4);
+    const tip = new THREE.Mesh(tipGeo, bladeMat);
+    tip.position.set(0.032, 0.91, 0);
+    tip.rotation.z = -0.15;
+    group.add(tip);
+
+    group.scale.set(0.9, 0.9, 0.9);
+    return group;
+  }
+
+  /**
+   * Abyssal Void Scythe: Curved dark crescent blade with neon violet core
+   */
+  private static createAbyssalScythe(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Long staff shaft
+    const shaftGeo = new THREE.CylinderGeometry(0.028, 0.03, 1.4, 8);
+    const shaftMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
+    const shaft = new THREE.Mesh(shaftGeo, shaftMat);
+    shaft.position.y = 0.2;
+    group.add(shaft);
+
+    // Collar fitting
+    const collarGeo = new THREE.CylinderGeometry(0.048, 0.048, 0.08, 8);
+    const collar = new THREE.Mesh(collarGeo, this.goldMat);
+    collar.position.y = 0.88;
+    group.add(collar);
+
+    // Crescent Scythe Blade
+    const bladeGeo = new THREE.TorusGeometry(0.38, 0.038, 8, 24, Math.PI * 0.7);
+    const scytheMat = new THREE.MeshStandardMaterial({
+      color: 0x1e1b4b,
+      emissive: 0xa855f7,
+      emissiveIntensity: 0.7,
+      metalness: 0.8,
+      roughness: 0.25,
+    });
+    const blade = new THREE.Mesh(bladeGeo, scytheMat);
+    blade.position.set(0.24, 0.85, 0);
+    blade.rotation.z = Math.PI * 0.45;
+    group.add(blade);
+
+    // Blade Tip
+    const tipGeo = new THREE.ConeGeometry(0.04, 0.18, 4);
+    const tip = new THREE.Mesh(tipGeo, scytheMat);
+    tip.position.set(0.48, 0.65, 0);
+    tip.rotation.z = Math.PI * 0.85;
+    group.add(tip);
+
+    group.scale.set(0.85, 0.85, 0.85);
+    return group;
+  }
+
+  /**
+   * Celestial Archmage Staff: Astrolabe brass rings with glowing starlight core
+   */
+  private static createCelestialStaff(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Wood & Gold Staff Shaft
+    const shaftGeo = new THREE.CylinderGeometry(0.026, 0.03, 1.35, 8);
+    const shaftMat = new THREE.MeshStandardMaterial({ color: 0x3d2010, roughness: 0.8 });
+    const shaft = new THREE.Mesh(shaftGeo, shaftMat);
+    shaft.position.y = 0.2;
+    group.add(shaft);
+
+    // Brass Mount
+    const mountGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.1, 8);
+    const mount = new THREE.Mesh(mountGeo, this.goldMat);
+    mount.position.y = 0.88;
+    group.add(mount);
+
+    // Armillary Outer Ring
+    const outerRingGeo = new THREE.TorusGeometry(0.18, 0.016, 8, 24);
+    const outerRing = new THREE.Mesh(outerRingGeo, this.goldMat);
+    outerRing.position.y = 1.05;
+    group.add(outerRing);
+
+    // Armillary Inner Ring (tilted)
+    const innerRingGeo = new THREE.TorusGeometry(0.13, 0.014, 8, 24);
+    const innerRing = new THREE.Mesh(innerRingGeo, this.goldMat);
+    innerRing.position.y = 1.05;
+    innerRing.rotation.x = Math.PI / 3;
+    group.add(innerRing);
+
+    // Central Starlight Crystal Core
+    const crystalGeo = new THREE.OctahedronGeometry(0.075);
+    const crystalMat = new THREE.MeshStandardMaterial({
+      color: 0xfef08a,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.9,
+      roughness: 0.1,
+    });
+    const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+    crystal.position.y = 1.05;
+    group.add(crystal);
+
+    group.scale.set(0.9, 0.9, 0.9);
+    return group;
+  }
+
+  /**
+   * Dawn Scepter: Sacred golden sunburst scepter
+   */
+  private static createDawnScepter(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Scepter Shaft
+    const shaftGeo = new THREE.CylinderGeometry(0.028, 0.03, 0.95, 8);
+    const shaft = new THREE.Mesh(shaftGeo, this.goldMat);
+    shaft.position.y = 0.1;
+    group.add(shaft);
+
+    // Sunburst Head
+    const sunGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.04, 16);
+    const sun = new THREE.Mesh(sunGeo, this.goldMat);
+    sun.position.y = 0.62;
+    group.add(sun);
+
+    // 8 Sun Rays
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4;
+      const rayGeo = new THREE.ConeGeometry(0.025, 0.14, 4);
+      const ray = new THREE.Mesh(rayGeo, this.goldMat);
+      ray.position.set(Math.cos(angle) * 0.18, 0.62 + Math.sin(angle) * 0.18, 0);
+      ray.rotation.z = angle - Math.PI / 2;
+      group.add(ray);
+    }
+
+    // Central Pearl
+    const pearlGeo = new THREE.SphereGeometry(0.065, 16, 16);
+    const pearlMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xfef08a,
+      emissiveIntensity: 0.8,
+      roughness: 0.2,
+    });
+    const pearl = new THREE.Mesh(pearlGeo, pearlMat);
+    pearl.position.y = 0.62;
+    group.add(pearl);
 
     group.scale.set(0.9, 0.9, 0.9);
     return group;

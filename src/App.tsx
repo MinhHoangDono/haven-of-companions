@@ -373,6 +373,7 @@ export const App: React.FC = () => {
           character={selectedCharacter}
           onClose={() => setIsModalOpen(false)}
           onTriggerAbility={handleTriggerAbility}
+          onSelectCharacter={handleSelectCharacter}
         />
       )}
 

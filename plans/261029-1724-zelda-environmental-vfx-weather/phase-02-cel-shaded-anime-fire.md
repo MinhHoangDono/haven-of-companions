@@ -1,6 +1,6 @@
 ---
 title: "Phase 2: Cel-Shaded Anime Fire & Hearth System"
-status: todo
+status: done
 priority: P1
 effort: 2.0h
 ---
@@ -17,12 +17,12 @@ Based on open-source references: [kekkorider/threejs-flame-shader](https://githu
 
 ## Requirements
 
-- [ ] Create `CartoonFireMesh` extending `THREE.Group` that encapsulates the 3D flame body and ember sparks.
-- [ ] Procedural Simplex noise scrolling upward in GLSL with no external texture dependencies.
-- [ ] Discrete anime cel bands: core white (`#fff`), golden yellow (`#ffcc11`), flame orange (`#ff5500`), and edge discard.
-- [ ] Swirling upward ember sparks using `THREE.Points` with additive blending and height-based reset wrapping.
-- [ ] Mount the fire mesh inside the campfire hearth stone ring at Tier 3 Highlands ($(-5.5, 2.4, -6.5)$).
-- [ ] Expose an `update(time, dt)` loop method to advance noise and ember physics.
+- [x] Create `CartoonFireMesh` extending `THREE.Group` that encapsulates the 3D flame body and ember sparks.
+- [x] Procedural Simplex noise scrolling upward in GLSL with no external texture dependencies.
+- [x] Discrete anime cel bands: core white (`#fff`), golden yellow (`#ffcc11`), flame orange (`#ff5500`), and edge discard.
+- [x] Swirling upward ember sparks using `THREE.Points` with additive blending and height-based reset wrapping.
+- [x] Mount the fire mesh inside the campfire hearth stone ring at Tier 3 Highlands ($(-15.5, 3.5, -14.5)$).
+- [x] Expose an `update(time, dt)` loop method to advance noise and ember physics.
 
 ---
 
@@ -69,18 +69,18 @@ if (flame < 0.30) discard;
 
 ## Todo List
 
-- [ ] Create `src/engine/three/effects/CartoonFireMesh.ts`
-- [ ] Add Simplex noise GLSL functions to fragment shader
-- [ ] Implement ember particle point buffer with upward turbulence
-- [ ] Mount fire mesh inside campfire in `DioramaBuilder.ts`
-- [ ] Wire `update()` call into `ThreeIsometricCanvas.tsx`
-- [ ] Verify flame renders crisply across camera rotations
+- [x] Create `src/engine/three/effects/CartoonFireMesh.ts`
+- [x] Add Simplex noise GLSL functions to fragment shader
+- [x] Implement ember particle point buffer with upward turbulence
+- [x] Mount fire mesh inside campfire in `DioramaBuilder.ts`
+- [x] Wire `update()` call into `ThreeIsometricCanvas.tsx`
+- [x] Verify flame renders crisply across camera rotations
 
 ---
 
 ## Success Criteria
 
-- [ ] Campfire displays dynamic 3D cartoon flame with distinct white, yellow, and orange cel layers.
-- [ ] Ember sparks drift upward from logs and reset cleanly without memory leaks.
-- [ ] Point light flicker complements the flame shader motion.
-- [ ] Zero noticeable FPS impact on mobile Safari / Chrome.
+- [x] Campfire displays dynamic 3D cartoon flame with distinct white, yellow, and orange cel layers.
+- [x] Ember sparks drift upward from logs and reset cleanly without memory leaks.
+- [x] Point light flicker complements the flame shader motion.
+- [x] Zero noticeable FPS impact on mobile Safari / Chrome.

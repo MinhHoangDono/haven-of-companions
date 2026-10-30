@@ -12,6 +12,12 @@ export interface CharacterSignatureAbility {
   effectType: 'nature_bloom' | 'aegis_shield' | 'firework_burst' | 'water_slash' | 'eagle_scout' | 'lute_hymn' | 'dawn_light' | 'swashbuckle_coin' | 'tidal_wave';
 }
 
+export interface CharacterPassive {
+  name: string;
+  description: string;
+  loreAnchor?: string;
+  icon?: string;
+}
 export interface Character {
   id: string;
   name: string;
@@ -35,6 +41,6 @@ export interface Character {
   stats: CharacterStat[];
   dialogue: string[];
   signatureAbility: CharacterSignatureAbility;
-  // Animation state (ephemeral)
+  passives?: CharacterPassive[];
   hopProgress?: number; // 0 to 1 for interactive tap bounce
 }

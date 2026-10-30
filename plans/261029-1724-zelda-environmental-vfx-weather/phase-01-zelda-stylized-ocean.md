@@ -1,6 +1,6 @@
 ---
 title: "Phase 1: Zelda Stylized Ocean & Coupled Ship Buoyancy"
-status: todo
+status: done
 priority: P1
 effort: 2.5h
 ---
@@ -17,12 +17,12 @@ Based on open-source references: [thaslle/stylized-water](https://github.com/tha
 
 ## Requirements
 
-- [ ] Eliminate CPU vertex loop and `computeVertexNormals()` call in `ThreeIsometricCanvas.tsx`.
-- [ ] Implement `StylizedOceanMaterial` with uniforms for time, shallow color (`#2dd4bf`), deep navy (`#0f4c81`), foam color (`#ffffff`), and sun direction.
-- [ ] Implement procedural Voronoi foam on wave crests without requiring external texture image files.
-- [ ] Provide faceted low-poly facet normals using GLSL `dFdx(vWorldPosition)` and `dFdy(vWorldPosition)`.
-- [ ] Implement `buoyancy.ts` evaluating wave height $y$, roll angle, and pitch angle analytically at any $(x, z)$ coordinate.
-- [ ] Synchronize the large galleon ship and rowboat groups in `ThreeIsometricCanvas.tsx` using `getWaveElevation()`.
+- [x] Eliminate CPU vertex loop and `computeVertexNormals()` call in `ThreeIsometricCanvas.tsx`.
+- [x] Implement `StylizedOceanMaterial` with uniforms for time, shallow color (`#2dd4bf`), deep navy (`#0f4c81`), foam color (`#ffffff`), and sun direction.
+- [x] Implement procedural Voronoi foam on wave crests without requiring external texture image files.
+- [x] Provide faceted low-poly facet normals using GLSL `dFdx(vWorldPosition)` and `dFdy(vWorldPosition)`.
+- [x] Implement `buoyancy.ts` evaluating wave height $y$, roll angle, and pitch angle analytically at any $(x, z)$ coordinate.
+- [x] Synchronize the large galleon ship and rowboat groups in `ThreeIsometricCanvas.tsx` using `getWaveElevation()`.
 
 ---
 
@@ -76,19 +76,19 @@ vec3 N = normalize(cross(fdx, fdy));
 
 ## Todo List
 
-- [ ] Create `src/engine/three/materials/StylizedOceanMaterial.ts`
-- [ ] Create `src/engine/three/buoyancy.ts`
-- [ ] Connect `StylizedOceanMaterial` in `DioramaBuilder.ts`
-- [ ] Refactor animation loop in `ThreeIsometricCanvas.tsx`
-- [ ] Validate galleon and rowboat roll/pitch against wave surface
+- [x] Create `src/engine/three/materials/StylizedOceanMaterial.ts`
+- [x] Create `src/engine/three/buoyancy.ts`
+- [x] Connect `StylizedOceanMaterial` in `DioramaBuilder.ts`
+- [x] Refactor animation loop in `ThreeIsometricCanvas.tsx`
+- [x] Validate galleon and rowboat roll/pitch against wave surface
 - [ ] Verify 60 FPS performance on mobile Safari / Chrome
 
 ---
 
 ## Success Criteria
 
-- [ ] CPU memory allocation and buffer transfer overhead is reduced to zero per frame.
-- [ ] Water surface exhibits distinct Zelda cel-shaded cartoon foam on wave peaks.
-- [ ] Flat facets reflect sunlight sharply with zero smooth-shading blur.
-- [ ] Galleon ship tilts with wave slopes rather than sliding through static water.
+- [x] CPU memory allocation and buffer transfer overhead is reduced to zero per frame.
+- [x] Water surface exhibits distinct Zelda cel-shaded cartoon foam on wave peaks.
+- [x] Flat facets reflect sunlight sharply with zero smooth-shading blur.
+- [x] Galleon ship tilts with wave slopes rather than sliding through static water.
 - [ ] `npm run build` passes with zero errors.

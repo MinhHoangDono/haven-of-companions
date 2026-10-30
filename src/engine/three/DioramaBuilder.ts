@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { PropPlacementManager } from './PropPlacementManager';
 import { VoxelTerrainBuilder } from './VoxelTerrainBuilder';
+import { FoliageWindHook } from './materials/FoliageWindHook';
+import { CartoonFireMesh } from './effects/CartoonFireMesh';
+import { StylizedOceanMaterial } from './materials/StylizedOceanMaterial';
 
 export interface InteractivePropRef {
   id: string;
@@ -16,6 +19,7 @@ export interface DioramaElements {
   largeShipGroup: THREE.Group;
   lighthouseGroup: THREE.Group;
   lighthouseBeaconLight: THREE.PointLight;
+  fireMesh: CartoonFireMesh;
 }
 
 export class DioramaBuilder {
@@ -71,6 +75,15 @@ export class DioramaBuilder {
       flatShading: true,
     });
 
+    // Highland foliage material — wind-swayed canopy green for pines & vegetation
+    const matHighlandGrass = new THREE.MeshStandardMaterial({
+      color: 0x2d7a2d,
+      roughness: 0.85,
+      metalness: 0.05,
+      flatShading: true,
+    });
+    FoliageWindHook.apply(matHighlandGrass, { rootY: 0, strength: 0.15 });
+
     // ==========================================
     // 1. Build Smooth Minecraft Voxel Terrain (Instanced Blocks)
     // ==========================================
@@ -107,6 +120,11 @@ export class DioramaBuilder {
     campfire.position.set(-15.5, 3.5, -14.5);
     campfire.userData = { interactiveId: 'stew_pot', interactiveType: 'stew_pot' };
     dioramaGroup.add(campfire);
+
+    // Cel-shaded anime fire flame + ember sparks above the hearth logs
+    const fireMesh = new CartoonFireMesh();
+    fireMesh.position.y = 0.15;
+    campfire.add(fireMesh);
     interactiveProps.push({
       id: 'stew_pot',
       type: 'stew_pot',
@@ -151,6 +169,21 @@ export class DioramaBuilder {
     });
 
     // ==========================================
+    // 3b. Procedural Highland Pine Canopies (wind-swayed foliage)
+    // ==========================================
+    const pineCanopyGeo = new THREE.ConeGeometry(1.6, 3.5, 6);
+    const pinePositions: [number, number, number][] = [
+      [-18, 4.8, -18], [-22, 5.2, -16], [-14, 4.2, -20],
+      [-20, 5.0, -22], [-24, 4.6, -14], [-16, 4.4, -24],
+    ];
+    for (const [px, py, pz] of pinePositions) {
+      const canopy = new THREE.Mesh(pineCanopyGeo, matHighlandGrass);
+      canopy.position.set(px, py, pz);
+      canopy.castShadow = true;
+      dioramaGroup.add(canopy);
+    }
+
+    // ==========================================
     // 4. Dynamic Ocean Bay & Vessels
     // ==========================================
     const boatGroup = new THREE.Group();
@@ -170,7 +203,8 @@ export class DioramaBuilder {
 
     // Ocean Water Plane (Floats at Y = 0.05, covering water blocks)
     const waterGeo = new THREE.PlaneGeometry(72.0, 40.0, 72, 40);
-    const waterMesh = new THREE.Mesh(waterGeo, matWater);
+    const oceanMat = new StylizedOceanMaterial();
+    const waterMesh = new THREE.Mesh(waterGeo, oceanMat);
     waterMesh.rotation.x = -Math.PI / 2;
     waterMesh.position.set(0, 0.05, 16.0);
     waterMesh.receiveShadow = true;
@@ -190,6 +224,7 @@ export class DioramaBuilder {
       largeShipGroup,
       lighthouseGroup,
       lighthouseBeaconLight,
+      fireMesh,
     };
   }
 

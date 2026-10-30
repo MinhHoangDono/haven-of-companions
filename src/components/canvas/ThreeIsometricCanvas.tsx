@@ -17,6 +17,9 @@ import { inventoryManager } from '../../engine/inventory/InventoryManager';
 import { CityBuilderController } from '../../engine/three/builder/CityBuilderController';
 import { CitySaveManager } from '../../engine/three/builder/CitySaveManager';
 import { BuilderTool, PlacedStructure } from '../../types/cityBuilder';
+import { FoliageWindHook } from '../../engine/three/materials/FoliageWindHook';
+import { StylizedOceanMaterial } from '../../engine/three/materials/StylizedOceanMaterial';
+import { getWaveElevation } from '../../engine/three/buoyancy';
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -177,6 +180,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       boatGroup,
       largeShipGroup,
       lighthouseBeaconLight,
+      fireMesh,
     } = DioramaBuilder.buildDiorama(scene);
 
     interactivePropsRef.current = interactiveProps;
@@ -466,30 +470,37 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
       // Update lighting flicker
       lighting.update(currentTime);
-      // Animate dynamic 3D ocean wave swell (smooth low-poly water with normals)
+      // Update wind sway on foliage materials
+      FoliageWindHook.update(currentTime * 0.001);
+      // Update cartoon fire shader and ember particles
+      fireMesh.update(currentTime, minInterval / 1000);
+      // GPU ocean shader time update (replaces CPU vertex loop)
+      const tSec = currentTime * 0.001;
       if (waterMeshRef.current) {
-        const posAttr = waterMeshRef.current.geometry.attributes.position;
-        const tSec = currentTime * 0.0015;
-        for (let i = 0; i < posAttr.count; i++) {
-          const vx = posAttr.getX(i);
-          const vy = posAttr.getY(i);
-          const waveZ = Math.sin(vx * 0.7 + tSec * 2.0) * 0.09 + Math.cos(vy * 0.9 + tSec * 1.5) * 0.07;
-          posAttr.setZ(i, waveZ);
-        }
-        posAttr.needsUpdate = true;
-        waterMeshRef.current.geometry.computeVertexNormals();
-      }
-      // Animate Large Galleon ship oceanic roll
-      if (largeShipRef.current) {
-        largeShipRef.current.position.y = -0.15 + Math.sin(currentTime * 0.0014) * 0.06;
-        largeShipRef.current.rotation.z = -0.15 + Math.sin(currentTime * 0.0011) * 0.04;
-        largeShipRef.current.rotation.x = Math.cos(currentTime * 0.0013) * 0.025;
+        const oceanMat = waterMeshRef.current.material as StylizedOceanMaterial;
+        oceanMat.update(tSec);
       }
 
-      // Animate small rowboat bobbing
+      // Wave-coupled ship buoyancy via analytical Gerstner evaluation
+      if (largeShipRef.current) {
+        const { y, pitch, roll } = getWaveElevation(
+          largeShipRef.current.position.x,
+          largeShipRef.current.position.z,
+          tSec,
+        );
+        largeShipRef.current.position.y = y;
+        largeShipRef.current.rotation.x = pitch;
+        largeShipRef.current.rotation.z = roll;
+      }
       if (boatGroupRef.current) {
-        boatGroupRef.current.position.y = -0.15 + Math.sin(currentTime * 0.002) * 0.05;
-        boatGroupRef.current.rotation.z = Math.sin(currentTime * 0.0018) * 0.03;
+        const { y, pitch, roll } = getWaveElevation(
+          boatGroupRef.current.position.x,
+          boatGroupRef.current.position.z,
+          tSec,
+        );
+        boatGroupRef.current.position.y = y;
+        boatGroupRef.current.rotation.x = pitch;
+        boatGroupRef.current.rotation.z = roll;
       }
 
       // Animate Lighthouse rotating beacon beam
@@ -617,6 +628,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       unsubInventory();
       cancelAnimationFrame(rafId);
       dynamicPlatforms.dispose(scene);
+      fireMesh.dispose();
       collectibles.forEach((c) => c.mesh && scene.remove(c.mesh));
       dom.removeEventListener('pointerdown', onDown);
       dom.removeEventListener('pointermove', onMove);

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Character } from '../../types/character';
 import { assetLoader } from './GLTFAssetLoader';
 import { passabilityGrid } from '../map/passabilityMap';
-import { EquipSlot } from '../../types/inventory';
+import { EquipSlot, WieldType } from '../../types/inventory';
 import { EquipmentGenerator } from './equipment/EquipmentGenerator';
 import { inventoryManager } from '../inventory/InventoryManager';
 export interface CharacterMeshHandle {
@@ -160,7 +160,82 @@ export const CHARACTER_CONFIGS: Record<string, CharacterModelConfig> = {
   },
 };
 
-// Cached animation clips shared across all KayKit Rig_Medium avatars
+export interface GripTransform {
+  socket: 'handslot.r' | 'handslot.l' | 'chest' | 'head';
+  wieldType?: WieldType;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: [number, number, number];
+}
+
+export const WEAPON_GRIP_CONFIGS: Record<string, GripTransform> = {
+  // --- 2H TWO-HANDED HEAVY WEAPONS ---
+  'sword_2handed_color.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.02, 0.02], rotation: [0.1, 0, -0.15], scale: [0.9, 0.9, 0.9] },
+  'proc:dragonflame_blade': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.02, 0.02], rotation: [0.1, 0, -0.15], scale: [0.9, 0.9, 0.9] },
+  'proc:abyssal_scythe': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.25, 0], rotation: [-Math.PI / 2, 0.1, -0.12], scale: [0.82, 0.82, 0.82] },
+  'staff.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.22, 0], rotation: [-Math.PI / 2, 0, 0], scale: [0.8, 0.8, 0.8] },
+  'proc:celestial_staff': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.22, 0], rotation: [-Math.PI / 2, 0, 0], scale: [0.8, 0.8, 0.8] },
+  'proc:ocean_trident': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0.24, 0], rotation: [-Math.PI / 2, 0, 0], scale: [0.82, 0.82, 0.82] },
+  'bow_withString.gltf': { socket: 'handslot.r', wieldType: 'two_handed', position: [0, 0, 0], rotation: [0, 0, Math.PI / 2], scale: [0.85, 0.85, 0.85] },
+
+  // --- 1H ONE-HANDED WEAPONS ---
+  'dagger.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, -0.02, 0], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] },
+  'sword_1handed.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0, 0], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] },
+  'proc:glacial_katana': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.02, 0], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] },
+  'wand.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0, 0], rotation: [Math.PI / 6, 0, 0], scale: [0.85, 0.85, 0.85] },
+  'proc:dawn_scepter': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.1, 0], rotation: [-Math.PI / 3, 0, 0], scale: [0.85, 0.85, 0.85] },
+  'spellbook_open.gltf': { socket: 'handslot.r', wieldType: 'one_handed', position: [0, 0.05, 0.05], rotation: [-Math.PI / 2, 0, 0], scale: [0.75, 0.75, 0.75] },
+
+  // --- OFFHAND ONLY ---
+  'shield_square_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0, 0, 0.06], rotation: [0, Math.PI / 2, 0], scale: [0.85, 0.85, 0.85] },
+  'shield_badge_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0, 0, 0.06], rotation: [0, Math.PI / 2, 0], scale: [0.85, 0.85, 0.85] },
+  'shield_round_color.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0, 0, 0.06], rotation: [0, Math.PI / 2, 0], scale: [0.85, 0.85, 0.85] },
+  'quiver.gltf': { socket: 'chest', wieldType: 'offhand_only', position: [0, 0.1, -0.15], rotation: [0, Math.PI, 0.2], scale: [0.85, 0.85, 0.85] },
+  'mug_full.gltf': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0, 0, 0], rotation: [-Math.PI / 2, 0, 0], scale: [0.8, 0.8, 0.8] },
+
+  // --- HEADGEAR ---
+  'proc:wizard_hat': { socket: 'head', position: [0, 0.05, -0.02], rotation: [0, 0, 0], scale: [0.72, 0.72, 0.72] },
+  'proc:knight_helm': { socket: 'head', position: [0, 0.04, 0.01], rotation: [0, 0, 0], scale: [0.8, 0.8, 0.8] },
+  'proc:feather_cap': { socket: 'head', position: [0, 0.05, -0.02], rotation: [-0.05, 0, 0], scale: [0.76, 0.76, 0.76] },
+  'proc:tricorn_hat': { socket: 'head', position: [0, 0.05, -0.01], rotation: [0, 0, 0], scale: [0.76, 0.76, 0.76] },
+  'proc:golden_halo': { socket: 'head', position: [0, 0.22, -0.02], rotation: [0, 0, 0], scale: [0.75, 0.75, 0.75] },
+
+  // --- CAPES ---
+  'proc:highland_cloak': { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] },
+  'proc:royal_mantle': { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] },
+  'proc:ocean_cape': { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] },
+};
+
+function applyGripTransform(mesh: THREE.Object3D, assetId: string, defaultSlot: EquipSlot): GripTransform {
+  const grip = WEAPON_GRIP_CONFIGS[assetId];
+  if (grip) {
+    mesh.position.set(grip.position[0], grip.position[1], grip.position[2]);
+    mesh.rotation.set(grip.rotation[0], grip.rotation[1], grip.rotation[2]);
+    mesh.scale.set(grip.scale[0], grip.scale[1], grip.scale[2]);
+    return grip;
+  }
+  if (defaultSlot === 'mainWeapon') {
+    mesh.position.set(0, 0, 0);
+    mesh.rotation.set(0, 0, 0);
+    mesh.scale.set(0.85, 0.85, 0.85);
+    return { socket: 'handslot.r', position: [0, 0, 0], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] };
+  } else if (defaultSlot === 'offhand') {
+    mesh.position.set(0, 0, 0.05);
+    mesh.rotation.set(0, Math.PI / 2, 0);
+    mesh.scale.set(0.85, 0.85, 0.85);
+    return { socket: 'handslot.l', position: [0, 0, 0.05], rotation: [0, Math.PI / 2, 0], scale: [0.85, 0.85, 0.85] };
+  } else if (defaultSlot === 'headgear') {
+    mesh.position.set(0, 0.05, 0);
+    mesh.rotation.set(0, 0, 0);
+    mesh.scale.set(0.75, 0.75, 0.75);
+    return { socket: 'head', position: [0, 0.05, 0], rotation: [0, 0, 0], scale: [0.75, 0.75, 0.75] };
+  } else {
+    mesh.position.set(0, 0.08, -0.14);
+    mesh.rotation.set(0, Math.PI, 0);
+    mesh.scale.set(0.88, 0.88, 0.88);
+    return { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] };
+  }
+}
 let cachedIdleClip: THREE.AnimationClip | null = null;
 let cachedWalkClip: THREE.AnimationClip | null = null;
 
@@ -272,13 +347,28 @@ export class CharacterMeshBuilder {
     group.add(avatarGroup);
 
     const setupAvatarBody = async (outfitId: string | null) => {
-      const isCivilian = outfitId === 'outfit_white_shirt_pants';
-      const targetModel = isCivilian ? 'Rig_Medium_General.glb' : config.model;
+      let targetModel = config.model;
+      const isCivilian = outfitId === 'outfit_white_shirt_pants' || outfitId === 'model:white_shirt_pants';
+      const isKenseiGi = outfitId === 'outfit_kensei_gi' || outfitId === 'model:kensei_gi';
+      const isMageRobe = outfitId === 'outfit_mage_robe' || outfitId === 'model:mage_robe';
+      const isScoutLeathers = outfitId === 'outfit_highland_tunic' || outfitId === 'model:scout_leathers';
+      const isCorsair = outfitId === 'outfit_ocean_corsair' || outfitId === 'model:swashbuckler_tunic';
+      const isTideSilks = outfitId === 'outfit_tide_silks' || outfitId === 'model:tide_vestments';
+
+      if (isCivilian || isKenseiGi) targetModel = 'Rig_Medium_General.glb';
+      else if (isMageRobe || isTideSilks) targetModel = 'Mage.glb';
+      else if (isScoutLeathers) targetModel = 'Ranger.glb';
+      else if (isCorsair) targetModel = 'Rogue.glb';
+      else targetModel = config.model;
 
       if (currentAvatarScene) {
         avatarGroup.remove(currentAvatarScene);
         currentAvatarScene = null;
       }
+      currentMainWeaponMesh = null;
+      currentOffhandMesh = null;
+      currentHeadgearMesh = null;
+      currentCapeMesh = null;
 
       const [{ scene: avatarScene }, anims] = await Promise.all([
         assetLoader.loadModel(`assets/models/characters/${targetModel}`, true),
@@ -295,7 +385,6 @@ export class CharacterMeshBuilder {
       leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
       chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
 
-      // Style civilian white shirt & dark pants if base outfit
       if (isCivilian) {
         const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
         const darkPantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
@@ -303,12 +392,23 @@ export class CharacterMeshBuilder {
 
         const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
         if (bodyMesh) bodyMesh.material = whiteShirtMat;
-
         const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
         const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
         if (leftLeg) leftLeg.material = darkPantsMat;
         if (rightLeg) rightLeg.material = darkPantsMat;
+        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
+        if (headMesh) headMesh.material = skinMat;
+      } else if (isKenseiGi) {
+        const navyMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.85 });
+        const darkHakamaMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
 
+        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
+        if (bodyMesh) bodyMesh.material = navyMat;
+        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
+        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
+        if (leftLeg) leftLeg.material = darkHakamaMat;
+        if (rightLeg) rightLeg.material = darkHakamaMat;
         const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
         if (headMesh) headMesh.material = skinMat;
       }
@@ -336,21 +436,24 @@ export class CharacterMeshBuilder {
           }
           if (modelAsset && rightHand) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.scale.set(0.9, 0.9, 0.9);
-            mesh.rotation.x = Math.PI / 2;
+            applyGripTransform(mesh, modelAsset, 'mainWeapon');
             rightHand.add(mesh);
             currentMainWeaponMesh = mesh;
           }
         } else if (slot === 'offhand') {
-          if (currentOffhandMesh && leftHand) {
-            leftHand.remove(currentOffhandMesh);
+          if (currentOffhandMesh) {
+            if (leftHand) leftHand.remove(currentOffhandMesh);
+            if (chest) chest.remove(currentOffhandMesh);
             currentOffhandMesh = null;
           }
-          if (modelAsset && leftHand) {
+          if (modelAsset) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.scale.set(0.9, 0.9, 0.9);
-            mesh.rotation.y = Math.PI;
-            leftHand.add(mesh);
+            const grip = applyGripTransform(mesh, modelAsset, 'offhand');
+            if (grip.socket === 'chest' && chest) {
+              chest.add(mesh);
+            } else if (leftHand) {
+              leftHand.add(mesh);
+            }
             currentOffhandMesh = mesh;
           }
         } else if (slot === 'headgear') {
@@ -360,7 +463,7 @@ export class CharacterMeshBuilder {
           }
           if (modelAsset && headBone) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.position.set(0, 0.28, 0);
+            applyGripTransform(mesh, modelAsset, 'headgear');
             headBone.add(mesh);
             currentHeadgearMesh = mesh;
           }
@@ -371,8 +474,7 @@ export class CharacterMeshBuilder {
           }
           if (modelAsset && chest) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.position.set(0, 0.08, -0.16);
-            mesh.rotation.y = Math.PI;
+            applyGripTransform(mesh, modelAsset, 'cape');
             chest.add(mesh);
             currentCapeMesh = mesh;
           }
@@ -393,15 +495,16 @@ export class CharacterMeshBuilder {
       // Hide baked-in class helmets/hats/capes so custom gear doesn't clip
       if (currentAvatarScene) {
         const hasCustomHead = !!equipped.headgear;
+        const isMannequin = currentOutfitId === 'outfit_white_shirt_pants' || currentOutfitId === 'model:white_shirt_pants' || currentOutfitId === 'outfit_kensei_gi' || currentOutfitId === 'model:kensei_gi';
         BUILTIN_HEADGEAR.forEach((meshName) => {
           const m = currentAvatarScene!.getObjectByName(meshName);
-          if (m) m.visible = !hasCustomHead && equipped.outfit !== 'outfit_white_shirt_pants';
+          if (m) m.visible = !hasCustomHead && !isMannequin;
         });
 
         const hasCustomCape = !!equipped.cape;
         BUILTIN_CAPE.forEach((meshName) => {
           const m = currentAvatarScene!.getObjectByName(meshName);
-          if (m) m.visible = !hasCustomCape && equipped.outfit !== 'outfit_white_shirt_pants';
+          if (m) m.visible = !hasCustomCape && !isMannequin;
         });
       }
 
@@ -410,11 +513,12 @@ export class CharacterMeshBuilder {
       const mainAsset = mainItem?.modelAsset || config.mainWeapon || null;
       await equipSlotFn('mainWeapon', mainAsset);
 
+      // 2H weapons: if two-handed, suppress hand-held shields to avoid clipping
+      const is2H = mainItem?.wieldType === 'two_handed' || mainItem?.weaponType === 'greatsword' || mainItem?.weaponType === 'scythe' || mainItem?.weaponType === 'archmage_staff' || mainItem?.weaponType === 'elemental_bow';
       const offItemId = equipped.offhand;
       const offItem = offItemId ? inventoryManager.getItem(offItemId) : null;
-      const offAsset = offItem?.modelAsset || config.offhandWeapon || null;
+      const offAsset = (!is2H || offItem?.modelAsset === 'quiver.gltf') ? (offItem?.modelAsset || config.offhandWeapon || null) : null;
       await equipSlotFn('offhand', offAsset);
-
       const headItemId = equipped.headgear;
       const headItem = headItemId ? inventoryManager.getItem(headItemId) : null;
       const headAsset = headItem?.modelAsset || null;
@@ -699,13 +803,28 @@ export class CharacterMeshBuilder {
     let currentOutfitId: string | null = null;
 
     const setupAvatarBody = async (outfitId: string | null) => {
-      const isCivilian = outfitId === 'outfit_white_shirt_pants';
-      const targetModel = isCivilian ? 'Rig_Medium_General.glb' : config.model;
+      let targetModel = config.model;
+      const isCivilian = outfitId === 'outfit_white_shirt_pants' || outfitId === 'model:white_shirt_pants';
+      const isKenseiGi = outfitId === 'outfit_kensei_gi' || outfitId === 'model:kensei_gi';
+      const isMageRobe = outfitId === 'outfit_mage_robe' || outfitId === 'model:mage_robe';
+      const isScoutLeathers = outfitId === 'outfit_highland_tunic' || outfitId === 'model:scout_leathers';
+      const isCorsair = outfitId === 'outfit_ocean_corsair' || outfitId === 'model:swashbuckler_tunic';
+      const isTideSilks = outfitId === 'outfit_tide_silks' || outfitId === 'model:tide_vestments';
+
+      if (isCivilian || isKenseiGi) targetModel = 'Rig_Medium_General.glb';
+      else if (isMageRobe || isTideSilks) targetModel = 'Mage.glb';
+      else if (isScoutLeathers) targetModel = 'Ranger.glb';
+      else if (isCorsair) targetModel = 'Rogue.glb';
+      else targetModel = config.model;
 
       if (currentAvatarScene) {
         group.remove(currentAvatarScene);
         currentAvatarScene = null;
       }
+      currentMainMesh = null;
+      currentOffMesh = null;
+      currentHeadMesh = null;
+      currentCapeMesh = null;
 
       const [{ scene: avatarScene }, anims] = await Promise.all([
         assetLoader.loadModel(`assets/models/characters/${targetModel}`, true),
@@ -728,12 +847,23 @@ export class CharacterMeshBuilder {
 
         const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
         if (bodyMesh) bodyMesh.material = whiteShirtMat;
-
         const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
         const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
         if (leftLeg) leftLeg.material = darkPantsMat;
         if (rightLeg) rightLeg.material = darkPantsMat;
+        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
+        if (headMesh) headMesh.material = skinMat;
+      } else if (isKenseiGi) {
+        const navyMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.85 });
+        const darkHakamaMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
 
+        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
+        if (bodyMesh) bodyMesh.material = navyMat;
+        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
+        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
+        if (leftLeg) leftLeg.material = darkHakamaMat;
+        if (rightLeg) rightLeg.material = darkHakamaMat;
         const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
         if (headMesh) headMesh.material = skinMat;
       }
@@ -753,19 +883,24 @@ export class CharacterMeshBuilder {
           currentMainMesh = null;
           if (modelAsset && rightHand) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.scale.set(0.9, 0.9, 0.9);
-            mesh.rotation.x = Math.PI / 2;
+            applyGripTransform(mesh, modelAsset, 'mainWeapon');
             rightHand.add(mesh);
             currentMainMesh = mesh;
           }
         } else if (slot === 'offhand') {
-          if (currentOffMesh && leftHand) leftHand.remove(currentOffMesh);
-          currentOffMesh = null;
-          if (modelAsset && leftHand) {
+          if (currentOffMesh) {
+            if (leftHand) leftHand.remove(currentOffMesh);
+            if (chest) chest.remove(currentOffMesh);
+            currentOffMesh = null;
+          }
+          if (modelAsset) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.scale.set(0.9, 0.9, 0.9);
-            mesh.rotation.y = Math.PI;
-            leftHand.add(mesh);
+            const grip = applyGripTransform(mesh, modelAsset, 'offhand');
+            if (grip.socket === 'chest' && chest) {
+              chest.add(mesh);
+            } else if (leftHand) {
+              leftHand.add(mesh);
+            }
             currentOffMesh = mesh;
           }
         } else if (slot === 'headgear') {
@@ -773,7 +908,7 @@ export class CharacterMeshBuilder {
           currentHeadMesh = null;
           if (modelAsset && headBone) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.position.set(0, 0.28, 0);
+            applyGripTransform(mesh, modelAsset, 'headgear');
             headBone.add(mesh);
             currentHeadMesh = mesh;
           }
@@ -782,8 +917,7 @@ export class CharacterMeshBuilder {
           currentCapeMesh = null;
           if (modelAsset && chest) {
             const mesh = await EquipmentGenerator.createEquipmentMesh(modelAsset);
-            mesh.position.set(0, 0.08, -0.16);
-            mesh.rotation.y = Math.PI;
+            applyGripTransform(mesh, modelAsset, 'cape');
             chest.add(mesh);
             currentCapeMesh = mesh;
           }
@@ -803,15 +937,16 @@ export class CharacterMeshBuilder {
 
       if (currentAvatarScene) {
         const hasCustomHead = !!equipped.headgear;
+        const isMannequin = currentOutfitId === 'outfit_white_shirt_pants' || currentOutfitId === 'model:white_shirt_pants' || currentOutfitId === 'outfit_kensei_gi' || currentOutfitId === 'model:kensei_gi';
         BUILTIN_HEADGEAR.forEach((meshName) => {
           const m = currentAvatarScene!.getObjectByName(meshName);
-          if (m) m.visible = !hasCustomHead && equipped.outfit !== 'outfit_white_shirt_pants';
+          if (m) m.visible = !hasCustomHead && !isMannequin;
         });
 
         const hasCustomCape = !!equipped.cape;
         BUILTIN_CAPE.forEach((meshName) => {
           const m = currentAvatarScene!.getObjectByName(meshName);
-          if (m) m.visible = !hasCustomCape && equipped.outfit !== 'outfit_white_shirt_pants';
+          if (m) m.visible = !hasCustomCape && !isMannequin;
         });
       }
 
@@ -820,9 +955,11 @@ export class CharacterMeshBuilder {
       const mainAsset = mainItem?.modelAsset || config.mainWeapon || null;
       await equipSlotFn('mainWeapon', mainAsset);
 
+      // 2H weapons: if two-handed, suppress hand-held shields to avoid clipping
+      const is2H = mainItem?.wieldType === 'two_handed' || mainItem?.weaponType === 'greatsword' || mainItem?.weaponType === 'scythe' || mainItem?.weaponType === 'archmage_staff' || mainItem?.weaponType === 'elemental_bow';
       const offItemId = equipped.offhand;
       const offItem = offItemId ? inventoryManager.getItem(offItemId) : null;
-      const offAsset = offItem?.modelAsset || config.offhandWeapon || null;
+      const offAsset = (!is2H || offItem?.modelAsset === 'quiver.gltf') ? (offItem?.modelAsset || config.offhandWeapon || null) : null;
       await equipSlotFn('offhand', offAsset);
 
       const headItemId = equipped.headgear;

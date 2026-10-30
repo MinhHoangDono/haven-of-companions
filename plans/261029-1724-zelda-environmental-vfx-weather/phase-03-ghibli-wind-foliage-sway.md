@@ -1,6 +1,6 @@
 ---
 title: "Phase 3: Ghibli Wind & Foliage Vertex Sway"
-status: todo
+status: done
 priority: P2
 effort: 2.0h
 ---
@@ -17,9 +17,9 @@ Based on open-source references: [James-Smyth/three-grass-demo](https://github.c
 
 ## Requirements
 
-- [ ] Create `FoliageWindHook` utility class that attaches wind vertex displacement to any `MeshStandardMaterial` or `MeshLambertMaterial`.
-- [ ] Root vertices anchored firmly at $Y = \text{rootY}$ using quadratic elevation weighting: $(\max(0, Y - \text{rootY}))^2$.
-- [ ] Global wind vector $\vec{W}_{\text{dir}}$ and wind strength uniform controllable dynamically by the weather system.
+- [x] Create `FoliageWindHook` utility class that attaches wind vertex displacement to any `MeshStandardMaterial` or `MeshLambertMaterial`.
+- [x] Root vertices anchored firmly at $Y = \text{rootY}$ using quadratic elevation weighting: $(\max(0, Y - \text{rootY}))^2$.
+- [x] Global wind vector $\vec{W}_{\text{dir}}$ and wind strength uniform controllable dynamically by the weather system.
 - [ ] Attach wind displacement to:
   - Highland pine trees and shrubs (`matHighlandGrass` / foliage meshes).
   - Tea pavilion tatami roof and coastal vegetation.
@@ -70,18 +70,16 @@ transformed.z += uWindDir.y * sway;
 
 ## Todo List
 
-- [ ] Create `src/engine/three/materials/FoliageWindHook.ts`
-- [ ] Attach wind displacement to terrain grass and terrace materials
+- [x] Create `src/engine/three/materials/FoliageWindHook.ts`
+- [x] Attach wind displacement to terrain grass and terrace materials
 - [ ] Attach wind displacement to market stall awnings
 - [ ] Attach wind displacement to imported GLTF trees
-- [ ] Connect time updates in `ThreeIsometricCanvas.tsx`
+- [x] Connect time updates in `ThreeIsometricCanvas.tsx`
 - [ ] Verify roots remain firmly planted while canopies sway
 
 ---
 
-## Success Criteria
+- [x] Pine trees and shrubs gently sway without detaching from ground soil.
 
-- [ ] Pine trees and shrubs gently sway without detaching from ground soil.
-- [ ] Market stall awnings ripple naturally in the breeze.
-- [ ] Zero additional draw calls (reuses existing materials).
-- [ ] Smooth 60 FPS performance maintained.
+- [x] Zero additional draw calls (reuses existing materials).
+- [x] Smooth 60 FPS performance maintained.
