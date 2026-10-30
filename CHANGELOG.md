@@ -1,5 +1,25 @@
 # Changelog
 
+## [v8.5.0] - 2026-10-30
+
+### Fixed
+- **3D Weapon & Equipment Socket Rigging Bug (`CharacterMeshBuilder.ts`)**:
+  - **Root Cause**: GLTFLoader on KayKit rigged character meshes sanitizes dots in bone names (`'handslotr'` / `'handr'` instead of `'handslot.r'` / `'hand.r'`). The previous bone search returned `null` for both `rightHand` and `leftHand`, silently blocking weapons and shields from attaching while headgear and capes worked.
+  - **Resolution**: Implemented flexible multi-pattern case-insensitive `findBone()` matching `'handslotr'`, `'handslot.r'`, `'handr'`, `'hand.r'`, `'handslotl'`, `'handslot.l'`, `'handl'`, `'hand.l'`, `'head'`, and `'chest'`. All 1H/2H weapons and offhand shields now attach cleanly and update in real-time.
+- **Interactive Outfit & Armor Real-time Customization (`CharacterMeshBuilder.ts`)**:
+  - Full visual styling for all 8 outfits:
+    - `outfit_white_shirt_pants`: Clean civilian white linen shirt, slate trousers, and skin-toned arms.
+    - `outfit_kensei_gi`: Deep indigo martial arts gi, pleated dark hakama, and wrist wraps.
+    - `outfit_highland_tunic`: Emerald hunter green scout leathers.
+    - `outfit_ocean_corsair`: Pirate crimson and charcoal leather vest.
+    - `outfit_mage_robe`: Midnight starfire violet robe with subtle emissive glow.
+    - `outfit_tide_silks`: Shimmering turquoise aquamarine silks with seafoam emissive accents.
+    - `outfit_horizon_plate`: Azure & gold plate tint + procedural `createHorizonPlate()` chest carapace attached to chest bone.
+    - `outfit_class_armor`: Restores authentic KayKit class armor with default textures.
+- **Layout De-cluttering & Slot Quick-Button Repositioning (`CharacterModal.tsx`)**:
+  - Lowered the 5 quick equipment slot buttons on the 360 preview from `top-16` to `top-24 sm:top-24`, completely removing any overlap or stacking over the hero name, title, and faction badge.
+  - Removed the redundant horizontal slot bar at the top of the inventory column since the 5 buttons on the 360 view already switch the active slot directly, replacing it with a clean active slot header indicator.
+
 ## [v8.4.0] - 2026-10-30
 
 ### Changed & Retained
