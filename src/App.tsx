@@ -60,23 +60,6 @@ export const App: React.FC = () => {
   const handleSelectCharacter = useCallback((char: Character) => {
     audioManager.playTap();
 
-    if (char.id === 'ngoc-ha-monk') {
-      const effectType = char.signatureAbility.effectType;
-      audioManager.playAbility(effectType);
-      castSpellRef.current?.(effectType, char.id);
-      setIsCasting(true);
-      setSelectedCharId(null);
-      setCharacters((prev) =>
-        prev.map((c) => (c.id === char.id ? { ...c, hopProgress: 0.01 } : c))
-      );
-      setCelebrationToast(`✨ ${char.nickname} thi triển [${char.signatureAbility.name}]!`);
-      setTimeout(() => {
-        setCelebrationToast(null);
-        setIsCasting(false);
-      }, 3200);
-      panToCharacter(char);
-      return;
-    }
 
     setSelectedCharId(char.id);
 
