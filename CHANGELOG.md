@@ -1,9 +1,16 @@
 # Changelog
 
+All notable changes to the **Haven of Companions (*Làng Tri Kỷ*)** project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
 ## [v5.2.0] - 2026-10-30
 
 ### Added
-- **Keyboard Navigation (WASD / Arrow Keys) & Jumping Physics (Space)**: Full desktop keyboard control allowing smooth character movement and vertical jumping with step-up elevation climbing ($2.8	ext{m}$ max jump vertical clearance) and smooth camera follow tracking (`controls.followTarget`).
+- **Keyboard Navigation (WASD / Arrow Keys) & Jumping Physics (Space)**: Full desktop keyboard control allowing smooth character movement and vertical jumping with step-up elevation climbing ($2.8\text{m}$ max jump vertical clearance) and smooth camera follow tracking (`controls.followTarget`).
 - **UI Keyboard Hints & Mobile Jump Button**: Desktop/tablet control hint pill and mobile floating jump action button.
 - **Interactive 3D Coordinate & Object Inspector (`InspectorBar.tsx`)**: In-engine debugging HUD with 3D grid, object bounding boxes (`THREE.BoxHelper`), and one-click coordinate call-out copy.
 
@@ -13,14 +20,6 @@
 - **Coastal Shoreline Encampment Relocation**: Precisely clustered Ngọc Hà, Thanh Phương, Xuân Minh, and Anh Thư at dry terrain coordinates near $X: 18.71, Z: 7.69$.
 
 ---
-
-All notable changes to the **Haven of Companions (*Làng Tri Kỷ*)** project are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
 ## [v4.5.0] - 2026-10-30
 
 ### Added
