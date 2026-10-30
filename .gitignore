@@ -8,3 +8,4 @@ dist-ssr
 GenieEngine.Setup.*.exe
 
 KayKit_*
+.mcp.json

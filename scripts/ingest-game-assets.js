@@ -153,7 +153,13 @@ const pirateAssets = [
   'rocks-b.glb',
   'rocks-c.glb',
   'flag-pirate.glb',
+  'flag-pirate-high.glb',
   'flag-high.glb',
+  'ship-pirate-medium.glb',
+  'crate-bottles.glb',
+  'tool-shovel.glb',
+  'bottle-large.glb',
+  'platform-planks.glb',
   // Foliage & Ground patches
   'patch-grass.glb',
   'patch-grass-foliage.glb',

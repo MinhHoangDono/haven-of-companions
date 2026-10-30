@@ -191,32 +191,38 @@ export class VoxelTerrainBuilder {
 
     // 4. Zone 4: Outer Lighthouse Promontory (SE: natural curving sea cape around x = 22, z = 18)
     const distCape = Math.hypot(x - 22, z - 18);
-    if (distCape < 14) {
-      const normCape = distCape / 14;
+    if (distCape < 15) {
+      const normCape = distCape / 15;
       const capeHeight = 1.4 * Math.max(0, 1 - normCape);
       const topY = Math.round(capeHeight);
-      const type: BlockType = distCape > 11 ? 'SAND' : 'GRASS';
+      // Wide sandy beach wrap around the promontory
+      const type: BlockType = distCape > 9.5 ? 'SAND' : 'GRASS';
       return { topY, type };
     }
 
-    // 5. Zone 3: Vast Ocean Bay (South of the curving coastline)
+    // 5. Zone 3: Vast Ocean Bay & Expanded Sandy Beach
+    // A. Dry inland beach dunes extending into the mainland (6m wide dry sand strip at Y = 1)
+    if (z >= coastLineZ - 6.0 && z <= coastLineZ) {
+      return { topY: 1, type: 'SAND' };
+    }
+
+    // B. Shoreline and ocean basin
     if (z > coastLineZ) {
       const distIntoWater = z - coastLineZ;
-      if (distIntoWater < 2.5) {
-        // Sandy beach shoreline
+      if (distIntoWater < 5.0) {
+        // Expansive walkable sandy beach shoreline (5m wide at Y = 0)
         return { topY: 0, type: 'SAND' };
-      } else if (distIntoWater < 5.0) {
-        // Shallow sandy seabed
+      } else if (distIntoWater < 10.0) {
+        // Wide shallow sandy seabed & sandbars (5m wide at Y = -1)
         return { topY: -1, type: 'SAND' };
-      } else if (distIntoWater < 9.0) {
+      } else if (distIntoWater < 15.0) {
         // Deepening continental shelf
         return { topY: -2, type: 'STONE' };
       } else {
-        // Deep ocean trench floor
+        // Deep ocean trench floor for large ships
         return { topY: -3, type: 'STONE' };
       }
     }
-
     // 6. Zone 2: Sunspire Village (Center & NE) - Pure lush green grass blocks!
     // Gentle rolling meadow with subtle natural undulations
     const rollingHills = 0.2 * Math.sin(x * 0.12) * Math.cos(z * 0.12);
