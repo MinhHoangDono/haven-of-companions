@@ -1,6 +1,6 @@
 # Haven of Companions (*Làng Tri Kỷ*) – Project Progress & Technical Documentation
 
-> **Status**: Live in Production (`v4.1`)  
+> **Status**: Live in Production (`v5.2`)  
 > **Production URL**: [https://boisterous-raindrop-4dc674.netlify.app](https://boisterous-raindrop-4dc674.netlify.app)  
 > **Target Platforms**: Mobile Safari (iOS), Android Chrome, Desktop Web  
 
