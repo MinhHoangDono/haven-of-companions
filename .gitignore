@@ -4,7 +4,7 @@ dist-ssr
 *.local
 .env
 .env.*
-.DS_Store
-Thumbs.db
-*.zip
+*.exe
+GenieEngine.Setup.*.exe
+
 KayKit_*

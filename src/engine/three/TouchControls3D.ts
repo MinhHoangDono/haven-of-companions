@@ -73,6 +73,15 @@ export class TouchControls3D {
     this.callbacks.onCameraChange?.();
   }
 
+  public followTarget(targetX: number, targetZ: number, lerpFactor = 0.08) {
+    const clampedX = THREE.MathUtils.clamp(targetX, this.bounds.minX, this.bounds.maxX);
+    const clampedZ = THREE.MathUtils.clamp(targetZ, this.bounds.minZ, this.bounds.maxZ);
+    this.target.x = THREE.MathUtils.lerp(this.target.x, clampedX, lerpFactor);
+    this.target.z = THREE.MathUtils.lerp(this.target.z, clampedZ, lerpFactor);
+    this.updateCameraPosition();
+    this.callbacks.onCameraChange?.();
+  }
+
   /**
    * Smoothly rotates the camera around the diorama by deltaRadians (e.g. +PI/4 or -PI/4)
    */

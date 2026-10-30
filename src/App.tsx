@@ -12,10 +12,12 @@ import { CharacterCarousel } from './components/ui/CharacterCarousel';
 import { SpeechBubble } from './components/ui/SpeechBubble';
 import { CharacterModal } from './components/ui/CharacterModal';
 import { audioManager } from './audio/audioManager';
+import { ArrowUp } from 'lucide-react';
 
 export const App: React.FC = () => {
   const controlsRef = useRef<TouchControls3D | null>(null);
   const castSpellRef = useRef<((effectType: CharacterSignatureAbility['effectType'], charId: string) => void) | null>(null);
+  const jumpRef = useRef<(() => void) | null>(null);
   const [characters, setCharacters] = useState<Character[]>(allCharacters);
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -192,6 +194,7 @@ export const App: React.FC = () => {
         onCameraUpdate={handleCameraUpdate}
         onInitControls={handleInitControls}
         onInitSpellCaster={handleInitSpellCaster}
+        onInitJumper={(fn) => { jumpRef.current = fn; }}
         onInspectHit={setInspectorHit}
       />
 
@@ -246,6 +249,26 @@ export const App: React.FC = () => {
           onTriggerAbility={handleTriggerAbility}
         />
       )}
+
+      {/* Subtle Keyboard Controls Hint (Desktop / Tablet) */}
+      <div className="hidden sm:flex absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none items-center gap-2 bg-ink-950/85 backdrop-blur-md border border-paper-800/60 rounded-full px-3.5 py-1.5 shadow-lg text-[11px] text-paper-200/80">
+        <span className="font-semibold text-fantasy-gold">WASD / Mũi tên</span>
+        <span>Di chuyển</span>
+        <span className="text-paper-800">•</span>
+        <span className="font-semibold text-amber-300">Space</span>
+        <span>Nhảy lên cao</span>
+        <span className="text-paper-800">•</span>
+        <span className="text-paper-200/60">Chạm đất để dẫn đường</span>
+      </div>
+
+      {/* Mobile Floating Jump Button */}
+      <button
+        onClick={() => jumpRef.current?.()}
+        className="sm:hidden fixed bottom-24 right-4 z-30 pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-fantasy-gold via-amber-400 to-amber-600 text-ink-950 shadow-[0_4px_16px_rgba(223,166,66,0.4)] border border-amber-200 active:scale-90 transition-transform font-bold"
+        title="Nhảy (Jump)"
+      >
+        <ArrowUp className="w-6 h-6 stroke-[2.5]" />
+      </button>
     </div>
   );
 };

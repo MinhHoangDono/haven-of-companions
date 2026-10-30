@@ -22,6 +22,7 @@ interface ThreeIsometricCanvasProps {
   onInitControls?: (controls: TouchControls3D) => void;
   onInitSpellCaster?: (castFn: (effectType: CharacterSignatureAbility['effectType'], charId: string) => void) => void;
   onInspectHit?: (hit: InteractiveHit | null) => void;
+  onInitJumper?: (jumpFn: () => void) => void;
 }
 
 export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
@@ -36,6 +37,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   onInitControls,
   onInitSpellCaster,
   onInspectHit,
+  onInitJumper,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const controlsRef = useRef<TouchControls3D | null>(null);
@@ -168,6 +170,12 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       const origin = handle ? handle.group.position.clone() : new THREE.Vector3(0, 0.8, 0);
       spellEffects.castSpell(effectType, origin);
     });
+    onInitJumper?.(() => {
+      const activeId = selectedCharIdRef.current || charactersRef.current[0]?.id;
+      if (activeId) {
+        handles.get(activeId)?.jump?.();
+      }
+    });
     // 5. Setup Touch & Mouse Controls
     const controls = new TouchControls3D(
       camera,
@@ -255,6 +263,25 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
 
+    const keysPressed: Record<string, boolean> = {};
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
+      keysPressed[e.code] = true;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        const activeId = selectedCharIdRef.current || charactersRef.current[0]?.id;
+        if (activeId) {
+          const handle = handles.get(activeId);
+          handle?.jump?.();
+        }
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      keysPressed[e.code] = false;
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
     // Project 3D character heads to 2D screen pixels for speech bubbles
     const updateScreenProjections = (cam: THREE.Camera) => {
       const positions = new Map<string, { x: number; y: number }>();
@@ -333,6 +360,47 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
       // Update character models (walking, idle wandering, breathing, hop progress)
       const dt = minInterval / 1000;
+
+      // Process keyboard movement for active character
+      const activeId = selectedCharIdRef.current || charactersRef.current[0]?.id;
+      const activeHandle = activeId ? handles.get(activeId) : null;
+
+      if (activeHandle) {
+        let dirX = 0;
+        let dirZ = 0;
+
+        // Camera forward and right vectors projected onto ground plane (XZ)
+        const camDir = new THREE.Vector3();
+        camera.getWorldDirection(camDir);
+        camDir.y = 0;
+        camDir.normalize();
+
+        const camRight = new THREE.Vector3();
+        camRight.crossVectors(camDir, new THREE.Vector3(0, 1, 0)).normalize();
+
+        if (keysPressed['KeyW'] || keysPressed['ArrowUp']) {
+          dirX += camDir.x;
+          dirZ += camDir.z;
+        }
+        if (keysPressed['KeyS'] || keysPressed['ArrowDown']) {
+          dirX -= camDir.x;
+          dirZ -= camDir.z;
+        }
+        if (keysPressed['KeyD'] || keysPressed['ArrowRight']) {
+          dirX -= camRight.x;
+          dirZ -= camRight.z;
+        }
+        if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) {
+          dirX += camRight.x;
+          dirZ += camRight.z;
+        }
+
+        if (Math.abs(dirX) > 0.001 || Math.abs(dirZ) > 0.001) {
+          activeHandle.moveByDirection?.(dirX, dirZ, dt);
+          controls.followTarget(activeHandle.group.position.x, activeHandle.group.position.z, 0.06);
+        }
+      }
+
       handles.forEach((handle) => {
         const charData = charactersRef.current.find((c) => c.id === handle.id);
         const isSelected = handle.id === selectedCharIdRef.current;
@@ -356,6 +424,9 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       dom.removeEventListener('pointerup', onUp);
       dom.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('orientationchange', handleResize);
 
       if (container.contains(dom)) {

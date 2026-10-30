@@ -13,8 +13,11 @@ export interface CharacterMeshHandle {
   update: (dt: number, time: number, isSelected: boolean, hopProgress: number) => void;
   getHeadWorldPosition: () => THREE.Vector3;
   moveTo: (x: number, z: number) => void;
+  moveByDirection?: (dx: number, dz: number, dt: number) => void;
   faceTowards?: (x: number, z: number) => void;
   rotateBy?: (deltaAngle: number) => void;
+  jump?: () => void;
+  isJumping?: () => boolean;
 }
 
 export interface CharacterModelConfig {
@@ -311,6 +314,10 @@ export class CharacterMeshBuilder {
     let targetX = currentSpotX;
     let targetZ = currentSpotZ;
     let isMoving = false;
+    let keyboardMoveTimer = 0;
+    let jumpHeight = 0;
+    let jumpVelocity = 0;
+    let isJumping = false;
     let idleTimer = Math.random() * 5.0;
     let turnTimer = Math.random() * 4.0;
     let targetHeading = config.rotationY;
@@ -327,6 +334,57 @@ export class CharacterMeshBuilder {
       },
       rotateBy: (deltaAngle: number) => {
         targetHeading += deltaAngle;
+      },
+      jump: () => {
+        if (!isJumping) {
+          isJumping = true;
+          jumpVelocity = 6.2;
+        }
+      },
+      isJumping: () => isJumping,
+      moveByDirection: (dx: number, dz: number, dt: number) => {
+        if (Math.abs(dx) < 0.001 && Math.abs(dz) < 0.001) return;
+        const len = Math.hypot(dx, dz);
+        const normX = dx / len;
+        const normZ = dz / len;
+        const speed = isJumping ? 3.8 : 3.2;
+        const step = speed * dt;
+        const nextX = group.position.x + normX * step;
+        const nextZ = group.position.z + normZ * step;
+
+        if (passabilityGrid.isWalkable(nextX, nextZ)) {
+          const targetElev = passabilityGrid.getElevationAt(nextX, nextZ);
+          const currentActualY = currentBaseY + jumpHeight;
+          const heightDiff = targetElev - currentBaseY;
+
+          // Jump allows clearing higher elevation up to 2.8m; walking allows 0.85m steps
+          const canStep = isJumping
+            ? (currentActualY >= targetElev - 0.4 || heightDiff <= 2.8)
+            : (heightDiff <= 0.85 && heightDiff >= -1.6);
+
+          if (canStep) {
+            group.position.x = nextX;
+            group.position.z = nextZ;
+            currentSpotX = nextX;
+            currentSpotZ = nextZ;
+            targetX = nextX;
+            targetZ = nextZ;
+            targetHeading = Math.atan2(normX, normZ);
+            isMoving = true;
+            keyboardMoveTimer = 0.14;
+
+            if (isJumping) {
+              if (currentActualY <= targetElev) {
+                currentBaseY = targetElev;
+                jumpHeight = 0;
+                isJumping = false;
+                jumpVelocity = 0;
+              }
+            } else {
+              currentBaseY = THREE.MathUtils.lerp(currentBaseY, targetElev, Math.min(1.0, dt * 14.0));
+            }
+          }
+        }
       },
       moveTo: (x: number, z: number) => {
         // Enforce passability: blocks walking into deep ocean water or off cliffs
@@ -360,6 +418,30 @@ export class CharacterMeshBuilder {
         const turnSpeed = isMoving ? 12 : 3.5;
         group.rotation.y += diff * Math.min(1.0, dt * turnSpeed);
 
+        if (keyboardMoveTimer > 0) {
+          keyboardMoveTimer -= dt;
+          if (keyboardMoveTimer <= 0 && !isJumping) {
+            isMoving = false;
+          }
+        }
+
+        if (isJumping) {
+          jumpVelocity -= 16.0 * dt;
+          jumpHeight += jumpVelocity * dt;
+          const currentGroundElev = passabilityGrid.getElevationAt(group.position.x, group.position.z);
+          const totalY = currentBaseY + jumpHeight;
+
+          if (totalY <= currentGroundElev && jumpVelocity <= 0) {
+            currentBaseY = currentGroundElev;
+            jumpHeight = 0;
+            isJumping = false;
+            jumpVelocity = 0;
+            group.position.y = currentBaseY;
+          } else {
+            group.position.y = totalY;
+          }
+        }
+
         if (isMoving) {
           const dx = targetX - group.position.x;
           const dz = targetZ - group.position.z;
@@ -376,13 +458,13 @@ export class CharacterMeshBuilder {
               const targetElev = passabilityGrid.getElevationAt(nextX, nextZ);
               const stepHeight = targetElev - currentBaseY;
 
-              // Step climbing envelope: max 0.65m up, max 1.10m down (prevents cliff walking)
-              if (stepHeight <= 0.65 && stepHeight >= -1.10) {
+              // Step climbing envelope: max 0.85m up (2.8m when jumping), max 1.60m down
+              if (stepHeight <= (isJumping ? 2.8 : 0.85) && stepHeight >= -1.60) {
                 group.position.x = nextX;
                 group.position.z = nextZ;
                 targetHeading = Math.atan2(dx, dz);
                 currentBaseY = THREE.MathUtils.lerp(currentBaseY, targetElev, Math.min(1.0, dt * 12.0));
-                group.position.y = currentBaseY;
+                group.position.y = currentBaseY + jumpHeight;
               } else {
                 isMoving = false;
               }
@@ -404,7 +486,7 @@ export class CharacterMeshBuilder {
           if (hopProgress > 0) {
             hop = Math.sin(hopProgress * Math.PI) * 0.45;
           }
-          group.position.y = currentBaseY + bob + hop;
+          group.position.y = currentBaseY + bob + hop + jumpHeight;
 
           // Flexible idle behaviors
           if (isSelected) {
