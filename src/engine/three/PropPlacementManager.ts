@@ -17,7 +17,7 @@ export class PropPlacementManager {
     const allProps = [...DIORAMA_PROPS, ...proceduralProps];
 
     for (const def of allProps) {
-      const fullPath = `/assets/models/${def.pack}/${def.asset}`;
+      const fullPath = `assets/models/${def.pack}/${def.asset}`;
       const { scene: propScene } = await assetLoader.loadModel(fullPath, false);
 
       propScene.position.set(def.pos[0], def.pos[1], def.pos[2]);

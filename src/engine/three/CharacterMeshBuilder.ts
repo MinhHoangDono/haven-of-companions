@@ -166,8 +166,8 @@ async function ensureAnimationsLoaded(): Promise<{ idle: THREE.AnimationClip | n
   }
 
   const [generalRes, movementRes] = await Promise.all([
-    assetLoader.loadModel('/assets/models/characters/Rig_Medium_General.glb', false),
-    assetLoader.loadModel('/assets/models/characters/Rig_Medium_MovementBasic.glb', false),
+    assetLoader.loadModel('assets/models/characters/Rig_Medium_General.glb', false),
+    assetLoader.loadModel('assets/models/characters/Rig_Medium_MovementBasic.glb', false),
   ]);
 
   if (generalRes.animations.length > 0) {
@@ -256,7 +256,7 @@ export class CharacterMeshBuilder {
 
     // 5. Asynchronously Load Model, Weapons & Setup Animation Mixer
     Promise.all([
-      assetLoader.loadModel(`/assets/models/characters/${config.model}`, true),
+      assetLoader.loadModel(`assets/models/characters/${config.model}`, true),
       ensureAnimationsLoaded(),
     ]).then(([{ scene: avatarScene }, anims]) => {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
@@ -282,7 +282,7 @@ export class CharacterMeshBuilder {
 
       // Attach mainhand weapon to right hand socket
       if (config.mainWeapon && rightHand) {
-        assetLoader.loadModel(`/assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
+        assetLoader.loadModel(`assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
           weapon.scale.set(0.9, 0.9, 0.9);
           weapon.rotation.x = Math.PI / 2;
           rightHand.add(weapon);
@@ -291,7 +291,7 @@ export class CharacterMeshBuilder {
 
       // Attach offhand weapon / shield to left hand socket
       if (config.offhandWeapon && leftHand) {
-        assetLoader.loadModel(`/assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
+        assetLoader.loadModel(`assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
           shield.scale.set(0.9, 0.9, 0.9);
           shield.rotation.y = Math.PI;
           leftHand.add(shield);
@@ -300,7 +300,7 @@ export class CharacterMeshBuilder {
 
       // Attach back accessory (quiver) to chest/spine
       if (config.backAccessory && chest) {
-        assetLoader.loadModel(`/assets/models/characters/${config.backAccessory}`, false).then(({ scene: accessory }) => {
+        assetLoader.loadModel(`assets/models/characters/${config.backAccessory}`, false).then(({ scene: accessory }) => {
           accessory.scale.set(0.9, 0.9, 0.9);
           accessory.position.set(0, 0, -0.18);
           accessory.rotation.y = Math.PI;
@@ -552,7 +552,7 @@ export class CharacterMeshBuilder {
     let mixer: THREE.AnimationMixer | null = null;
 
     Promise.all([
-      assetLoader.loadModel(`/assets/models/characters/${config.model}`, true),
+      assetLoader.loadModel(`assets/models/characters/${config.model}`, true),
       ensureAnimationsLoaded(),
     ]).then(([{ scene: avatarScene }, anims]) => {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
@@ -567,7 +567,7 @@ export class CharacterMeshBuilder {
       const leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l');
 
       if (config.mainWeapon && rightHand) {
-        assetLoader.loadModel(`/assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
+        assetLoader.loadModel(`assets/models/characters/${config.mainWeapon}`, false).then(({ scene: weapon }) => {
           weapon.scale.set(0.9, 0.9, 0.9);
           weapon.rotation.x = Math.PI / 2;
           rightHand.add(weapon);
@@ -575,7 +575,7 @@ export class CharacterMeshBuilder {
       }
 
       if (config.offhandWeapon && leftHand) {
-        assetLoader.loadModel(`/assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
+        assetLoader.loadModel(`assets/models/characters/${config.offhandWeapon}`, false).then(({ scene: shield }) => {
           shield.scale.set(0.9, 0.9, 0.9);
           shield.rotation.y = Math.PI;
           leftHand.add(shield);
