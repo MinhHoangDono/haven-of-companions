@@ -21,6 +21,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   weather,
   isMuted,
   isInspectorActive,
+  coinScore,
   onToggleTimeOfDay,
   onToggleWeather,
   onToggleMute,
@@ -65,7 +66,16 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Control Pills */}
       <div className="pointer-events-auto flex items-center gap-1.5">
-        {/* Time of Day Toggle */}
+        {/* Collectible Coin Pouch Counter */}
+        {coinScore !== undefined && (
+          <div
+            className="flex items-center gap-1.5 bg-ink-900/90 backdrop-blur-md border border-fantasy-gold/60 text-fantasy-gold px-2.5 py-1.5 rounded-full text-xs font-serif font-bold shadow-md"
+            title="Điểm thu thập báu vật làng"
+          >
+            <span className="text-sm">🪙</span>
+            <span className="text-[11px] font-mono text-paper-100">{coinScore}</span>
+          </div>
+        )}
         <button
           onClick={onToggleTimeOfDay}
           className="flex items-center gap-1.5 bg-ink-900/85 backdrop-blur-md border border-paper-800/60 text-paper-100 px-2.5 py-1.5 rounded-full text-xs font-sans font-medium active:scale-95 transition-all shadow-md"
