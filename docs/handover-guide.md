@@ -82,36 +82,69 @@ curl -I https://minhhoangdono.github.io/haven-of-companions/
 
 ```
 src/
-├── App.tsx                               # Root orchestrator: HUD, top bar, modals, spell triggers
+├── App.tsx                               # Root orchestrator: HUD, top bar, modals, spell & build triggers
 ├── main.tsx                              # React DOM mount point & Service Worker registration
 ├── types/
 │   ├── character.ts                      # Character interface, factions, stats, signature abilities
 │   ├── engine.ts                         # Coordinate types and screen dimensions
-│   └── threeEngine.ts                    # 3D hit detection types and raycasting interfaces
+│   ├── threeEngine.ts                    # 3D hit detection types and raycasting interfaces
+│   ├── cityBuilder.ts                    # Building categories, structure definitions, serialized layout
+│   └── platformer.ts                     # 3D collectibles, falling planks, and jump vent interfaces
 ├── data/
-│   └── charactersData.ts                 # Full 9-companion roster lore, bios, stats, and abilities
+│   ├── charactersData.ts                 # Full 9-companion roster lore, bios, stats, and abilities
+│   └── propLayoutData.ts                 # Declarative placements for village buildings, galleon, and props
 ├── audio/
-│   └── audioManager.ts                   # Web Audio synthesizer: chimes, toasts, and 9 spell SFX
+│   └── audioManager.ts                   # Web Audio synthesizer: chimes, toasts, spells & builder SFX
 ├── engine/
+│   ├── map/
+│   │   └── passabilityMap.ts             # 2D discrete cell grid ($70 \times 70$) walkability & elevation
 │   └── three/
-│       ├── TouchControls3D.ts            # Touch controller: inertia pan, pinch zoom, rotation, raycast
+│       ├── TouchControls3D.ts            # Touch controller: inertia pan, pinch zoom, rotation, raycast, follow
 │       ├── DioramaBuilder.ts             # 3-tier terrain, buildings, lighthouse, galleon, waves
+│       ├── VoxelTerrainBuilder.ts        # Stepped voxel terrain generator with coastal sand & coves
 │       ├── CharacterMeshBuilder.ts       # 9 humanoid hero avatars, 3D nameplates, runic pedestals
 │       ├── LightingManager.ts            # Directional sun, soft shadow mapping, day/night cycle
-│       └── SpellEffect3D.ts              # Real-time 3D particle spell animations
+│       ├── SpellEffect3D.ts              # Real-time 3D particle spell animations
+│       ├── CollectibleMeshBuilder.ts     # 12 scattered 3D collectibles with magnetic proximity pickup
+│       ├── DynamicPlatformManager.ts     # Fragile falling pier planks and high-jump thermal wind vents
+│       └── builder/
+│           ├── CityBuilderController.ts  # In-game voxel construction, ghost hologram, rotation, bulldozer
+│           ├── CitySaveManager.ts        # LocalStorage persistence, JSON export/import for user villages
+│           └── DynamicMeshLibrary.ts     # 22 CC0 structures across 5 categories with footprint metadata
 └── components/
     ├── canvas/
     │   └── ThreeIsometricCanvas.tsx      # React wrapper mounting Three.js WebGLRenderer & RAF loop
     └── ui/
-        ├── TopBar.tsx                    # Time-of-day, weather, and audio mute controls
+        ├── TopBar.tsx                    # Time-of-day, weather, audio mute, build toggle, coin counter
         ├── CharacterCarousel.tsx         # Bottom thumb-zone carousel for instant character jumping
         ├── SpeechBubble.tsx              # In-world dialogue bubble projected from 3D head positions
-        └── CharacterModal.tsx            # Slide-up bottom sheet with full RPG stats and "Cast" trigger
+        ├── CharacterModal.tsx            # Slide-up bottom sheet with full RPG stats and "Cast" trigger
+        ├── InspectorBar.tsx              # In-engine 3D Coordinate & Object Inspector tool
+        └── builder/
+            ├── BuilderToolbar.tsx        # Bottom catalog drawer with categories & structure cards
+            ├── StructureCard.tsx         # Item card with sprite preview, cost, and footprint
+            └── SaveLoadModal.tsx         # Village layout JSON import/export and reset modal
 ```
 
 ---
 
-## 5. Critical Scars & Operational Gotchas
+## 5. Major Subsystems & Packages
+
+### 5.1 City Building & Sandbox Construction Package (`src/engine/three/builder/`)
+- **Controller (`CityBuilderController.ts`)**: Manages the construction lifecycle. Handles pointer hover raycasting over `VoxelTerrainBuilder`, projects real-time green/red ghost preview holograms, rotates structures 90° clockwise, executes placement, and dismantles structures via the Bulldozer tool.
+- **Dynamic Mesh Library (`DynamicMeshLibrary.ts`)**: Registers 22 medieval and nature structures categorized into Houses, Production, Fortifications, Decorations, and Nature. Encapsulates footprint bounding boxes ($1\times 1$, $2\times 2$, $3\times 3$), elevation offsets, and shared material pooling.
+- **Dynamic Passability Sync**: When structures are placed or demolished, `CityBuilderController` calls `passabilityGrid.setWalkable(cellX, cellZ, isWalkable)` to ensure companions dynamically navigate around player structures without clipping.
+- **Persistence (`CitySaveManager.ts`)**: Automatically saves the village layout to `localStorage` under key `haven_city_layout_v1`. Supports downloading/uploading JSON files for sharing creations.
+
+### 5.2 3D Platformer & Collectibles Package (`src/engine/three/`)
+- **Collectibles (`CollectibleMeshBuilder.ts`)**: Spawns and manages 12 animated 3D collectibles across the 3 biomes (Gold Coins, Wild Tea Leaves, Conch Shells, Fireworks Embers). Features continuous rotation, vertical sine bobbing, magnetic proximity pickup ($<1.35\text{m}$), and a $25\text{s}$ respawn timer.
+- **Dynamic Platforms (`DynamicPlatformManager.ts`)**:
+  - **Falling Pier Plank**: Sinks into the water $0.85\text{s}$ after a hero steps on it; respawns and floats back after $4.0\text{s}$.
+  - **Thermal Geyser / Wind Vent**: Ascending particle vortex that launches the stepping hero upward with `launchJump(10.8)` to scale steep mountain clifftops.
+
+---
+
+## 6. Critical Scars & Operational Gotchas
 
 ### 5.1 Mobile Web Audio Auto-play Policy
 - **Problem**: Modern mobile browsers (iOS WebKit and Android Blink) block audio playback until the user initiates a genuine touch interaction.
