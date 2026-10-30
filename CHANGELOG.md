@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v4.5.0] - 2026-10-30
+
+### Added
+- **Expanded Sand Beach & Coves (`VoxelTerrainBuilder.ts`)**: Expanded coastal golden sand beach to over $16\text{m}$ total width, featuring $6\text{m}$ dry inland sand dunes ($Y = 1.0$), $5\text{m}$ walkable shoreline beach ($Y = 0.0$), $5\text{m}$ shallow turquoise sandbars ($Y = -1.0$), and a smooth sandy beach wrap around the lighthouse cape.
+- **Pirate Fleet Additions (`propLayoutData.ts`)**: Added a medium pirate raider (`ship-pirate-medium.glb`) anchored in the bay alongside moored shoreline rowboats (`boat-row-small.glb`, `boat-row-large.glb`) landing smuggled cargo on the sand.
+- **Pirate Artillery & Fortifications**: Added fortified coastal sand dune batteries with naval and field cannons (`cannon.glb`, `cannon-mobile.glb`), pyramids of iron cannonballs (`cannon-ball.glb`), and wooden palisades (`structure-fence.glb`).
+- **Pirate Booty & Smuggler Camp**: Added half-buried treasure chests (`chest.glb`), digging shovel in the sand (`tool-shovel.glb`), rum bottle crates (`crate-bottles.glb`), grog bottles (`bottle-large.glb`), and smuggler plank walkways (`platform-planks.glb`).
+- **Jolly Roger Flags & Watchtowers**: Added high pirate flagpoles (`flag-pirate-high.glb`), dune skull flags (`flag-pirate.glb`), and a wooden crow's nest watchtower (`tower-watch.glb`) overlooking the harbor.
+
+---
+
 ## [v4.4.0] - 2026-10-30
 
 ### Added
