@@ -16,19 +16,7 @@ export interface PropInstanceDef {
 /**
  * Creates a cozy wooden boat pier row with neatly proportioned 1.0x scale segments
  */
-function createPierRow(startX: number, startY: number, startZ: number, count: number): PropInstanceDef[] {
-  const row: PropInstanceDef[] = [];
-  for (let i = 0; i < count; i++) {
-    row.push({
-      asset: 'structure-platform-dock.glb',
-      pack: 'environment',
-      pos: [startX, startY, startZ + i * 2.8],
-      rot: [0, 0, 0],
-      scale: 1.0,
-    });
-  }
-  return row;
-}
+
 
 /**
  * 70x70 World Core Architectural Anchors

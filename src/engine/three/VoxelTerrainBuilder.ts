@@ -169,10 +169,6 @@ export class VoxelTerrainBuilder {
     // Curving smoothly across the map instead of a straight line
     const coastLineZ = 2.0 + 4.5 * Math.sin(x * 0.09) + 2.0 * Math.cos(x * 0.18 + 0.8) - 0.18 * x;
 
-    // 2. Cozy Boardwalk Dock Path (at x around -2.5, extending into ocean)
-    if (x >= -3.5 && x <= -1.5 && z >= 4 && z <= 22) {
-      return { topY: 0, type: 'WOOD_PLANK' };
-    }
 
     // 3. Zone 1: Highlands Mountain Range (NW: centered around x = -20, z = -20)
     const distHighland = Math.hypot(x - (-20), z - (-20));
