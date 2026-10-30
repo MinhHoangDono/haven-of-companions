@@ -746,17 +746,20 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                     <div className="p-2.5 rounded-xl bg-ink-900/80 border border-paper-800/60">
                       <span className="text-paper-200/50 block text-[10px]">Vùng Đất Gắn Liền</span>
                       <span className="font-bold text-paper-100">
-                        {currentCharacter.faction === 'highlands'
-                          ? 'Đồi Thông Đà Lạt'
-                          : currentCharacter.faction === 'vanguard'
-                          ? 'Vịnh Biển Nha Trang'
-                          : 'Pháo Hoa Năm Mới'}
+                        {currentCharacter.memoryLandmark ||
+                          (currentCharacter.faction === 'highlands'
+                            ? 'Đồi Thông Đà Lạt'
+                            : currentCharacter.faction === 'vanguard'
+                            ? 'Vịnh Biển Nha Trang'
+                            : 'Pháo Hoa Năm Mới')}
                       </span>
                     </div>
 
                     <div className="p-2.5 rounded-xl bg-ink-900/80 border border-paper-800/60">
                       <span className="text-paper-200/50 block text-[10px]">Gắn Kết Tri Kỷ</span>
-                      <span className="font-bold text-emerald-400">100% Thuần Khiết</span>
+                      <span className="font-bold text-emerald-400">
+                        {currentCharacter.memoryBond || '100% Thuần Khiết'}
+                      </span>
                     </div>
                   </div>
                 </div>

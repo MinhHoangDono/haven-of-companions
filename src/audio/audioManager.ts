@@ -190,7 +190,23 @@ class AudioManager {
 
       // 2. Phương Quỳnh
       case 'active_resonating_arrow':
-      case 'eagle_scout':
+      case 'eagle_scout': {
+        // 1. Bow release twang & ascending flight whistle (0ms)
+        if (this.ctx) {
+          const releaseOsc = this.ctx.createOscillator();
+          const releaseGain = this.ctx.createGain();
+          const t0 = this.ctx.currentTime;
+          releaseOsc.type = 'triangle';
+          releaseOsc.frequency.setValueAtTime(520, t0);
+          releaseOsc.frequency.exponentialRampToValueAtTime(1800, t0 + 0.35);
+          releaseGain.gain.setValueAtTime(0.09, t0);
+          releaseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.4);
+          releaseOsc.connect(releaseGain);
+          releaseGain.connect(this.ctx.destination);
+          releaseOsc.start(t0);
+          releaseOsc.stop(t0 + 0.45);
+        }
+        // 2. Spiraling musical chord arpeggio
         [880, 1174.66, 1760, 2349.32].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
@@ -199,15 +215,32 @@ class AudioManager {
             const t = this.ctx.currentTime;
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.07, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+            gain.gain.setValueAtTime(0.08, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 0.55);
-          }, idx * 60);
+            osc.stop(t + 0.5);
+          }, 50 + idx * 55);
         });
+        // 3. Terminal HitFX sonic silence shatter impact (at 520ms)
+        setTimeout(() => {
+          if (!this.ctx) return;
+          const impactOsc = this.ctx.createOscillator();
+          const impactGain = this.ctx.createGain();
+          const ti = this.ctx.currentTime;
+          impactOsc.type = 'sawtooth';
+          impactOsc.frequency.setValueAtTime(1600, ti);
+          impactOsc.frequency.exponentialRampToValueAtTime(320, ti + 0.3);
+          impactGain.gain.setValueAtTime(0.11, ti);
+          impactGain.gain.exponentialRampToValueAtTime(0.001, ti + 0.4);
+          impactOsc.connect(impactGain);
+          impactGain.connect(this.ctx.destination);
+          impactOsc.start(ti);
+          impactOsc.stop(ti + 0.45);
+        }, 520);
         break;
+      }
 
       case 'ult_hymn_of_wilds':
         [329.63, 392.0, 493.88, 587.33, 659.25, 783.99, 987.77].forEach((freq, idx) => {
@@ -422,8 +455,9 @@ class AudioManager {
         break;
 
       // 7. Thanh Phương
-      case 'active_resilient_torrent':
-        [220, 330, 440, 550].forEach((freq, idx) => {
+      case 'active_resilient_torrent': {
+        // Phase 1: Swirling water vortex whoosh & hum (0 - 500ms)
+        [180, 260, 340, 440].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
             const osc = this.ctx.createOscillator();
@@ -432,14 +466,46 @@ class AudioManager {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
             gain.gain.setValueAtTime(0.08, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 0.65);
+            osc.stop(t + 0.55);
           }, idx * 60);
         });
+
+        // Phase 2: Detonation Knockback Blast (at 650ms) - Sub-bass boom & splash crack
+        setTimeout(() => {
+          if (!this.ctx) return;
+          const tb = this.ctx.currentTime;
+          // Sub-bass knockback impact
+          const boomOsc = this.ctx.createOscillator();
+          const boomGain = this.ctx.createGain();
+          boomOsc.type = 'sine';
+          boomOsc.frequency.setValueAtTime(120, tb);
+          boomOsc.frequency.exponentialRampToValueAtTime(36, tb + 0.5);
+          boomGain.gain.setValueAtTime(0.14, tb);
+          boomGain.gain.exponentialRampToValueAtTime(0.001, tb + 0.6);
+          boomOsc.connect(boomGain);
+          boomGain.connect(this.ctx.destination);
+          boomOsc.start(tb);
+          boomOsc.stop(tb + 0.65);
+
+          // High-pressure hydro blade splash crack
+          const crackOsc = this.ctx.createOscillator();
+          const crackGain = this.ctx.createGain();
+          crackOsc.type = 'triangle';
+          crackOsc.frequency.setValueAtTime(720, tb);
+          crackOsc.frequency.exponentialRampToValueAtTime(140, tb + 0.35);
+          crackGain.gain.setValueAtTime(0.09, tb);
+          crackGain.gain.exponentialRampToValueAtTime(0.001, tb + 0.4);
+          crackOsc.connect(crackGain);
+          crackGain.connect(this.ctx.destination);
+          crackOsc.start(tb);
+          crackOsc.stop(tb + 0.45);
+        }, 650);
         break;
+      }
 
       case 'ult_ocean_tsunami':
         [110, 164.81, 220, 293.66, 440].forEach((freq, idx) => {

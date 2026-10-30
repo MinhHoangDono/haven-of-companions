@@ -82,6 +82,8 @@ export interface Character {
     facing: 'SW' | 'SE';
   };
   bio: string;
+  memoryLandmark?: string;
+  memoryBond?: string;
   stats: CharacterStat[];
   dialogue: string[];
   activeAbility: CharacterAbility;

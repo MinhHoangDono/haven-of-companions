@@ -84,6 +84,22 @@ function fadeAlphaGradient(r: number, g: number, b: number): Gradient {
   );
 }
 
+/** Procedural 4-point star geometry (inspired by HitFXFree: four_point_star.gdshader) */
+function createFourPointStarGeo(outerR = 0.5, innerR = 0.12): THREE.ShapeGeometry {
+  const shape = new THREE.Shape();
+  const points = 4;
+  for (let i = 0; i < points * 2; i++) {
+    const angle = (i * Math.PI) / points;
+    const r = i % 2 === 0 ? outerR : innerR;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  shape.closePath();
+  return new THREE.ShapeGeometry(shape);
+}
+
 /**
  * GPU-Batched Fantasy Spell VFX Engine
  *
@@ -365,48 +381,370 @@ export class SpellEffect3D {
 
   // ─── 2. Lê Nguyễn Phương Quỳnh (The Singing Ranger) ───
 
-  /** Active: Mũi Tên Âm Vang (Supersonic musical arrow + silence shockwave) */
+  /**
+   * Active: Mũi Tên Âm Vang (Resonating Arrow)
+   *
+   * Lore: "Bắn mũi tên cuộn xoáy giai điệu chói tai xuyên thấu đường thẳng, gây sát thương vật lý và khóa chiêu kẻ địch."
+   *
+   * VFX Asset Integration:
+   * - ElementalMagicFXFree: Dynamic projectile architecture (projectile_core, projectile_streaks, projectile_tail, cast_flare).
+   *   Elongated high-speed crystalline arrow shaft & head with 4 helical corkscrew harmonic streaks ("cuộn xoáy giai điệu").
+   * - HitFXFree: four_point_star.gdshader gleaming arrowhead tip + impact_slash.gdshader sonic boom rings.
+   * - HitFXFree (vfx_hit_01 & vfx_impact_01): Terminal supersonic impact detonation at target position with expanding
+   *   silence shockwave sphere (impact_sphere), 14 radial acoustic streaks, and cross-cutting sonic slash discs.
+   */
   private createActiveResonatingArrow(origin: THREE.Vector3): void {
-    const arrow = new ParticleSystem({
-      duration: 1.2,
+    const flightDuration = 0.52; // Arrow travel time from bow to target
+    const totalDuration = 1.6;  // Total lifecycle including post-impact silence field
+    const range = 6.8;          // Travel distance in isometric space
+    const dir = new THREE.Vector3(0.7071, 0.04, 0.7071).normalize(); // Isometric forward shot vector
+    const startPos = origin.clone().add(new THREE.Vector3(0, 0.75, 0));
+    const targetPos = startPos.clone().addScaledVector(dir, range);
+
+    // 1. Bow Release Flash & Sonic Muzzle Star (ElementalMagicFXFree: cast_flare & HitFXFree: four_point_star)
+    const castGroup = new THREE.Group();
+    castGroup.position.copy(startPos);
+
+    const muzzleStarGeo = createFourPointStarGeo(0.65, 0.14);
+    const muzzleStarMat = new THREE.MeshBasicMaterial({
+      color: 0x34d399,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const muzzleStar = new THREE.Mesh(muzzleStarGeo, muzzleStarMat);
+    muzzleStar.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+    castGroup.add(muzzleStar);
+
+    const muzzleRingGeo = new THREE.RingGeometry(0.15, 0.45, 32);
+    const muzzleRingMat = new THREE.MeshBasicMaterial({
+      color: 0x22d3ee,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const muzzleRing = new THREE.Mesh(muzzleRingGeo, muzzleRingMat);
+    muzzleRing.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+    castGroup.add(muzzleRing);
+
+    this.addMeshEffect(castGroup, 0.45, (dt, progress) => {
+      const fade = Math.max(0, 1 - progress);
+      const starScale = (0.5 + progress * 2.2) * fade;
+      muzzleStar.scale.set(starScale, starScale, starScale);
+      muzzleStar.rotation.z += dt * 8.0;
+      muzzleStarMat.opacity = fade * 0.95;
+
+      const ringScale = 0.6 + progress * 3.0;
+      muzzleRing.scale.set(ringScale, ringScale, 1);
+      muzzleRingMat.opacity = fade * 0.85;
+    });
+
+    // 2. High-Speed Flying Projectile Core & Helical Streaks (ElementalMagicFXFree & HitFXFree)
+    const arrowGroup = new THREE.Group();
+    arrowGroup.position.copy(startPos);
+
+    // Crystalline Arrowhead
+    const arrowHeadGeo = new THREE.ConeGeometry(0.14, 0.7, 5);
+    arrowHeadGeo.rotateX(Math.PI / 2);
+    const arrowHeadMat = new THREE.MeshBasicMaterial({
+      color: 0x22d3ee,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 0.95,
+    });
+    const arrowHead = new THREE.Mesh(arrowHeadGeo, arrowHeadMat);
+    arrowHead.position.z = 0.35;
+    arrowGroup.add(arrowHead);
+
+    // Inner Luminous Arrow Core (Diamond white)
+    const arrowCoreGeo = new THREE.ConeGeometry(0.07, 0.55, 4);
+    arrowCoreGeo.rotateX(Math.PI / 2);
+    const arrowCoreMat = new THREE.MeshBasicMaterial({
+      color: 0xf0fdfa,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 1.0,
+    });
+    const arrowCore = new THREE.Mesh(arrowCoreGeo, arrowCoreMat);
+    arrowCore.position.z = 0.36;
+    arrowGroup.add(arrowCore);
+
+    // Arrow Shaft
+    const arrowShaftGeo = new THREE.CylinderGeometry(0.025, 0.025, 1.3, 6);
+    arrowShaftGeo.rotateX(Math.PI / 2);
+    const arrowShaftMat = new THREE.MeshBasicMaterial({
+      color: 0x34d399,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const arrowShaft = new THREE.Mesh(arrowShaftGeo, arrowShaftMat);
+    arrowShaft.position.z = -0.45;
+    arrowGroup.add(arrowShaft);
+
+    // Four-Point Sonic Star Tip (HitFXFree: four_point_star.gdshader)
+    const starTipGeo = createFourPointStarGeo(0.38, 0.09);
+    const starTipMat = new THREE.MeshBasicMaterial({
+      color: 0xfbbf24,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const starTip = new THREE.Mesh(starTipGeo, starTipMat);
+    starTip.position.z = 0.72;
+    arrowGroup.add(starTip);
+
+    // 4 Helical Harmonic Streaks (ElementalMagicFXFree: projectile_streaks.gdshader - "cuộn xoáy giai điệu")
+    const streakNodes: THREE.Mesh[] = [];
+    const streakMat = new THREE.MeshBasicMaterial({
+      color: 0x67e8f9,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 0.9,
+    });
+    for (let s = 0; s < 4; s++) {
+      const sGeo = new THREE.ConeGeometry(0.035, 0.6, 4);
+      sGeo.rotateX(Math.PI / 2);
+      const sMesh = new THREE.Mesh(sGeo, streakMat);
+      arrowGroup.add(sMesh);
+      streakNodes.push(sMesh);
+    }
+
+    // Projectile Tail Wake (ElementalMagicFXFree: projectile_tail.gdshader)
+    const tailWakeGeo = new THREE.ConeGeometry(0.18, 1.8, 6, 1, true);
+    tailWakeGeo.rotateX(-Math.PI / 2);
+    const tailWakeMat = new THREE.MeshBasicMaterial({
+      color: 0x059669,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+    });
+    const tailWake = new THREE.Mesh(tailWakeGeo, tailWakeMat);
+    tailWake.position.z = -1.2;
+    arrowGroup.add(tailWake);
+
+    // Orient arrow group towards target direction
+    arrowGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+
+    // 3. Acoustic Sonic Boom Discs shed along flight path (HitFXFree: impact_slash)
+    const sonicDiscs: { mesh: THREE.Mesh; pos: THREE.Vector3; birthTime: number }[] = [];
+    const discGeo = new THREE.RingGeometry(0.12, 0.45, 24);
+    const discMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    for (let d = 0; d < 4; d++) {
+      const dm = new THREE.Mesh(discGeo, discMat);
+      dm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+      dm.visible = false;
+      this.scene.add(dm);
+      sonicDiscs.push({
+        mesh: dm,
+        pos: startPos.clone().addScaledVector(dir, range * (0.2 + d * 0.22)),
+        birthTime: flightDuration * (0.18 + d * 0.22),
+      });
+    }
+
+    let hasDetonated = false;
+
+    this.addMeshEffect(arrowGroup, totalDuration, (dt, progress) => {
+      const flightT = Math.min(1.0, (progress * totalDuration) / flightDuration);
+
+      if (flightT < 1.0) {
+        arrowGroup.position.lerpVectors(startPos, targetPos, flightT);
+
+        starTip.rotation.z += dt * 14.0;
+        const pulse = 1.0 + Math.sin(flightT * Math.PI * 8) * 0.25;
+        starTip.scale.set(pulse, pulse, pulse);
+
+        streakNodes.forEach((sm, idx) => {
+          const orbitAngle = flightT * 26.0 + (idx * Math.PI) / 2;
+          const radius = 0.18 + Math.sin(flightT * 12.0 + idx) * 0.06;
+          sm.position.set(
+            Math.cos(orbitAngle) * radius,
+            Math.sin(orbitAngle) * radius,
+            -0.2 - (idx % 2) * 0.3
+          );
+          sm.rotation.z = orbitAngle;
+        });
+
+        tailWake.scale.set(1.0 + Math.sin(flightT * 18.0) * 0.2, 1.0, 1.0);
+
+        const currentElapsed = progress * totalDuration;
+        sonicDiscs.forEach((d) => {
+          if (currentElapsed >= d.birthTime) {
+            d.mesh.visible = true;
+            d.mesh.position.copy(d.pos);
+            const discAge = (currentElapsed - d.birthTime) / 0.55;
+            const dFade = Math.max(0, 1 - discAge);
+            const dScale = 0.8 + discAge * 3.4;
+            d.mesh.scale.set(dScale, dScale, 1);
+            (d.mesh.material as THREE.MeshBasicMaterial).opacity = dFade * 0.75;
+          }
+        });
+      } else {
+        arrowGroup.visible = false;
+        sonicDiscs.forEach((d) => {
+          this.scene.remove(d.mesh);
+          d.mesh.geometry.dispose();
+        });
+
+        if (!hasDetonated) {
+          hasDetonated = true;
+          this.triggerResonatingArrowImpact(targetPos);
+        }
+      }
+    });
+
+    // GPU-Batched Arrow Flight Particle Trail (three.quarks)
+    const arrowTrail = new ParticleSystem({
+      duration: flightDuration,
       looping: false,
       autoDestroy: true,
       shape: new ConeEmitter({ radius: 0.1, arc: Math.PI * 2, angle: 0.08 }),
-      startLife: new ConstantValue(0.8),
-      startSpeed: new IntervalValue(7.5, 10.0),
-      startSize: new IntervalValue(0.3, 0.5),
-      startColor: new ConstantColor(new Vector4(0.4, 0.9, 1.0, 1.0)),
-      emissionOverTime: new ConstantValue(0),
-      emissionBursts: [{ time: 0, count: new ConstantValue(25), cycle: 1, interval: 0.01, probability: 1 }],
-      material: additiveMat(TEX.slash, 0x67e8f9),
-      renderMode: RenderMode.BillBoard,
-      worldSpace: true,
-      behaviors: [
-        new SizeOverLife(fadeOutSize()),
-        new ColorOverLife(fadeAlphaGradient(0.4, 0.9, 1.0)),
-      ],
-    });
-    this.addSystem(arrow, origin);
-
-    const ripples = new ParticleSystem({
-      duration: 1.4,
-      looping: false,
-      autoDestroy: true,
-      shape: new CircleEmitter({ radius: 0.2, arc: Math.PI * 2, thickness: 0.1 }),
-      startLife: new ConstantValue(1.0),
-      startSpeed: new IntervalValue(2.0, 3.5),
+      startLife: new ConstantValue(0.4),
+      startSpeed: new IntervalValue(6.0, 8.5),
       startSize: new IntervalValue(0.2, 0.4),
-      startColor: new ConstantColor(new Vector4(0.8, 0.95, 1.0, 0.8)),
-      emissionOverTime: new ConstantValue(0),
-      emissionBursts: [{ time: 0.05, count: new ConstantValue(15), cycle: 1, interval: 0.01, probability: 1 }],
-      material: additiveMat(TEX.circle, 0x38bdf8),
+      startColor: new ColorRange(new Vector4(0.2, 0.85, 0.95, 1.0), new Vector4(0.2, 0.8, 0.35, 0.9)),
+      emissionOverTime: new ConstantValue(40),
+      material: additiveMat(TEX.slash, 0x22d3ee),
       renderMode: RenderMode.BillBoard,
       worldSpace: true,
       behaviors: [new SizeOverLife(fadeOutSize())],
     });
-    this.addSystem(ripples, origin);
+    this.addSystem(arrowTrail, startPos);
 
-    this.addTemporaryLight(0x38bdf8, 2.5, 6.0, origin, 1300);
+    // Initial cast dynamic light
+    this.addTemporaryLight(0x22d3ee, 3.2, 6.0, startPos, 700);
+  }
+
+  /** Terminal impact detonation for Mũi Tên Âm Vang (HitFXFree: impact_sphere, four_point_star, streaks & impact_slash) */
+  private triggerResonatingArrowImpact(targetPos: THREE.Vector3): void {
+    const impactGroup = new THREE.Group();
+    impactGroup.position.copy(targetPos);
+
+    // 1. HitFXFree Silence Shockwave Sphere (impact_sphere.gdshader - "khóa chiêu kẻ địch")
+    const sphereGeo = new THREE.SphereGeometry(0.35, 20, 20);
+    const sphereMat = new THREE.MeshBasicMaterial({
+      color: 0x22d3ee,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+    });
+    const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+    impactGroup.add(sphereMesh);
+
+    // 2. Giant Four-Point Sonic Star Explosion (HitFXFree: four_point_star.gdshader)
+    const starGeo = createFourPointStarGeo(0.9, 0.2);
+    const starMat = new THREE.MeshBasicMaterial({
+      color: 0xfbbf24,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const starMesh = new THREE.Mesh(starGeo, starMat);
+    starMesh.rotation.x = -Math.PI / 4;
+    impactGroup.add(starMesh);
+
+    // 3. 14 Radial Acoustic Needle Streaks (HitFXFree: streaks.gdshader)
+    const acousticStreaks: THREE.Mesh[] = [];
+    const streakMat = new THREE.MeshBasicMaterial({
+      color: 0x34d399,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    for (let i = 0; i < 14; i++) {
+      const sGeo = new THREE.ConeGeometry(0.04, 2.4, 4);
+      sGeo.rotateX(-Math.PI / 2);
+      const sm = new THREE.Mesh(sGeo, streakMat);
+      const dir = new THREE.Vector3(
+        (Math.random() - 0.5) * 2,
+        Math.random() * 1.6,
+        (Math.random() - 0.5) * 2
+      ).normalize();
+      sm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+      impactGroup.add(sm);
+      acousticStreaks.push(sm);
+    }
+
+    // 4. Cross-Cutting Sonic Slices (HitFXFree: impact_slash.gdshader)
+    const slashRingGeo = new THREE.RingGeometry(0.2, 0.6, 32);
+    const slashRingMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const slashRing1 = new THREE.Mesh(slashRingGeo, slashRingMat);
+    slashRing1.rotation.x = -Math.PI / 2;
+    impactGroup.add(slashRing1);
+
+    const slashRing2 = new THREE.Mesh(slashRingGeo, slashRingMat);
+    slashRing2.rotation.x = -Math.PI / 3;
+    slashRing2.rotation.y = Math.PI / 4;
+    impactGroup.add(slashRing2);
+
+    this.addMeshEffect(impactGroup, 1.1, (dt, progress) => {
+      const fade = Math.max(0, 1 - progress);
+
+      const sphereScale = 0.5 + progress * 6.0;
+      sphereMesh.scale.setScalar(sphereScale);
+      sphereMat.opacity = fade * 0.75;
+
+      const starScale = (0.5 + progress * 2.8) * fade;
+      starMesh.scale.setScalar(starScale);
+      starMesh.rotation.z += dt * 6.0;
+      starMat.opacity = fade * 0.95;
+
+      acousticStreaks.forEach((str) => {
+        str.scale.set(fade, fade, 0.6 + progress * 2.5);
+      });
+
+      const slashScale = 0.5 + progress * 4.8;
+      slashRing1.scale.set(slashScale, slashScale, 1);
+      slashRing2.scale.set(slashScale, slashScale, 1);
+      slashRingMat.opacity = fade * 0.85;
+    });
+
+    // GPU-Batched Sonic Melody Notes & Sparks Burst
+    const sonicBurst = new ParticleSystem({
+      duration: 1.2,
+      looping: false,
+      autoDestroy: true,
+      shape: new SphereEmitter({ radius: 0.4, arc: Math.PI * 2, thickness: 1 }),
+      startLife: new IntervalValue(0.6, 1.1),
+      startSpeed: new IntervalValue(3.0, 5.5),
+      startSize: new IntervalValue(0.25, 0.45),
+      startColor: new ColorRange(new Vector4(0.2, 0.9, 1.0, 0.95), new Vector4(0.98, 0.8, 0.2, 0.8)),
+      emissionOverTime: new ConstantValue(0),
+      emissionBursts: [{ time: 0, count: new ConstantValue(30), cycle: 1, interval: 0.01, probability: 1 }],
+      material: additiveMat(TEX.magic, 0x22d3ee),
+      renderMode: RenderMode.BillBoard,
+      worldSpace: true,
+      behaviors: [new SizeOverLife(fadeOutSize())],
+    });
+    this.addSystem(sonicBurst, targetPos);
+
+    this.addTemporaryLight(0x22d3ee, 4.5, 8.5, targetPos, 1100);
   }
 
   /** Ultimate: Khúc Ca Đại Ngàn (Harmonic melody shockwaves + charm aura) */
@@ -1277,45 +1615,311 @@ export class SpellEffect3D {
 
   // ─── 7. Phạm Trần Thanh Phương (The Highland Water Guardian) ───
 
-  /** Active: Dòng Suối Quật Cường (Helical spring water shield + knockback splash) */
+  /**
+   * Active: Dòng Suối Quật Cường (Resilient Torrent)
+   *
+   * Lore: "Triệu hồi dòng nước xiết núi đá bao bọc bản thân hoặc đồng minh, vô hiệu hóa đòn đánh tiếp theo và nổ tung đẩy lùi địch."
+   *
+   * VFX Asset Integration:
+   * - Phase 1 (0.0s – 0.65s): Protective Enveloping Mountain Water Torrent Shield
+   *   • DarkMagicFXFree: dark_lift.gdshader vertical helical water columns & void_aura.gdshader enclosing barrier.
+   *   • DarkMagicFXFree & ElementalMagicFXFree: area_dark & area_ground swirling ground water vortex & dark_ring crest boundary.
+   *   • 8 Orbiting Mountain Rock Monoliths ("núi đá") spinning within the torrent barrier.
+   * - Phase 2 (0.65s – 1.8s): Explosive Knockback Detonation
+   *   • HitFXFree: impact_sphere.gdshader massive expanding outward shockwave hemisphere.
+   *   • HitFXFree: impact_slash.gdshader 360-degree cutting horizontal hydro blade ring.
+   *   • HitFXFree: streaks.gdshader 18 high-velocity water jet spikes knocking back enemies.
+   *   • Mountain stone shards violently hurled outward with parabolic gravity ejection.
+   *   • GPU-batched turbulent splash and oceanic point light detonation.
+   */
   private createActiveResilientTorrent(origin: THREE.Vector3): void {
-    const shield = new ParticleSystem({
-      duration: 1.8,
+    const totalDuration = 1.9;
+    const detonateTime = 0.65; // Time when barrier switches from enveloping defense to knockback explosion
+    const torrentGroup = new THREE.Group();
+    torrentGroup.position.copy(origin);
+
+    // ─────────────────────────────────────────────────────────────
+    // Phase 1 Components (DarkMagicFXFree & ElementalMagicFXFree)
+    // ─────────────────────────────────────────────────────────────
+
+    // 1. Swirling Ground Water Vortex Disc (DarkMagicFXFree: area_dark & ElementalMagicFXFree: area_ground)
+    const vortexGeo = new THREE.RingGeometry(0.25, 1.85, 32);
+    const vortexMat = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const vortexDisc = new THREE.Mesh(vortexGeo, vortexMat);
+    vortexDisc.rotation.x = -Math.PI / 2;
+    vortexDisc.position.y = 0.04;
+    torrentGroup.add(vortexDisc);
+
+    // 2. Concentric Protective Boundary Ring (DarkMagicFXFree: dark_ring.gdshader)
+    const boundaryRingGeo = new THREE.RingGeometry(1.65, 1.95, 32);
+    const boundaryRingMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const boundaryRing = new THREE.Mesh(boundaryRingGeo, boundaryRingMat);
+    boundaryRing.rotation.x = -Math.PI / 2;
+    boundaryRing.position.y = 0.05;
+    torrentGroup.add(boundaryRing);
+
+    // 3. 6 Helical Vertical Water Columns (DarkMagicFXFree: dark_lift.gdshader)
+    const liftColumns: THREE.Mesh[] = [];
+    const liftMat = new THREE.MeshBasicMaterial({
+      color: 0x0ea5e9,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+    for (let c = 0; c < 6; c++) {
+      const cGeo = new THREE.CylinderGeometry(0.08, 0.16, 2.3, 6);
+      const cm = new THREE.Mesh(cGeo, liftMat);
+      const angle = (c / 6) * Math.PI * 2;
+      cm.position.set(Math.cos(angle) * 1.15, 1.15, Math.sin(angle) * 1.15);
+      torrentGroup.add(cm);
+      liftColumns.push(cm);
+    }
+
+    // 4. Enveloping Water Barrier Dome (DarkMagicFXFree: void_aura & ElementalMagicFXFree: area_glow)
+    const domeGeo = new THREE.SphereGeometry(1.25, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.85);
+    const domeMat = new THREE.MeshBasicMaterial({
+      color: 0x0369a1,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+    });
+    const barrierDome = new THREE.Mesh(domeGeo, domeMat);
+    barrierDome.position.y = 0.1;
+    torrentGroup.add(barrierDome);
+
+    // 5. 8 Mountain Rock Monolith Shards ("núi đá" aegis stones)
+    const rockShards: { mesh: THREE.Mesh; angle: number; height: number; speed: number; vel: THREE.Vector3; rot: THREE.Vector3 }[] = [];
+    const rockMat = new THREE.MeshStandardMaterial({
+      color: 0x475569,
+      emissive: 0xdfa642,
+      emissiveIntensity: 0.6,
+      roughness: 0.8,
+      metalness: 0.2,
+      transparent: true,
+      opacity: 0.95,
+    });
+    for (let r = 0; r < 8; r++) {
+      const rGeo = new THREE.DodecahedronGeometry(0.12 + Math.random() * 0.05);
+      const rm = new THREE.Mesh(rGeo, rockMat);
+      const rAngle = (r / 8) * Math.PI * 2;
+      const rHeight = 0.5 + Math.random() * 1.1;
+      rm.position.set(Math.cos(rAngle) * 1.25, rHeight, Math.sin(rAngle) * 1.25);
+      torrentGroup.add(rm);
+      rockShards.push({
+        mesh: rm,
+        angle: rAngle,
+        height: rHeight,
+        speed: 4.5 + Math.random() * 2.0,
+        vel: new THREE.Vector3(
+          Math.cos(rAngle) * (4.5 + Math.random() * 3.5),
+          2.0 + Math.random() * 2.5,
+          Math.sin(rAngle) * (4.5 + Math.random() * 3.5)
+        ),
+        rot: new THREE.Vector3(Math.random() * 6, Math.random() * 6, Math.random() * 6),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Phase 2 Components (HitFXFree: Detonation & Knockback Burst)
+    // ─────────────────────────────────────────────────────────────
+
+    // 1. HitFXFree Impact Sphere (impact_sphere.gdshader)
+    const impactSphereGeo = new THREE.SphereGeometry(0.5, 24, 24);
+    const impactSphereMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+    });
+    const impactSphere = new THREE.Mesh(impactSphereGeo, impactSphereMat);
+    impactSphere.position.y = 1.0;
+    impactSphere.visible = false;
+    torrentGroup.add(impactSphere);
+
+    // 2. HitFXFree Impact Slashes (impact_slash.gdshader - 360 hydro blades)
+    const slashBladeGeo = new THREE.RingGeometry(0.3, 0.85, 36);
+    const slashBladeMat = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const slashBlade1 = new THREE.Mesh(slashBladeGeo, slashBladeMat);
+    slashBlade1.rotation.x = -Math.PI / 2;
+    slashBlade1.position.y = 1.0;
+    slashBlade1.visible = false;
+    torrentGroup.add(slashBlade1);
+
+    const slashBlade2 = new THREE.Mesh(slashBladeGeo, slashBladeMat);
+    slashBlade2.rotation.x = -Math.PI / 2;
+    slashBlade2.position.y = 0.5;
+    slashBlade2.visible = false;
+    torrentGroup.add(slashBlade2);
+
+    // 3. HitFXFree 18 High-Velocity Radial Water Spikes (streaks.gdshader)
+    const waterSpikes: THREE.Mesh[] = [];
+    const spikeMat = new THREE.MeshBasicMaterial({
+      color: 0xbae6fd,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    for (let i = 0; i < 18; i++) {
+      const sGeo = new THREE.ConeGeometry(0.045, 3.2, 4);
+      sGeo.rotateX(-Math.PI / 2);
+      const sm = new THREE.Mesh(sGeo, spikeMat);
+      sm.position.y = 0.9;
+      const angle = (i / 18) * Math.PI * 2;
+      const dir = new THREE.Vector3(
+        Math.cos(angle),
+        (Math.random() - 0.4) * 0.5,
+        Math.sin(angle)
+      ).normalize();
+      sm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+      sm.visible = false;
+      torrentGroup.add(sm);
+      waterSpikes.push(sm);
+    }
+
+    let burstTriggered = false;
+
+    this.addMeshEffect(torrentGroup, totalDuration, (dt, progress) => {
+      const currentTime = progress * totalDuration;
+
+      if (currentTime < detonateTime) {
+        // Phase 1: Enveloping Mountain Water Shield
+        const p1 = currentTime / detonateTime;
+
+        vortexDisc.rotation.z -= dt * 6.0;
+        boundaryRing.rotation.z += dt * 3.5;
+        const vScale = Math.min(1.0, p1 * 2.5);
+        vortexDisc.scale.set(vScale, vScale, 1);
+        boundaryRing.scale.set(vScale, vScale, 1);
+
+        liftColumns.forEach((cm, idx) => {
+          const colAngle = (idx / 6) * Math.PI * 2 + p1 * Math.PI * 3.0;
+          cm.position.x = Math.cos(colAngle) * 1.15;
+          cm.position.z = Math.sin(colAngle) * 1.15;
+          cm.rotation.y += dt * 8.0;
+        });
+
+        barrierDome.rotation.y += dt * 3.0;
+        const dScale = 1.0 + Math.sin(p1 * Math.PI * 4) * 0.08;
+        barrierDome.scale.set(dScale, dScale, dScale);
+
+        rockShards.forEach((rs) => {
+          rs.angle += dt * rs.speed;
+          rs.mesh.position.x = Math.cos(rs.angle) * 1.25;
+          rs.mesh.position.z = Math.sin(rs.angle) * 1.25;
+          rs.mesh.position.y = rs.height + Math.sin(rs.angle * 2.0) * 0.2;
+          rs.mesh.rotation.x += rs.rot.x * dt;
+          rs.mesh.rotation.y += rs.rot.y * dt;
+        });
+      } else {
+        // Phase 2: Explosive Knockback Detonation (HitFXFree)
+        const p2 = (currentTime - detonateTime) / (totalDuration - detonateTime);
+        const fade = Math.max(0, 1 - p2);
+
+        vortexMat.opacity = fade * 0.4;
+        boundaryRingMat.opacity = fade * 0.3;
+        liftMat.opacity = fade * 0.2;
+        barrierDome.visible = false;
+
+        if (!burstTriggered) {
+          burstTriggered = true;
+          impactSphere.visible = true;
+          slashBlade1.visible = true;
+          slashBlade2.visible = true;
+          waterSpikes.forEach((sm) => (sm.visible = true));
+          this.addTemporaryLight(0x38bdf8, 4.8, 9.5, origin, 1100);
+        }
+
+        const shockScale = (0.8 + p2 * 6.5);
+        impactSphere.scale.setScalar(shockScale);
+        impactSphereMat.opacity = fade * 0.85;
+
+        const bladeScale = 0.8 + p2 * 5.2;
+        slashBlade1.scale.set(bladeScale, bladeScale, 1);
+        slashBlade2.scale.set(bladeScale * 0.9, bladeScale * 0.9, 1);
+        slashBladeMat.opacity = fade * 0.9;
+
+        waterSpikes.forEach((sm) => {
+          sm.scale.set(fade, fade, 0.7 + p2 * 2.4);
+        });
+
+        rockShards.forEach((rs) => {
+          rs.mesh.position.addScaledVector(rs.vel, dt);
+          rs.vel.y -= 7.5 * dt;
+          rs.mesh.rotation.x += rs.rot.x * dt * 2;
+          rs.mesh.rotation.y += rs.rot.y * dt * 2;
+          rs.mesh.scale.setScalar(fade * 1.1);
+        });
+      }
+    });
+
+    // Phase 1 GPU Swirling Shield Droplets (three.quarks)
+    const swirlingDroplets = new ParticleSystem({
+      duration: detonateTime + 0.1,
       looping: false,
       autoDestroy: true,
-      shape: new DonutEmitter({ radius: 1.2, arc: Math.PI * 2, thickness: 0.6 }),
-      startLife: new IntervalValue(1.0, 1.5),
-      startSpeed: new IntervalValue(1.2, 2.4),
-      startSize: new IntervalValue(0.25, 0.5),
-      startColor: new ColorRange(new Vector4(0.1, 0.5, 0.9, 0.85), new Vector4(0.3, 0.85, 1.0, 0.8)),
-      emissionOverTime: new ConstantValue(35),
+      shape: new DonutEmitter({ radius: 1.25, arc: Math.PI * 2, thickness: 0.4 }),
+      startLife: new IntervalValue(0.4, 0.7),
+      startSpeed: new IntervalValue(2.5, 4.0),
+      startSize: new IntervalValue(0.2, 0.35),
+      startColor: new ColorRange(new Vector4(0.2, 0.8, 1.0, 0.85), new Vector4(0.05, 0.45, 0.85, 0.8)),
+      emissionOverTime: new ConstantValue(45),
       material: additiveMat(TEX.slash, 0x0284c7),
       renderMode: RenderMode.BillBoard,
       worldSpace: true,
       behaviors: [new SizeOverLife(bellSize())],
     });
-    shield.emitter.rotation.set(-Math.PI / 2, 0, 0);
-    this.addSystem(shield, origin);
+    swirlingDroplets.emitter.rotation.set(-Math.PI / 2, 0, 0);
+    this.addSystem(swirlingDroplets, origin);
 
-    const splash = new ParticleSystem({
-      duration: 1.4,
-      looping: false,
-      autoDestroy: true,
-      shape: new SphereEmitter({ radius: 0.6, arc: Math.PI * 2, thickness: 1 }),
-      startLife: new IntervalValue(0.6, 1.2),
-      startSpeed: new IntervalValue(2.5, 4.8),
-      startSize: new IntervalValue(0.1, 0.25),
-      startColor: new ConstantColor(new Vector4(0.4, 0.9, 1.0, 0.8)),
-      emissionOverTime: new ConstantValue(0),
-      emissionBursts: [{ time: 0.2, count: new ConstantValue(25), cycle: 1, interval: 0.01, probability: 1 }],
-      material: alphaMat(TEX.circle, 0x38bdf8),
-      renderMode: RenderMode.BillBoard,
-      worldSpace: true,
-      behaviors: [new SizeOverLife(fadeOutSize())],
-    });
-    this.addSystem(splash, origin);
+    // Phase 2 Delayed GPU Knockback Foam & Water Blast (HitFXFree style)
+    setTimeout(() => {
+      const knockbackSplash = new ParticleSystem({
+        duration: 1.1,
+        looping: false,
+        autoDestroy: true,
+        shape: new SphereEmitter({ radius: 0.5, arc: Math.PI * 2, thickness: 1 }),
+        startLife: new IntervalValue(0.6, 1.1),
+        startSpeed: new IntervalValue(5.0, 8.5),
+        startSize: new IntervalValue(0.25, 0.55),
+        startColor: new ColorRange(new Vector4(0.6, 0.95, 1.0, 0.9), new Vector4(0.02, 0.5, 0.9, 0.8)),
+        emissionOverTime: new ConstantValue(0),
+        emissionBursts: [{ time: 0, count: new ConstantValue(35), cycle: 1, interval: 0.01, probability: 1 }],
+        material: alphaMat(TEX.circle, 0x38bdf8),
+        renderMode: RenderMode.BillBoard,
+        worldSpace: true,
+        behaviors: [new SizeOverLife(fadeOutSize())],
+      });
+      this.addSystem(knockbackSplash, origin);
+    }, detonateTime * 1000);
 
-    this.addTemporaryLight(0x0284c7, 2.4, 5.5, origin, 1800);
+    // Initial defensive light
+    this.addTemporaryLight(0x0284c7, 2.8, 6.0, origin, 800);
   }
 
   /** Ultimate: Khát Vọng Trùng Khơi (Oceanic whirlpool + colossal tidal wave) */
