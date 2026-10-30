@@ -1,7 +1,6 @@
 ---
 title: "Phase 1: Dynamic MeshLibrary Asset Registry & CC0 Models"
-phase: 1
-status: pending
+status: completed
 priority: P1
 effort: 1.5h
 branch: main

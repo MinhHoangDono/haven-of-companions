@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v5.3.0] - 2026-10-30
+
+### Added
+- **City Builder Sandbox Construction Mode (`CityBuilderController.ts`)**: Adapted core mechanics from Kenney's Starter Kit City Builder into a native Three.js subsystem. Players can build and place medieval houses, windmills, tavern, cathedral, defense towers, cannons, fences, campfires, and tropical nature freely across the $70 \times 70$ diorama.
+- **Dynamic MeshLibrary Asset Registry (`DynamicMeshLibrary.ts`)**: 22 CC0 public domain 3D models categorized across Houses, Production, Fortifications, Decorations, and Nature with pre-calculated bounding footprint dimensions ($1 \times 1, 2 \times 2, 3 \times 3$), elevation offsets, and shared material pooling.
+- **Real-Time Ghost Preview Hologram**: Grid-snapped pointer raycasting onto voxel terrain (`VoxelTerrainBuilder.getTopElevation`) with real-time green/red validity checking (validates against deep ocean water $Y \le 0$, steep slopes $>1.2\text{m}$, companion pedestals, and existing structures).
+- **90° Structure Rotation & Bulldozer Demolish Tool**: Full $90^\circ$ clockwise rotation (`R` or `Space` key / UI button) and Bulldozer tool to dismantle user-placed structures, restoring terrain passability with custom sound effects (`audioManager.playDemolishSound`).
+- **Smooth Builder Camera Controls (`TouchControls3D.ts`)**: Dedicated builder mode camera profile with smooth LERP inertia damping, `W/A/S/D` ground panning, `Q/E` camera orbit rotation, and `F` key to center view on the village plaza.
+- **Save / Load Persistence (`CitySaveManager.ts`)**: Automated debounced serialization to browser `localStorage` (`haven_city_layout_v1`) restoring player villages on boot, formatted JSON export / download, JSON import, and clean village reset.
+- **Passability Map Dynamic Synchronization**: Placed structures automatically register in `passabilityMap.ts`, preventing companions from clipping through walls.
+- **Mobile Responsive Builder Drawer (`BuilderToolbar.tsx`, `StructureCard.tsx`, `SaveLoadModal.tsx`)**: Bottom-docked catalog drawer with category tabs, 2D sprite cards with footprint badges, structure count pill ($N/100$), and TopBar Build toggle.
+- **30+ FPS Mobile Performance Guarantee**: Throttled 33ms raycasting, shared geometries/materials, and a 100-structure hard safety cap.
+
+---
+
 ## [v5.2.0] - 2026-10-30
 
 ### Added

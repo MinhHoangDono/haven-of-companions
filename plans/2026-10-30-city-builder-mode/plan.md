@@ -1,7 +1,7 @@
 ---
 title: "City Builder Mode: In-Game Construction, Smooth Camera, Dynamic MeshLibrary & Persistence"
 description: "Implementation plan to adapt Kenney's City Builder Starter Kit mechanics into Haven of Companions (React + Three.js), providing dynamic structure building and removal, smooth builder camera controls, dynamic MeshLibrary asset registry with CC0 models and sprites, save/load persistence, and guaranteed 30+ FPS performance on mobile."
-status: pending
+status: completed
 priority: P1
 effort: 8h
 branch: main

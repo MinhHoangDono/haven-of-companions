@@ -1,7 +1,6 @@
 ---
 title: "Phase 2: Smooth Builder Camera Controls & Navigation"
-phase: 2
-status: pending
+status: completed
 priority: P1
 effort: 1.5h
 branch: main

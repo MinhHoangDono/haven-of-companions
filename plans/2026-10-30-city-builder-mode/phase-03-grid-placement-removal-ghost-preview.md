@@ -1,7 +1,6 @@
 ---
 title: "Phase 3: Grid Placement, Ghost Hologram & Removal (Bulldozer)"
-phase: 3
-status: pending
+status: completed
 priority: P1
 effort: 2.0h
 branch: main

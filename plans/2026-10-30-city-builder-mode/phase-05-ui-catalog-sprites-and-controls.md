@@ -1,7 +1,6 @@
 ---
 title: "Phase 5: UI Building Catalog, Sprites & Toolbar Drawer"
-phase: 5
-status: pending
+status: completed
 priority: P1
 effort: 1.5h
 branch: main

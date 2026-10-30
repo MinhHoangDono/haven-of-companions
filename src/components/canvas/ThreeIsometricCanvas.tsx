@@ -13,6 +13,9 @@ import { CollectibleMeshBuilder } from '../../engine/three/CollectibleMeshBuilde
 import { DynamicPlatformManager } from '../../engine/three/DynamicPlatformManager';
 import { CollectibleItem } from '../../types/platformer';
 import { audioManager } from '../../audio/audioManager';
+import { CityBuilderController } from '../../engine/three/builder/CityBuilderController';
+import { CitySaveManager } from '../../engine/three/builder/CitySaveManager';
+import { BuilderTool, PlacedStructure } from '../../types/cityBuilder';
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -29,6 +32,11 @@ interface ThreeIsometricCanvasProps {
   onInitJumper?: (jumpFn: () => void) => void;
   onCollectItem?: (item: CollectibleItem) => void;
   onPlatformToast?: (msg: string) => void;
+  isBuildMode?: boolean;
+  activeTool?: BuilderTool;
+  activeStructureId?: string;
+  onInitBuilder?: (builder: CityBuilderController) => void;
+  onBuilderStructuresChange?: (structures: PlacedStructure[]) => void;
 }
 
 export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
@@ -46,9 +54,42 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
   onInitJumper,
   onCollectItem,
   onPlatformToast,
+  isBuildMode = false,
+  activeTool = 'place',
+  activeStructureId = 'cottage_small',
+  onInitBuilder,
+  onBuilderStructuresChange,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const controlsRef = useRef<TouchControls3D | null>(null);
+  const builderControllerRef = useRef<CityBuilderController | null>(null);
+  const isBuildModeRef = useRef(isBuildMode);
+  isBuildModeRef.current = isBuildMode;
+  const activeToolRef = useRef(activeTool);
+  activeToolRef.current = activeTool;
+  const activeStructureIdRef = useRef(activeStructureId);
+  activeStructureIdRef.current = activeStructureId;
+  const onBuilderStructuresChangeRef = useRef(onBuilderStructuresChange);
+  onBuilderStructuresChangeRef.current = onBuilderStructuresChange;
+
+  useEffect(() => {
+    if (builderControllerRef.current) {
+      builderControllerRef.current.setBuildMode(!!isBuildMode);
+      controlsRef.current?.setBuilderMode(!!isBuildMode);
+    }
+  }, [isBuildMode]);
+
+  useEffect(() => {
+    if (builderControllerRef.current && activeTool) {
+      builderControllerRef.current.setTool(activeTool);
+    }
+  }, [activeTool]);
+
+  useEffect(() => {
+    if (builderControllerRef.current && activeStructureId) {
+      builderControllerRef.current.setActiveStructure(activeStructureId);
+    }
+  }, [activeStructureId]);
   const lightingRef = useRef<LightingManager | null>(null);
   const characterHandlesRef = useRef<Map<string, CharacterMeshHandle>>(new Map());
   const interactivePropsRef = useRef<InteractivePropRef[]>([]);
@@ -193,12 +234,53 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
         handles.get(activeId)?.jump?.();
       }
     });
+    // 4c. Setup City Builder Controller & LocalStorage Auto-Load
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+
+    const builderController = new CityBuilderController(
+      scene,
+      camera,
+      renderer.domElement,
+      {
+        onStructuresChange: (structures) => {
+          CitySaveManager.saveToLocalStorage(structures);
+          onBuilderStructuresChangeRef.current?.(structures);
+        },
+        onNotice: (msg) => {
+          onPlatformToastRef.current?.(msg);
+        },
+      }
+    );
+    builderControllerRef.current = builderController;
+    builderController.setBuildMode(!!isBuildModeRef.current);
+    builderController.setTool(activeToolRef.current);
+    builderController.setActiveStructure(activeStructureIdRef.current);
+    onInitBuilder?.(builderController);
+
+    // Reconstitute saved player structures from localStorage
+    const savedStructures = CitySaveManager.loadFromLocalStorage();
+    if (savedStructures.length > 0) {
+      builderController.reconstituteStructures(savedStructures);
+    }
+
     // 5. Setup Touch & Mouse Controls
     const controls = new TouchControls3D(
       camera,
       renderer.domElement,
       {
         onTap: (hit: InteractiveHit | null) => {
+          if (isBuildModeRef.current) {
+            if (activeToolRef.current === 'demolish') {
+              builderController.demolishAtPointer(lastPointerX, lastPointerY);
+            } else if (activeToolRef.current === 'rotate') {
+              builderController.rotateCurrentStructure();
+            } else {
+              builderController.placeStructure();
+            }
+            return;
+          }
+
           if (isInspectorActiveRef.current) {
             onInspectHitRef.current?.(hit);
             if (hit && sceneRef.current) {
@@ -256,9 +338,24 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     controls.setInteractiveObjects(clickables);
 
     // Event listeners
-    const onDown = controls.handlePointerDown.bind(controls);
-    const onMove = controls.handlePointerMove.bind(controls);
-    const onUp = controls.handlePointerUp.bind(controls);
+    const onDown = (e: PointerEvent) => {
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      controls.handlePointerDown(e);
+    };
+    const onMove = (e: PointerEvent) => {
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      if (isBuildModeRef.current) {
+        builderController.onPointerMove(e.clientX, e.clientY);
+      }
+      controls.handlePointerMove(e);
+    };
+    const onUp = (e: PointerEvent) => {
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      controls.handlePointerUp(e);
+    };
     const onWheel = controls.handleWheel.bind(controls);
 
     const dom = renderer.domElement;
@@ -284,6 +381,26 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
       keysPressed[e.code] = true;
+      if (isBuildModeRef.current) {
+        if (e.code === 'KeyR' || e.code === 'Space') {
+          e.preventDefault();
+          builderController.rotateCurrentStructure();
+          return;
+        }
+        if (e.code === 'KeyQ') {
+          controls.rotateBy(-Math.PI / 4);
+          return;
+        }
+        if (e.code === 'KeyE') {
+          controls.rotateBy(Math.PI / 4);
+          return;
+        }
+        if (e.code === 'KeyF') {
+          controls.centerOnPlaza();
+          return;
+        }
+      }
+
       if (e.code === 'Space') {
         e.preventDefault();
         const activeId = selectedCharIdRef.current || charactersRef.current[0]?.id;
