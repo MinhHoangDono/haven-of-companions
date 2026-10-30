@@ -42,25 +42,41 @@ The Vite dev server will print both the local URL (`http://localhost:3000`) and 
 
 The application is deployed on **GitHub Pages** via **GitHub Actions** with zero backend infrastructure requirements (100% static client-side SPA with WebGL).
 
-### Deploying to Production
+### Live Production Deployment
+- **Production URL**: [https://minhhoangdono.github.io/haven-of-companions/](https://minhhoangdono.github.io/haven-of-companions/)
+- **Repository**: [https://github.com/MinhHoangDono/haven-of-companions](https://github.com/MinhHoangDono/haven-of-companions)
+- **CI/CD Workflow**: `.github/workflows/deploy.yml`
+
+### Step-by-Step Deployment Runbook for AI Agents & Engineers
 ```bash
-# Step 1: Ensure clean build and relative base configuration (base: "./" in vite.config.ts)
+# Step 1: Verify TypeScript & build production bundle cleanly
 npm run build
 
-# Step 2: Push to master (GitHub Actions automatically builds and deploys to GitHub Pages)
+# Step 2: Bump Service Worker cache version in public/sw.js (e.g. from v6.4 to v6.5)
+# (Mandatory to bust stale iOS/Android PWA caches)
+
+# Step 3: Commit and push to master branch
+git add .
+git commit -m "feat(release): description of your update"
 git push origin master
+
+# Step 4: Monitor the automated GitHub Actions deployment (takes ~25-35s)
+gh run list --repo MinhHoangDono/haven-of-companions --limit 3
+gh run watch <run-id> --exit-status
+
+# Step 5: Verify production site returns HTTP 200 OK
+curl -I https://minhhoangdono.github.io/haven-of-companions/
 ```
 
-### Operational Deployment Invariant: Service Worker Cache & Base Path
-1. **Service Worker Cache**: When shipping a new release, **always bump `CACHE_NAME` in `public/sw.js`**:
-   ```typescript
-   // public/sw.js
-   const CACHE_NAME = 'haven-companions-v6.4'; // increment on release
-   ```
-   *Why?* Mobile Safari and Android Chrome aggressively cache PWA assets. Incrementing `CACHE_NAME` triggers the service worker `activate` event, purging stale cached bundles.
-2. **Vite Base Path**: `vite.config.ts` **must** maintain `base: './'` to ensure all chunks, CSS, and 3D GLTF models resolve relative to subpath hosting (GitHub Pages `/haven-of-companions/`).
-
----
+### Critical Deployment Invariants for Multi-Agent Collaboration
+1. **Vite Base Path (`vite.config.ts`)**:
+   `vite.config.ts` **must always retain `base: './'`** (or `/haven-of-companions/`). If set to root `'/'`, all JS/CSS chunks and 3D GLTF models will fail with 404 errors on GitHub Pages subfolder hosting.
+2. **GLTF Asset Path Resolution (`src/engine/three/GLTFLoader.ts`)**:
+   When loading 3D assets or props via `GLTFLoader`, paths must be resolved via the centralized `resolveAssetUrl(url)` helper to prevent absolute root `/models/...` breakages in subdirectories.
+3. **PWA Cache Invalidation (`public/sw.js`)**:
+   Whenever UI, models, or physics code changes, **increment `CACHE_NAME`** in `public/sw.js` (`haven-companions-v6.x`). This commands client browsers to purge stale cached chunks on subsequent page loads.
+4. **Vercel / Netlify Alternative**:
+   The repository is also directly deployable to Vercel or Netlify as a standard Vite static project (`Build command: npm run build`, `Output directory: dist`).
 
 ## 4. Source Code Architecture & File Map
 
