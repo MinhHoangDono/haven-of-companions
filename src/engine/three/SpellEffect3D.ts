@@ -747,55 +747,305 @@ export class SpellEffect3D {
     this.addTemporaryLight(0x22d3ee, 4.5, 8.5, targetPos, 1100);
   }
 
-  /** Ultimate: Khúc Ca Đại Ngàn (Harmonic melody shockwaves + charm aura) */
+  /**
+   * Ultimate: Khúc Ca Đại Ngàn (Hymn of the Wilds)
+   *
+   * User requirements:
+   * - Green status buff (StatusFXFree: aura_sphere & status_overlay)
+   * - Green flame (FlameFXFree: fire_core & flame_cyclone in emerald/jade)
+   * - Continuous expanding green magic circle with hit effect for 3s (HitFXFree: four_point_star, streaks, impact_slash)
+   */
   private createUltHymnOfWilds(origin: THREE.Vector3): void {
+    const totalDuration = 3.6;
+    const hymnGroup = new THREE.Group();
+    hymnGroup.position.copy(origin);
+
+    // ─────────────────────────────────────────────────────────────
+    // 1. Green Status Buff (StatusFXFree: aura_sphere & heal_particle)
+    // ─────────────────────────────────────────────────────────────
+    // Outer shimmering status dome
+    const buffSphereGeo = new THREE.SphereGeometry(1.6, 24, 24);
+    const buffSphereMat = new THREE.MeshBasicMaterial({
+      color: 0x10b981,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+    });
+    const buffSphere = new THREE.Mesh(buffSphereGeo, buffSphereMat);
+    buffSphere.position.y = 1.2;
+    hymnGroup.add(buffSphere);
+
+    // Inner crystalline core
+    const buffCoreGeo = new THREE.DodecahedronGeometry(1.05);
+    const buffCoreMat = new THREE.MeshBasicMaterial({
+      color: 0x84cc16,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+    });
+    const buffCore = new THREE.Mesh(buffCoreGeo, buffCoreMat);
+    buffCore.position.y = 1.2;
+    hymnGroup.add(buffCore);
+
+    // 10 Floating status buff diamonds ascending in a spiral
+    const buffDiamonds: { mesh: THREE.Mesh; angle: number; baseHeight: number; speed: number; rot: THREE.Vector3 }[] = [];
+    const diamondMat = new THREE.MeshStandardMaterial({
+      color: 0x22c55e,
+      emissive: 0x10b981,
+      emissiveIntensity: 1.8,
+      roughness: 0.2,
+      metalness: 0.8,
+      transparent: true,
+      opacity: 0.95,
+    });
+    for (let d = 0; d < 10; d++) {
+      const dGeo = new THREE.OctahedronGeometry(0.1 + Math.random() * 0.04);
+      const dm = new THREE.Mesh(dGeo, diamondMat);
+      const angle = (d / 10) * Math.PI * 2;
+      const baseHeight = 0.4 + (d / 10) * 1.8;
+      dm.position.set(Math.cos(angle) * 1.1, baseHeight, Math.sin(angle) * 1.1);
+      hymnGroup.add(dm);
+      buffDiamonds.push({
+        mesh: dm,
+        angle,
+        baseHeight,
+        speed: 2.5 + Math.random() * 1.5,
+        rot: new THREE.Vector3(Math.random() * 6, Math.random() * 6, Math.random() * 6),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. Roaring Emerald Green Flame (FlameFXFree: fire_core & flame_cyclone)
+    // ─────────────────────────────────────────────────────────────
+    // Central green fire core
+    const flameCoreGeo = new THREE.CylinderGeometry(0.22, 0.75, 4.4, 8);
+    const flameCoreMat = new THREE.MeshBasicMaterial({
+      color: 0x4ade80,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+    });
+    const flameCore = new THREE.Mesh(flameCoreGeo, flameCoreMat);
+    flameCore.position.y = 2.2;
+    hymnGroup.add(flameCore);
+
+    // Outer swirling green flame cyclone
+    const cycloneGeo = new THREE.CylinderGeometry(0.8, 1.4, 5.0, 12, 1, true);
+    const cycloneMat = new THREE.MeshBasicMaterial({
+      color: 0x059669,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+    });
+    const flameCyclone = new THREE.Mesh(cycloneGeo, cycloneMat);
+    flameCyclone.position.y = 2.4;
+    hymnGroup.add(flameCyclone);
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. Continuous Expanding Green Magic Circles with Hit Effects for 3s
+    // ─────────────────────────────────────────────────────────────
+    interface MagicWave {
+      startTime: number;
+      duration: number;
+      ringMesh: THREE.Mesh;
+      ringMat: THREE.MeshBasicMaterial;
+      innerRune: THREE.Mesh;
+      innerRuneMat: THREE.MeshBasicMaterial;
+      starHits: THREE.Mesh[];
+      slashBlades: THREE.Mesh[];
+    }
+
+    const magicWaves: MagicWave[] = [];
+    const waveCount = 5;
+    const waveInterval = 0.6;
+
+    for (let w = 0; w < waveCount; w++) {
+      const startTime = w * waveInterval;
+      const waveDuration = 1.2;
+
+      const ringGeo = new THREE.RingGeometry(0.3, 0.65, 32);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x10b981,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = -Math.PI / 2;
+      ringMesh.position.y = 0.04 + w * 0.005;
+      ringMesh.visible = false;
+      hymnGroup.add(ringMesh);
+
+      const innerGeo = new THREE.RingGeometry(0.18, 0.45, 16);
+      const innerMat = new THREE.MeshBasicMaterial({
+        color: 0x84cc16,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const innerRune = new THREE.Mesh(innerGeo, innerMat);
+      innerRune.rotation.x = -Math.PI / 2;
+      innerRune.position.y = 0.05 + w * 0.005;
+      innerRune.visible = false;
+      hymnGroup.add(innerRune);
+
+      const starHits: THREE.Mesh[] = [];
+      const starGeo = createFourPointStarGeo(0.42, 0.1);
+      const starMat = new THREE.MeshBasicMaterial({
+        color: 0xfacc15,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      for (let s = 0; s < 8; s++) {
+        const sm = new THREE.Mesh(starGeo, starMat);
+        sm.rotation.x = -Math.PI / 2;
+        sm.visible = false;
+        hymnGroup.add(sm);
+        starHits.push(sm);
+      }
+
+      const slashBlades: THREE.Mesh[] = [];
+      const slashGeo = new THREE.RingGeometry(0.2, 0.6, 32);
+      const slashMat = new THREE.MeshBasicMaterial({
+        color: 0x34d399,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const s1 = new THREE.Mesh(slashGeo, slashMat);
+      s1.rotation.x = -Math.PI / 2;
+      s1.position.y = 0.6;
+      s1.visible = false;
+      hymnGroup.add(s1);
+      slashBlades.push(s1);
+
+      const s2 = new THREE.Mesh(slashGeo, slashMat);
+      s2.rotation.x = -Math.PI / 2.5;
+      s2.position.y = 0.9;
+      s2.visible = false;
+      hymnGroup.add(s2);
+      slashBlades.push(s2);
+
+      magicWaves.push({
+        startTime,
+        duration: waveDuration,
+        ringMesh,
+        ringMat,
+        innerRune,
+        innerRuneMat: innerMat,
+        starHits,
+        slashBlades,
+      });
+    }
+
+    this.addMeshEffect(hymnGroup, totalDuration, (dt, progress) => {
+      const currentTime = progress * totalDuration;
+      const overallFade = Math.max(0, 1 - progress);
+
+      // 1. Animate Green Status Buff
+      buffSphere.rotation.y += dt * 2.0;
+      buffSphere.rotation.z += dt * 1.5;
+      const sPulse = 1.0 + Math.sin(currentTime * 5.0) * 0.12;
+      buffSphere.scale.set(sPulse, sPulse, sPulse);
+      buffSphereMat.opacity = overallFade * 0.75;
+
+      buffCore.rotation.y -= dt * 3.5;
+      buffCore.scale.set(sPulse * 0.9, sPulse * 0.9, sPulse * 0.9);
+      buffCoreMat.opacity = overallFade * 0.85;
+
+      buffDiamonds.forEach((bd) => {
+        bd.angle += dt * bd.speed;
+        bd.mesh.position.x = Math.cos(bd.angle) * 1.15;
+        bd.mesh.position.z = Math.sin(bd.angle) * 1.15;
+        bd.mesh.position.y = 0.4 + ((bd.baseHeight + currentTime * 0.8) % 2.4);
+        bd.mesh.rotation.x += bd.rot.x * dt;
+        bd.mesh.rotation.y += bd.rot.y * dt;
+        bd.mesh.scale.setScalar(overallFade);
+      });
+
+      // 2. Animate Green Flame Pillar & Cyclone
+      flameCore.rotation.y += dt * 6.0;
+      flameCyclone.rotation.y -= dt * 8.5;
+      const fScale = (1.0 + Math.sin(currentTime * 8.0) * 0.15) * overallFade;
+      flameCore.scale.set(fScale, 1.0, fScale);
+      flameCyclone.scale.set(fScale, 1.0, fScale);
+      flameCoreMat.opacity = overallFade * 0.9;
+      cycloneMat.opacity = overallFade * 0.65;
+
+      // 3. Animate 5 Cascading Expanding Magic Circles & Hit Effects
+      magicWaves.forEach((w) => {
+        if (currentTime >= w.startTime && currentTime <= w.startTime + w.duration) {
+          const waveP = (currentTime - w.startTime) / w.duration;
+          const wFade = Math.max(0, 1 - waveP);
+          const currentRadius = 0.5 + waveP * 6.2;
+
+          w.ringMesh.visible = true;
+          w.ringMesh.scale.set(currentRadius, currentRadius, 1);
+          w.ringMesh.rotation.z += dt * 1.8;
+          w.ringMat.opacity = wFade * 0.9;
+
+          w.innerRune.visible = true;
+          w.innerRune.scale.set(currentRadius * 0.65, currentRadius * 0.65, 1);
+          w.innerRune.rotation.z -= dt * 2.4;
+          w.innerRuneMat.opacity = wFade * 0.85;
+
+          w.starHits.forEach((sm, sIdx) => {
+            sm.visible = true;
+            const starAngle = (sIdx / 8) * Math.PI * 2 + waveP * Math.PI;
+            sm.position.set(Math.cos(starAngle) * currentRadius, 0.08, Math.sin(starAngle) * currentRadius);
+            sm.rotation.z += dt * 10.0;
+            const starScale = (0.5 + Math.sin(waveP * Math.PI) * 0.8) * wFade;
+            sm.scale.set(starScale, starScale, starScale);
+          });
+
+          w.slashBlades.forEach((sb, sIdx) => {
+            sb.visible = true;
+            const bScale = currentRadius * (0.8 + sIdx * 0.2);
+            sb.scale.set(bScale, bScale, 1);
+            (sb.material as THREE.MeshBasicMaterial).opacity = wFade * 0.8;
+          });
+        } else if (currentTime > w.startTime + w.duration) {
+          w.ringMesh.visible = false;
+          w.innerRune.visible = false;
+          w.starHits.forEach((sm) => (sm.visible = false));
+          w.slashBlades.forEach((sb) => (sb.visible = false));
+        }
+      });
+    });
+
+    // GPU-Batched Melodic Notes
     const melody = new ParticleSystem({
-      duration: 2.5,
+      duration: 3.0,
       looping: false,
       autoDestroy: true,
-      shape: new CircleEmitter({ radius: 0.6, arc: Math.PI * 2, thickness: 0.2 }),
-      startLife: new IntervalValue(1.6, 2.2),
-      startSpeed: new IntervalValue(2.5, 4.0),
+      shape: new CircleEmitter({ radius: 1.2, arc: Math.PI * 2, thickness: 0.4 }),
+      startLife: new IntervalValue(1.6, 2.4),
+      startSpeed: new IntervalValue(3.0, 5.0),
       startSize: new IntervalValue(0.35, 0.65),
-      startColor: new ColorRange(new Vector4(0.98, 0.8, 0.2, 0.9), new Vector4(0.95, 0.6, 0.1, 0.7)),
-      emissionOverTime: new ConstantValue(0),
-      emissionBursts: [
-        { time: 0, count: new ConstantValue(25), cycle: 1, interval: 0.01, probability: 1 },
-        { time: 0.4, count: new ConstantValue(30), cycle: 1, interval: 0.01, probability: 1 },
-        { time: 0.8, count: new ConstantValue(35), cycle: 1, interval: 0.01, probability: 1 },
-      ],
-      material: additiveMat(TEX.magic, 0xfbbf24),
+      startColor: new ColorRange(new Vector4(0.1, 0.85, 0.4, 0.9), new Vector4(0.5, 0.95, 0.2, 0.8)),
+      emissionOverTime: new ConstantValue(40),
+      material: additiveMat(TEX.magic, 0x10b981),
       renderMode: RenderMode.BillBoard,
       worldSpace: true,
-      behaviors: [
-        new SizeOverLife(fadeOutSize()),
-        new ColorOverLife(fadeAlphaGradient(0.98, 0.75, 0.2)),
-      ],
+      behaviors: [new SizeOverLife(fadeOutSize())],
     });
     melody.emitter.rotation.set(-Math.PI / 2, 0, 0);
     this.addSystem(melody, origin);
 
-    const notes = new ParticleSystem({
-      duration: 2.2,
-      looping: false,
-      autoDestroy: true,
-      shape: new SphereEmitter({ radius: 2.5, arc: Math.PI * 2, thickness: 0.8 }),
-      startLife: new IntervalValue(1.2, 1.8),
-      startSpeed: new IntervalValue(0.8, 1.6),
-      startSize: new IntervalValue(0.1, 0.22),
-      startColor: new ConstantColor(new Vector4(1.0, 0.9, 0.3, 0.9)),
-      emissionOverTime: new ConstantValue(30),
-      material: additiveMat(TEX.spark, 0xfef08a),
-      renderMode: RenderMode.BillBoard,
-      worldSpace: true,
-      behaviors: [
-        new ApplyForce(new QVector3(0, 1.4, 0), new ConstantValue(1.2)),
-        new ColorOverLife(fadeAlphaGradient(1.0, 0.85, 0.2)),
-      ],
-    });
-    this.addSystem(notes, origin);
-
-    this.addTemporaryLight(0xf59e0b, 3.6, 10.0, origin, 2500);
+    // Dynamic emerald light for 3.2s
+    this.addTemporaryLight(0x10b981, 5.2, 14.0, origin, 3200);
   }
 
   // ─── 3. Trần Nguyễn Trâm Anh (The Illusionist Painter) ───
@@ -1922,18 +2172,257 @@ export class SpellEffect3D {
     this.addTemporaryLight(0x0284c7, 2.8, 6.0, origin, 800);
   }
 
-  /** Ultimate: Khát Vọng Trùng Khơi (Oceanic whirlpool + colossal tidal wave) */
+  /**
+   * Ultimate: Khát Vọng Trùng Khơi (Oceanic Tsunami)
+   *
+   * User requirements:
+   * - Water slash and cycling around with thunder (HitFXFree: impact_slash & ElectricFXFree: zap.gdshader)
+   * - Water expanding below the feet (DarkMagicFXFree: area_dark & ElementalMagicFXFree: area_ground)
+   * - Status effect blue very big (StatusFXFree: aura_sphere.gdshader colossal celestial status dome)
+   */
   private createUltOceanTsunami(origin: THREE.Vector3): void {
+    const totalDuration = 3.8;
+    const tsunamiGroup = new THREE.Group();
+    tsunamiGroup.position.copy(origin);
+
+    // ─────────────────────────────────────────────────────────────
+    // 1. Status Effect Blue Very Big (StatusFXFree: aura_sphere.gdshader)
+    // ─────────────────────────────────────────────────────────────
+    // Monumental outer celestial status dome (Radius 4.8m)
+    const giantDomeGeo = new THREE.SphereGeometry(4.8, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.88);
+    const giantDomeMat = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending,
+    });
+    const giantDome = new THREE.Mesh(giantDomeGeo, giantDomeMat);
+    giantDome.position.y = 0.2;
+    tsunamiGroup.add(giantDome);
+
+    // Inner glowing ocean status sphere
+    const innerSphereGeo = new THREE.SphereGeometry(2.4, 24, 18);
+    const innerSphereMat = new THREE.MeshBasicMaterial({
+      color: 0x0369a1,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+    const innerSphere = new THREE.Mesh(innerSphereGeo, innerSphereMat);
+    innerSphere.position.y = 1.2;
+    tsunamiGroup.add(innerSphere);
+
+    // 14 Monumental floating blue aegis runes / status monoliths
+    const statusMonoliths: { mesh: THREE.Mesh; angle: number; baseHeight: number; orbitR: number; speed: number; rot: THREE.Vector3 }[] = [];
+    const monolithMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 1.6,
+      roughness: 0.2,
+      metalness: 0.7,
+      transparent: true,
+      opacity: 0.95,
+    });
+    for (let m = 0; m < 14; m++) {
+      const mGeo = new THREE.OctahedronGeometry(0.18 + Math.random() * 0.06);
+      const mm = new THREE.Mesh(mGeo, monolithMat);
+      const mAngle = (m / 14) * Math.PI * 2;
+      const orbitR = 2.6 + (m % 2) * 1.2;
+      const baseHeight = 0.8 + Math.random() * 1.8;
+      mm.position.set(Math.cos(mAngle) * orbitR, baseHeight, Math.sin(mAngle) * orbitR);
+      tsunamiGroup.add(mm);
+      statusMonoliths.push({
+        mesh: mm,
+        angle: mAngle,
+        baseHeight,
+        orbitR,
+        speed: 2.0 + Math.random() * 1.6,
+        rot: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. Water Expanding Below the Feet (DarkMagicFXFree & ElementalMagicFXFree)
+    // ─────────────────────────────────────────────────────────────
+    // Inner swirling ground water whirlpool
+    const innerWaterGeo = new THREE.RingGeometry(0.3, 2.5, 36);
+    const innerWaterMat = new THREE.MeshBasicMaterial({
+      color: 0x0369a1,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const innerWaterRing = new THREE.Mesh(innerWaterGeo, innerWaterMat);
+    innerWaterRing.rotation.x = -Math.PI / 2;
+    innerWaterRing.position.y = 0.04;
+    tsunamiGroup.add(innerWaterRing);
+
+    // Middle tidal surge ring
+    const midSurgeGeo = new THREE.RingGeometry(1.5, 4.8, 36);
+    const midSurgeMat = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const midSurgeRing = new THREE.Mesh(midSurgeGeo, midSurgeMat);
+    midSurgeRing.rotation.x = -Math.PI / 2;
+    midSurgeRing.position.y = 0.05;
+    tsunamiGroup.add(midSurgeRing);
+
+    // Outer colossal expanding flood ring (expands up to 8.2m)
+    const floodRingGeo = new THREE.RingGeometry(3.0, 7.8, 48);
+    const floodRingMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const floodRing = new THREE.Mesh(floodRingGeo, floodRingMat);
+    floodRing.rotation.x = -Math.PI / 2;
+    floodRing.position.y = 0.06;
+    tsunamiGroup.add(floodRing);
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. Water Slashes Cycling Around with Thunder (HitFXFree + ElectricFXFree)
+    // ─────────────────────────────────────────────────────────────
+    // 4 large hydro-blades orbiting in 3D around Thanh Phương
+    const waterSlashes: { mesh: THREE.Mesh; height: number; radius: number; speed: number; tilt: number }[] = [];
+    const slashMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    for (let s = 0; s < 4; s++) {
+      const sGeo = new THREE.RingGeometry(0.35, 1.5, 32, 1, 0, Math.PI * 0.85);
+      const sm = new THREE.Mesh(sGeo, slashMat);
+      const height = 0.8 + s * 0.45;
+      const radius = 1.6 + (s % 2) * 0.5;
+      sm.position.set(0, height, 0);
+      tsunamiGroup.add(sm);
+      waterSlashes.push({
+        mesh: sm,
+        height,
+        radius,
+        speed: 6.5 + s * 1.2,
+        tilt: (s * Math.PI) / 4,
+      });
+    }
+
+    // 6 Crackling Jagged Electric Thunder Lightning Arcs (ElectricFXFree: zap.gdshader)
+    const thunderArcs: { line: THREE.Line; startNodeIdx: number }[] = [];
+    const lightningMat = new THREE.LineBasicMaterial({
+      color: 0xa5f3fc,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      opacity: 0.95,
+    });
+    for (let t = 0; t < 6; t++) {
+      const dummyPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)];
+      const tGeo = new THREE.BufferGeometry().setFromPoints(dummyPoints);
+      const tLine = new THREE.Line(tGeo, lightningMat);
+      tsunamiGroup.add(tLine);
+      thunderArcs.push({ line: tLine, startNodeIdx: t % 4 });
+    }
+
+    this.addMeshEffect(tsunamiGroup, totalDuration, (dt, progress) => {
+      const currentTime = progress * totalDuration;
+      const overallFade = Math.max(0, 1 - progress);
+
+      // 1. Animate Giant Blue Status Dome & Monoliths
+      giantDome.rotation.y += dt * 1.5;
+      const dPulse = 1.0 + Math.sin(currentTime * 4.0) * 0.08;
+      giantDome.scale.set(dPulse, dPulse, dPulse);
+      giantDomeMat.opacity = overallFade * 0.7;
+
+      innerSphere.rotation.y -= dt * 2.2;
+      innerSphereMat.opacity = overallFade * 0.8;
+
+      statusMonoliths.forEach((sm) => {
+        sm.angle += dt * sm.speed;
+        sm.mesh.position.x = Math.cos(sm.angle) * sm.orbitR;
+        sm.mesh.position.z = Math.sin(sm.angle) * sm.orbitR;
+        sm.mesh.position.y = sm.baseHeight + Math.sin(sm.angle * 2.5) * 0.35;
+        sm.mesh.rotation.x += sm.rot.x * dt;
+        sm.mesh.rotation.y += sm.rot.y * dt;
+        sm.mesh.scale.setScalar(overallFade * 1.1);
+      });
+
+      // 2. Animate Water Expanding Below the Feet
+      innerWaterRing.rotation.z -= dt * 4.5;
+      midSurgeRing.rotation.z += dt * 3.0;
+      floodRing.rotation.z -= dt * 2.2;
+
+      const expandScale = 0.6 + progress * 2.2;
+      innerWaterRing.scale.set(expandScale, expandScale, 1);
+      midSurgeRing.scale.set(expandScale * 1.15, expandScale * 1.15, 1);
+      floodRing.scale.set(expandScale * 1.35, expandScale * 1.35, 1);
+
+      innerWaterMat.opacity = overallFade * 0.9;
+      midSurgeMat.opacity = overallFade * 0.85;
+      floodRingMat.opacity = overallFade * 0.8;
+
+      // 3. Animate Water Slashes Cycling Around with Thunder
+      waterSlashes.forEach((ws, idx) => {
+        const orbitAngle = currentTime * ws.speed + (idx * Math.PI) / 2;
+        ws.mesh.position.x = Math.cos(orbitAngle) * ws.radius;
+        ws.mesh.position.z = Math.sin(orbitAngle) * ws.radius;
+        ws.mesh.position.y = ws.height + Math.sin(orbitAngle * 2.0) * 0.25;
+        ws.mesh.rotation.x = -Math.PI / 2 + ws.tilt;
+        ws.mesh.rotation.z = orbitAngle;
+        ws.mesh.scale.setScalar(overallFade * 1.1);
+      });
+
+      // Crackling zigzag thunder arcs between cycling slashes and ground
+      thunderArcs.forEach((ta) => {
+        const sourceSlash = waterSlashes[ta.startNodeIdx];
+        const sPos = sourceSlash.mesh.position;
+        const endPos = new THREE.Vector3(
+          sPos.x + (Math.random() - 0.5) * 2.2,
+          Math.max(0.05, sPos.y - 1.2 + (Math.random() - 0.5) * 0.8),
+          sPos.z + (Math.random() - 0.5) * 2.2
+        );
+
+        const arcPoints: THREE.Vector3[] = [sPos.clone()];
+        const segments = 5;
+        for (let seg = 1; seg < segments; seg++) {
+          const tLerp = seg / segments;
+          const mid = new THREE.Vector3().lerpVectors(sPos, endPos, tLerp);
+          mid.x += (Math.random() - 0.5) * 0.35;
+          mid.y += (Math.random() - 0.5) * 0.35;
+          mid.z += (Math.random() - 0.5) * 0.35;
+          arcPoints.push(mid);
+        }
+        arcPoints.push(endPos);
+
+        ta.line.geometry.dispose();
+        ta.line.geometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
+        (ta.line.material as THREE.LineBasicMaterial).opacity = overallFade * (0.6 + Math.random() * 0.4);
+      });
+    });
+
+    // GPU-Batched Oceanic Whirlpool & Crest Foam
     const whirlpool = new ParticleSystem({
-      duration: 3.0,
+      duration: 3.2,
       looping: false,
       autoDestroy: true,
-      shape: new CircleEmitter({ radius: 1.5, arc: Math.PI * 2, thickness: 0.4 }),
-      startLife: new IntervalValue(1.6, 2.4),
-      startSpeed: new IntervalValue(3.0, 5.5),
-      startSize: new IntervalValue(0.4, 0.85),
-      startColor: new ColorRange(new Vector4(0.05, 0.3, 0.8, 0.9), new Vector4(0.1, 0.7, 0.9, 0.8)),
-      emissionOverTime: new ConstantValue(50),
+      shape: new CircleEmitter({ radius: 2.2, arc: Math.PI * 2, thickness: 0.6 }),
+      startLife: new IntervalValue(1.6, 2.5),
+      startSpeed: new IntervalValue(4.0, 7.0),
+      startSize: new IntervalValue(0.4, 0.9),
+      startColor: new ColorRange(new Vector4(0.05, 0.4, 0.9, 0.95), new Vector4(0.2, 0.85, 1.0, 0.85)),
+      emissionOverTime: new ConstantValue(60),
       material: additiveMat(TEX.circle, 0x0284c7),
       renderMode: RenderMode.BillBoard,
       worldSpace: true,
@@ -1942,25 +2431,8 @@ export class SpellEffect3D {
     whirlpool.emitter.rotation.set(-Math.PI / 2, 0, 0);
     this.addSystem(whirlpool, origin);
 
-    const crest = new ParticleSystem({
-      duration: 2.6,
-      looping: false,
-      autoDestroy: true,
-      shape: new ConeEmitter({ radius: 1.0, arc: Math.PI * 2, angle: 0.35 }),
-      startLife: new IntervalValue(1.2, 1.8),
-      startSpeed: new IntervalValue(4.0, 7.0),
-      startSize: new IntervalValue(0.3, 0.65),
-      startColor: new ConstantColor(new Vector4(0.7, 0.95, 1.0, 0.85)),
-      emissionOverTime: new ConstantValue(40),
-      material: alphaMat(TEX.smoke, 0x0284c7),
-      renderMode: RenderMode.BillBoard,
-      worldSpace: true,
-      behaviors: [new SizeOverLife(bellSize())],
-    });
-    crest.emitter.rotation.set(-Math.PI / 2, 0, 0);
-    this.addSystem(crest, origin);
-
-    this.addTemporaryLight(0x0077b6, 4.2, 12.0, origin, 3000);
+    // Monumental Ocean Dynamic Point Light
+    this.addTemporaryLight(0x0284c7, 6.0, 18.0, origin, 3500);
   }
 
   // ─── 8. Phạm Xuân Minh (The Fearless Manager) ───

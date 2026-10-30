@@ -197,12 +197,12 @@ export const WEAPON_GRIP_CONFIGS: Record<string, GripTransform> = {
   'proc:chronicles_sunspire': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.08, 0.08], rotation: [0, 0, 0], scale: [0.85, 0.85, 0.85] },
   'proc:shared_hearth_aegis': { socket: 'handslot.l', wieldType: 'offhand_only', position: [0.05, 0.04, 0.02], rotation: [-0.35 * Math.PI, 0, -0.5 * Math.PI], scale: [0.85, 0.85, 0.85] },
   // --- HEADGEAR ---
-  'proc:wizard_hat': { socket: 'head', position: [0, 0.06, -0.02], rotation: [0, 0, 0], scale: [0.72, 0.72, 0.72] },
-  'proc:knight_helm': { socket: 'head', position: [0, 0.05, 0.01], rotation: [0, 0, 0], scale: [0.8, 0.8, 0.8] },
-  'proc:feather_cap': { socket: 'head', position: [0, 0.06, -0.02], rotation: [-0.05, 0, 0], scale: [0.76, 0.76, 0.76] },
-  'proc:tricorn_hat': { socket: 'head', position: [0, 0.06, -0.01], rotation: [0, 0, 0], scale: [0.76, 0.76, 0.76] },
-  'proc:golden_halo': { socket: 'head', position: [0, 0.22, -0.02], rotation: [0, 0, 0], scale: [0.75, 0.75, 0.75] },
-  'proc:sunspire_halo': { socket: 'head', position: [0, 0.26, -0.02], rotation: [0, 0, 0], scale: [0.82, 0.82, 0.82] },
+  'proc:wizard_hat': { socket: 'head', position: [0, 0.82, -0.02], rotation: [0, 0, 0], scale: [0.72, 0.72, 0.72] },
+  'proc:knight_helm': { socket: 'head', position: [0, 0.78, 0.01], rotation: [0, 0, 0], scale: [0.8, 0.8, 0.8] },
+  'proc:feather_cap': { socket: 'head', position: [0, 0.82, -0.02], rotation: [-0.05, 0, 0], scale: [0.76, 0.76, 0.76] },
+  'proc:tricorn_hat': { socket: 'head', position: [0, 0.82, -0.01], rotation: [0, 0, 0], scale: [0.76, 0.76, 0.76] },
+  'proc:golden_halo': { socket: 'head', position: [0, 1.15, -0.02], rotation: [0, 0, 0], scale: [0.75, 0.75, 0.75] },
+  'proc:sunspire_halo': { socket: 'head', position: [0, 1.18, -0.02], rotation: [0, 0, 0], scale: [0.82, 0.82, 0.82] },
   // --- CAPES ---
   'proc:highland_cloak': { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] },
   'proc:royal_mantle': { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] },

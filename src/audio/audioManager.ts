@@ -242,24 +242,56 @@ class AudioManager {
         break;
       }
 
-      case 'ult_hymn_of_wilds':
-        [329.63, 392.0, 493.88, 587.33, 659.25, 783.99, 987.77].forEach((freq, idx) => {
+      case 'ult_hymn_of_wilds': {
+        // 1. Roaring Green Flame Drone (3s duration)
+        if (this.ctx) {
+          const flameOsc = this.ctx.createOscillator();
+          const flameGain = this.ctx.createGain();
+          const t0 = this.ctx.currentTime;
+          flameOsc.type = 'triangle';
+          flameOsc.frequency.setValueAtTime(95, t0);
+          flameOsc.frequency.linearRampToValueAtTime(140, t0 + 1.5);
+          flameOsc.frequency.linearRampToValueAtTime(75, t0 + 3.0);
+          flameGain.gain.setValueAtTime(0.08, t0);
+          flameGain.gain.exponentialRampToValueAtTime(0.001, t0 + 3.2);
+          flameOsc.connect(flameGain);
+          flameGain.connect(this.ctx.destination);
+          flameOsc.start(t0);
+          flameOsc.stop(t0 + 3.3);
+        }
+        // 2. Continuous 3s Expanding Magic Circle Wave Hits (every 600ms)
+        [440, 554.37, 659.25, 880, 1108.73].forEach((baseFreq, waveIdx) => {
           setTimeout(() => {
             if (!this.ctx) return;
+            // Expanding wave chord pulse
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
-            const t = this.ctx.currentTime;
+            const tw = this.ctx.currentTime;
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.08, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
+            osc.frequency.setValueAtTime(baseFreq, tw);
+            gain.gain.setValueAtTime(0.09, tw);
+            gain.gain.exponentialRampToValueAtTime(0.001, tw + 0.8);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            osc.start(t);
-            osc.stop(t + 1.5);
-          }, idx * 60);
+            osc.start(tw);
+            osc.stop(tw + 0.85);
+
+            // HitFX acoustic snap
+            const snapOsc = this.ctx.createOscillator();
+            const snapGain = this.ctx.createGain();
+            snapOsc.type = 'triangle';
+            snapOsc.frequency.setValueAtTime(baseFreq * 2.5, tw);
+            snapOsc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, tw + 0.15);
+            snapGain.gain.setValueAtTime(0.06, tw);
+            snapGain.gain.exponentialRampToValueAtTime(0.001, tw + 0.18);
+            snapOsc.connect(snapGain);
+            snapGain.connect(this.ctx.destination);
+            snapOsc.start(tw);
+            snapOsc.stop(tw + 0.2);
+          }, waveIdx * 600);
         });
         break;
+      }
 
       // 3. Trâm Anh (StatusFXFree: Shatter Shards & Void Aura)
       case 'active_void_brush':
@@ -507,7 +539,44 @@ class AudioManager {
         break;
       }
 
-      case 'ult_ocean_tsunami':
+      case 'ult_ocean_tsunami': {
+        // 1. Deep Sub-bass Thunder Rumble (3.2s)
+        if (this.ctx) {
+          const thunderOsc = this.ctx.createOscillator();
+          const thunderGain = this.ctx.createGain();
+          const t0 = this.ctx.currentTime;
+          thunderOsc.type = 'sawtooth';
+          thunderOsc.frequency.setValueAtTime(55, t0);
+          thunderOsc.frequency.linearRampToValueAtTime(75, t0 + 1.2);
+          thunderOsc.frequency.exponentialRampToValueAtTime(35, t0 + 3.0);
+          thunderGain.gain.setValueAtTime(0.12, t0);
+          thunderGain.gain.exponentialRampToValueAtTime(0.001, t0 + 3.2);
+          thunderOsc.connect(thunderGain);
+          thunderGain.connect(this.ctx.destination);
+          thunderOsc.start(t0);
+          thunderOsc.stop(t0 + 3.3);
+        }
+
+        // 2. Cycling Thunder Lightning Zap Crackles (ElectricFXFree: zap)
+        [250, 900, 1600, 2300].forEach((ms) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const zapOsc = this.ctx.createOscillator();
+            const zapGain = this.ctx.createGain();
+            const tz = this.ctx.currentTime;
+            zapOsc.type = 'sawtooth';
+            zapOsc.frequency.setValueAtTime(1800, tz);
+            zapOsc.frequency.exponentialRampToValueAtTime(180, tz + 0.18);
+            zapGain.gain.setValueAtTime(0.09, tz);
+            zapGain.gain.exponentialRampToValueAtTime(0.001, tz + 0.22);
+            zapOsc.connect(zapGain);
+            zapGain.connect(this.ctx.destination);
+            zapOsc.start(tz);
+            zapOsc.stop(tz + 0.25);
+          }, ms);
+        });
+
+        // 3. Colossal Oceanic Tidal Wave Surge
         [110, 164.81, 220, 293.66, 440].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
@@ -517,14 +586,15 @@ class AudioManager {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
             gain.gain.setValueAtTime(0.1, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 1.3);
-          }, idx * 80);
+            osc.stop(t + 1.9);
+          }, idx * 75);
         });
         break;
+      }
 
       // 8. Xuân Minh
       case 'active_fearless_charge':
