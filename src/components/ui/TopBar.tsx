@@ -9,6 +9,7 @@ interface TopBarProps {
   weather: WeatherType;
   isMuted: boolean;
   isInspectorActive?: boolean;
+  coinScore?: number;
   onToggleTimeOfDay: () => void;
   onToggleWeather: () => void;
   onToggleMute: () => void;

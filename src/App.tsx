@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
 import { Character, CharacterSignatureAbility } from './types/character';
 import { InteractiveHit } from './types/threeEngine';
+import { CollectibleItem } from './types/platformer';
 import { allCharacters } from './data/charactersData';
 import { TouchControls3D } from './engine/three/TouchControls3D';
 import { CHARACTER_CONFIGS } from './engine/three/CharacterMeshBuilder';
@@ -25,6 +26,10 @@ export const App: React.FC = () => {
   const [celebrationToast, setCelebrationToast] = useState<string | null>(null);
   const [, setScreenPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const [isInspectorActive, setIsInspectorActive] = useState(false);
+  const [coinScore, setCoinScore] = useState<number>(() => {
+    const saved = localStorage.getItem('haven_coin_score');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [inspectorHit, setInspectorHit] = useState<InteractiveHit | null>(null);
 
   // TopBar state
@@ -104,6 +109,23 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const handleCollectItem = useCallback((item: CollectibleItem) => {
+    setCoinScore((prev) => {
+      const next = prev + item.value;
+      try {
+        localStorage.setItem('haven_coin_score', next.toString());
+      } catch {}
+      return next;
+    });
+    setCelebrationToast("✨ Nhặt được +" + item.value + " [" + item.name + "]!");
+    setTimeout(() => setCelebrationToast(null), 2500);
+  }, []);
+
+  const handlePlatformToast = useCallback((msg: string) => {
+    setCelebrationToast(msg);
+    setTimeout(() => setCelebrationToast(null), 2500);
+  }, []);
+
   const handleToggleTimeOfDay = useCallback(() => {
     audioManager.playTap();
     const cycle: TimeOfDay[] = ['dawn', 'day', 'sunset', 'night'];
@@ -155,6 +177,7 @@ export const App: React.FC = () => {
         weather={weather}
         isMuted={isMuted}
         isInspectorActive={isInspectorActive}
+        coinScore={coinScore}
         onToggleTimeOfDay={handleToggleTimeOfDay}
         onToggleWeather={handleToggleWeather}
         onToggleMute={handleToggleMute}
@@ -178,6 +201,8 @@ export const App: React.FC = () => {
         onInitSpellCaster={handleInitSpellCaster}
         onInitJumper={(fn) => { jumpRef.current = fn; }}
         onInspectHit={setInspectorHit}
+        onCollectItem={handleCollectItem}
+        onPlatformToast={handlePlatformToast}
       />
 
       {/* 3D Inspector Call-Out HUD Bar */}
