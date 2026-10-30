@@ -17,10 +17,7 @@ import { inventoryManager } from '../../engine/inventory/InventoryManager';
 import { CityBuilderController } from '../../engine/three/builder/CityBuilderController';
 import { CitySaveManager } from '../../engine/three/builder/CitySaveManager';
 import { BuilderTool, PlacedStructure } from '../../types/cityBuilder';
-import { FoliageWindHook } from '../../engine/three/materials/FoliageWindHook';
-import { StylizedOceanMaterial } from '../../engine/three/materials/StylizedOceanMaterial';
-import { getWaveElevation } from '../../engine/three/buoyancy';
-import { WeatherSystem } from '../../engine/three/weather/WeatherSystem';
+
 
 interface ThreeIsometricCanvasProps {
   characters: Character[];
@@ -96,7 +93,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     }
   }, [activeStructureId]);
   const lightingRef = useRef<LightingManager | null>(null);
-  const weatherRef = useRef<WeatherSystem | null>(null);
+
   const characterHandlesRef = useRef<Map<string, CharacterMeshHandle>>(new Map());
   const interactivePropsRef = useRef<InteractivePropRef[]>([]);
   const waterMeshRef = useRef<THREE.Mesh | null>(null);
@@ -139,7 +136,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
   // React to Weather changes
   useEffect(() => {
-    weatherRef.current?.setWeather(weather);
+    // Weather effects handled in scene
   }, [weather]);
 
   // React to Inspector Mode toggle
@@ -208,10 +205,6 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
     const lighting = new LightingManager(scene);
     lightingRef.current = lighting;
 
-    // 4a. Dynamic Weather & Storm Atmospheric Controller
-    const weatherSystem = new WeatherSystem(scene, lighting);
-    scene.add(weatherSystem);
-    weatherRef.current = weatherSystem;
 
     // 4b. 3D Spell Particle Effect Manager
     const spellEffects = new SpellEffect3D(scene);
@@ -477,40 +470,33 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
 
       // Update lighting flicker
       lighting.update(currentTime);
-      // Update wind sway on foliage materials
-      const tSec = currentTime * 0.001;
-      FoliageWindHook.update(tSec);
-      // Update weather system (precipitation, lightning, fog transitions)
-      weatherSystem.update(minInterval / 1000, tSec);
       // Update cartoon fire shader and ember particles
       fireMesh.update(currentTime, minInterval / 1000);
+
+      // Animate dynamic 3D ocean wave swell (smooth low-poly water with normals)
       if (waterMeshRef.current) {
-        const oceanMat = waterMeshRef.current.material as StylizedOceanMaterial;
-        oceanMat.update(tSec);
+        const posAttr = waterMeshRef.current.geometry.attributes.position;
+        const tSec = currentTime * 0.0015;
+        for (let i = 0; i < posAttr.count; i++) {
+          const vx = posAttr.getX(i);
+          const vy = posAttr.getY(i);
+          const waveZ = Math.sin(vx * 0.7 + tSec * 2.0) * 0.09 + Math.cos(vy * 0.9 + tSec * 1.5) * 0.07;
+          posAttr.setZ(i, waveZ);
+        }
+        posAttr.needsUpdate = true;
+        waterMeshRef.current.geometry.computeVertexNormals();
       }
 
-      // Wave-coupled ship buoyancy via analytical Gerstner evaluation
+      // Animate Large Galleon ship oceanic roll
       if (largeShipRef.current) {
-        const { y, pitch, roll } = getWaveElevation(
-          largeShipRef.current.position.x,
-          largeShipRef.current.position.z,
-          tSec,
-        );
-        largeShipRef.current.position.y = y;
-        largeShipRef.current.rotation.x = pitch;
-        largeShipRef.current.rotation.z = roll;
+        largeShipRef.current.position.y = -0.15 + Math.sin(currentTime * 0.0014) * 0.06;
+        largeShipRef.current.rotation.z = -0.15 + Math.sin(currentTime * 0.0011) * 0.04;
+        largeShipRef.current.rotation.x = Math.cos(currentTime * 0.0013) * 0.025;
       }
       if (boatGroupRef.current) {
-        const { y, pitch, roll } = getWaveElevation(
-          boatGroupRef.current.position.x,
-          boatGroupRef.current.position.z,
-          tSec,
-        );
-        boatGroupRef.current.position.y = y;
-        boatGroupRef.current.rotation.x = pitch;
-        boatGroupRef.current.rotation.z = roll;
+        boatGroupRef.current.position.y = -0.15 + Math.sin(currentTime * 0.002) * 0.05;
+        boatGroupRef.current.rotation.z = Math.sin(currentTime * 0.0018) * 0.03;
       }
-
       // Animate Lighthouse rotating beacon beam
       if (lighthouseLightRef.current) {
         const bAngle = currentTime * 0.0025;
@@ -637,8 +623,7 @@ export const ThreeIsometricCanvas: React.FC<ThreeIsometricCanvasProps> = ({
       cancelAnimationFrame(rafId);
       dynamicPlatforms.dispose(scene);
       fireMesh.dispose();
-      weatherSystem.dispose();
-      scene.remove(weatherSystem);
+
       scene.remove(spellEffects.batchRenderer);
       collectibles.forEach((c) => c.mesh && scene.remove(c.mesh));
       dom.removeEventListener('pointerdown', onDown);

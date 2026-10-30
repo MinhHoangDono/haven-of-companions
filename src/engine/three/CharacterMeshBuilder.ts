@@ -241,6 +241,152 @@ function applyGripTransform(mesh: THREE.Object3D, assetId: string, defaultSlot: 
     return { socket: 'chest', position: [0, 0.08, -0.14], rotation: [0, Math.PI, 0], scale: [0.88, 0.88, 0.88] };
   }
 }
+function findBone(scene: THREE.Object3D, ...names: string[]): THREE.Object3D | null {
+  for (const n of names) {
+    const found = scene.getObjectByName(n);
+    if (found) return found;
+  }
+  let fallback: THREE.Object3D | null = null;
+  scene.traverse((c) => {
+    if (fallback) return;
+    const lower = c.name.toLowerCase();
+    for (const n of names) {
+      if (lower === n.toLowerCase()) {
+        fallback = c;
+        return;
+      }
+    }
+  });
+  return fallback;
+}
+
+function getTargetModelForOutfit(outfitId: string | null, baseModel: string): string {
+  if (outfitId === 'outfit_white_shirt_pants' || outfitId === 'model:white_shirt_pants' || outfitId === 'outfit_kensei_gi' || outfitId === 'model:kensei_gi') {
+    return 'Rig_Medium_General.glb';
+  }
+  if (outfitId === 'outfit_mage_robe' || outfitId === 'model:mage_robe' || outfitId === 'outfit_tide_silks' || outfitId === 'model:tide_vestments') {
+    return 'Mage.glb';
+  }
+  if (outfitId === 'outfit_highland_tunic' || outfitId === 'model:scout_leathers') {
+    return 'Ranger.glb';
+  }
+  if (outfitId === 'outfit_ocean_corsair' || outfitId === 'model:swashbuckler_tunic') {
+    return 'Rogue.glb';
+  }
+  if (outfitId === 'outfit_horizon_plate' || outfitId === 'model:horizon_plate' || outfitId === 'proc:horizon_plate') {
+    return 'Knight.glb';
+  }
+  return baseModel;
+}
+
+function applyOutfitStyle(avatarScene: THREE.Object3D, outfitId: string | null) {
+  const isCivilian = outfitId === 'outfit_white_shirt_pants' || outfitId === 'model:white_shirt_pants';
+  const isKenseiGi = outfitId === 'outfit_kensei_gi' || outfitId === 'model:kensei_gi';
+  const isMageRobe = outfitId === 'outfit_mage_robe' || outfitId === 'model:mage_robe';
+  const isScoutLeathers = outfitId === 'outfit_highland_tunic' || outfitId === 'model:scout_leathers';
+  const isCorsair = outfitId === 'outfit_ocean_corsair' || outfitId === 'model:swashbuckler_tunic';
+  const isTideSilks = outfitId === 'outfit_tide_silks' || outfitId === 'model:tide_vestments';
+  const isHorizonPlate = outfitId === 'outfit_horizon_plate' || outfitId === 'model:horizon_plate' || outfitId === 'proc:horizon_plate';
+
+  if (isCivilian) {
+    const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
+    const darkPantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+
+    const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
+    if (bodyMesh) bodyMesh.material = whiteShirtMat;
+    const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
+    const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
+    if (leftLeg) leftLeg.material = darkPantsMat;
+    if (rightLeg) rightLeg.material = darkPantsMat;
+    const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
+    if (headMesh) headMesh.material = skinMat;
+    const leftArm = avatarScene.getObjectByName('Mannequin_ArmLeft') as THREE.Mesh;
+    const rightArm = avatarScene.getObjectByName('Mannequin_ArmRight') as THREE.Mesh;
+    if (leftArm) leftArm.material = skinMat;
+    if (rightArm) rightArm.material = skinMat;
+  } else if (isKenseiGi) {
+    const navyMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.85 });
+    const darkHakamaMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+
+    const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
+    if (bodyMesh) bodyMesh.material = navyMat;
+    const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
+    const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
+    if (leftLeg) leftLeg.material = darkHakamaMat;
+    if (rightLeg) rightLeg.material = darkHakamaMat;
+    const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
+    if (headMesh) headMesh.material = skinMat;
+    const leftArm = avatarScene.getObjectByName('Mannequin_ArmLeft') as THREE.Mesh;
+    const rightArm = avatarScene.getObjectByName('Mannequin_ArmRight') as THREE.Mesh;
+    if (leftArm) leftArm.material = navyMat;
+    if (rightArm) rightArm.material = navyMat;
+  } else if (isTideSilks) {
+    avatarScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.material) {
+          const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
+          mat.color = new THREE.Color(0x38bdf8);
+          if ('emissive' in mat) {
+            mat.emissive = new THREE.Color(0x0284c7);
+            mat.emissiveIntensity = 0.35;
+          }
+          mesh.material = mat;
+        }
+      }
+    });
+  } else if (isMageRobe) {
+    avatarScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.material) {
+          const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
+          mat.color = new THREE.Color(0xa855f7);
+          if ('emissive' in mat) {
+            mat.emissive = new THREE.Color(0x6b21a8);
+            mat.emissiveIntensity = 0.3;
+          }
+          mesh.material = mat;
+        }
+      }
+    });
+  } else if (isScoutLeathers) {
+    avatarScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.material) {
+          const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
+          mat.color = new THREE.Color(0x22c55e);
+          mesh.material = mat;
+        }
+      }
+    });
+  } else if (isCorsair) {
+    avatarScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.material) {
+          const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
+          mat.color = new THREE.Color(0xef4444);
+          mesh.material = mat;
+        }
+      }
+    });
+  } else if (isHorizonPlate) {
+    avatarScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.material) {
+          const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
+          mat.color = new THREE.Color(0x38bdf8);
+          mesh.material = mat;
+        }
+      }
+    });
+  }
+}
 let cachedIdleClip: THREE.AnimationClip | null = null;
 let cachedWalkClip: THREE.AnimationClip | null = null;
 
@@ -344,6 +490,7 @@ export class CharacterMeshBuilder {
     let currentOffhandMesh: THREE.Object3D | null = null;
     let currentHeadgearMesh: THREE.Object3D | null = null;
     let currentCapeMesh: THREE.Object3D | null = null;
+    let currentOutfitMesh: THREE.Object3D | null = null;
 
     let currentAvatarScene: THREE.Object3D | null = null;
     let currentOutfitId: string | null = null;
@@ -352,19 +499,7 @@ export class CharacterMeshBuilder {
     group.add(avatarGroup);
 
     const setupAvatarBody = async (outfitId: string | null) => {
-      let targetModel = config.model;
-      const isCivilian = outfitId === 'outfit_white_shirt_pants' || outfitId === 'model:white_shirt_pants';
-      const isKenseiGi = outfitId === 'outfit_kensei_gi' || outfitId === 'model:kensei_gi';
-      const isMageRobe = outfitId === 'outfit_mage_robe' || outfitId === 'model:mage_robe';
-      const isScoutLeathers = outfitId === 'outfit_highland_tunic' || outfitId === 'model:scout_leathers';
-      const isCorsair = outfitId === 'outfit_ocean_corsair' || outfitId === 'model:swashbuckler_tunic';
-      const isTideSilks = outfitId === 'outfit_tide_silks' || outfitId === 'model:tide_vestments';
-
-      if (isCivilian || isKenseiGi) targetModel = 'Rig_Medium_General.glb';
-      else if (isMageRobe || isTideSilks) targetModel = 'Mage.glb';
-      else if (isScoutLeathers) targetModel = 'Ranger.glb';
-      else if (isCorsair) targetModel = 'Rogue.glb';
-      else targetModel = config.model;
+      const targetModel = getTargetModelForOutfit(outfitId, config.model);
 
       if (currentAvatarScene) {
         avatarGroup.remove(currentAvatarScene);
@@ -374,6 +509,10 @@ export class CharacterMeshBuilder {
       currentOffhandMesh = null;
       currentHeadgearMesh = null;
       currentCapeMesh = null;
+      if (currentOutfitMesh && chest) {
+        chest.remove(currentOutfitMesh);
+        currentOutfitMesh = null;
+      }
 
       const [{ scene: avatarScene }, anims] = await Promise.all([
         assetLoader.loadModel(`assets/models/characters/${targetModel}`, true),
@@ -384,38 +523,25 @@ export class CharacterMeshBuilder {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
       avatarGroup.add(avatarScene);
 
-      // Locate skeletal bones
-      headBone = avatarScene.getObjectByName('head') || null;
-      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
-      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
-      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
+      // Locate skeletal bones (handling both 'handslotr' and 'handslot.r' formats)
+      headBone = findBone(avatarScene, 'head', 'Head', 'head_bone');
+      rightHand = findBone(avatarScene, 'handslotr', 'handslot.r', 'handr', 'hand.r', 'hand_r', 'RightHand');
+      leftHand = findBone(avatarScene, 'handslotl', 'handslot.l', 'handl', 'hand.l', 'hand_l', 'LeftHand');
+      chest = findBone(avatarScene, 'chest', 'Chest', 'spine', 'Spine', 'body');
 
-      if (isCivilian) {
-        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
-        const darkPantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+      applyOutfitStyle(avatarScene, outfitId);
 
-        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
-        if (bodyMesh) bodyMesh.material = whiteShirtMat;
-        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
-        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
-        if (leftLeg) leftLeg.material = darkPantsMat;
-        if (rightLeg) rightLeg.material = darkPantsMat;
-        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
-        if (headMesh) headMesh.material = skinMat;
-      } else if (isKenseiGi) {
-        const navyMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.85 });
-        const darkHakamaMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
-
-        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
-        if (bodyMesh) bodyMesh.material = navyMat;
-        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
-        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
-        if (leftLeg) leftLeg.material = darkHakamaMat;
-        if (rightLeg) rightLeg.material = darkHakamaMat;
-        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
-        if (headMesh) headMesh.material = skinMat;
+      // Procedural Horizon Plate attachment
+      const isHorizonPlate = outfitId === 'outfit_horizon_plate' || outfitId === 'model:horizon_plate' || outfitId === 'proc:horizon_plate';
+      if (isHorizonPlate && chest) {
+        try {
+          const plateMesh = await EquipmentGenerator.createEquipmentMesh('proc:horizon_plate');
+          applyGripTransform(plateMesh, 'proc:horizon_plate', 'outfit');
+          chest.add(plateMesh);
+          currentOutfitMesh = plateMesh;
+        } catch (e) {
+          console.warn('[CharacterMeshBuilder] Failed to attach horizon plate', e);
+        }
       }
 
       // Bind AnimationMixer
@@ -803,24 +929,13 @@ export class CharacterMeshBuilder {
     let currentOffMesh: THREE.Object3D | null = null;
     let currentHeadMesh: THREE.Object3D | null = null;
     let currentCapeMesh: THREE.Object3D | null = null;
+    let currentOutfitMesh: THREE.Object3D | null = null;
 
     let currentAvatarScene: THREE.Object3D | null = null;
     let currentOutfitId: string | null = null;
 
     const setupAvatarBody = async (outfitId: string | null) => {
-      let targetModel = config.model;
-      const isCivilian = outfitId === 'outfit_white_shirt_pants' || outfitId === 'model:white_shirt_pants';
-      const isKenseiGi = outfitId === 'outfit_kensei_gi' || outfitId === 'model:kensei_gi';
-      const isMageRobe = outfitId === 'outfit_mage_robe' || outfitId === 'model:mage_robe';
-      const isScoutLeathers = outfitId === 'outfit_highland_tunic' || outfitId === 'model:scout_leathers';
-      const isCorsair = outfitId === 'outfit_ocean_corsair' || outfitId === 'model:swashbuckler_tunic';
-      const isTideSilks = outfitId === 'outfit_tide_silks' || outfitId === 'model:tide_vestments';
-
-      if (isCivilian || isKenseiGi) targetModel = 'Rig_Medium_General.glb';
-      else if (isMageRobe || isTideSilks) targetModel = 'Mage.glb';
-      else if (isScoutLeathers) targetModel = 'Ranger.glb';
-      else if (isCorsair) targetModel = 'Rogue.glb';
-      else targetModel = config.model;
+      const targetModel = getTargetModelForOutfit(outfitId, config.model);
 
       if (currentAvatarScene) {
         group.remove(currentAvatarScene);
@@ -830,6 +945,10 @@ export class CharacterMeshBuilder {
       currentOffMesh = null;
       currentHeadMesh = null;
       currentCapeMesh = null;
+      if (currentOutfitMesh && chest) {
+        chest.remove(currentOutfitMesh);
+        currentOutfitMesh = null;
+      }
 
       const [{ scene: avatarScene }, anims] = await Promise.all([
         assetLoader.loadModel(`assets/models/characters/${targetModel}`, true),
@@ -840,37 +959,25 @@ export class CharacterMeshBuilder {
       avatarScene.scale.set(config.scale, config.scale, config.scale);
       group.add(avatarScene);
 
-      headBone = avatarScene.getObjectByName('head') || null;
-      rightHand = avatarScene.getObjectByName('handslot.r') || avatarScene.getObjectByName('hand.r') || null;
-      leftHand = avatarScene.getObjectByName('handslot.l') || avatarScene.getObjectByName('hand.l') || null;
-      chest = avatarScene.getObjectByName('chest') || avatarScene.getObjectByName('spine') || null;
+      // Locate skeletal bones (handling both 'handslotr' and 'handslot.r' formats)
+      headBone = findBone(avatarScene, 'head', 'Head', 'head_bone');
+      rightHand = findBone(avatarScene, 'handslotr', 'handslot.r', 'handr', 'hand.r', 'hand_r', 'RightHand');
+      leftHand = findBone(avatarScene, 'handslotl', 'handslot.l', 'handl', 'hand.l', 'hand_l', 'LeftHand');
+      chest = findBone(avatarScene, 'chest', 'Chest', 'spine', 'Spine', 'body');
 
-      if (isCivilian) {
-        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
-        const darkPantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+      applyOutfitStyle(avatarScene, outfitId);
 
-        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
-        if (bodyMesh) bodyMesh.material = whiteShirtMat;
-        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
-        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
-        if (leftLeg) leftLeg.material = darkPantsMat;
-        if (rightLeg) rightLeg.material = darkPantsMat;
-        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
-        if (headMesh) headMesh.material = skinMat;
-      } else if (isKenseiGi) {
-        const navyMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.85 });
-        const darkHakamaMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
-
-        const bodyMesh = avatarScene.getObjectByName('Mannequin_Body') as THREE.Mesh;
-        if (bodyMesh) bodyMesh.material = navyMat;
-        const leftLeg = avatarScene.getObjectByName('Mannequin_LegLeft') as THREE.Mesh;
-        const rightLeg = avatarScene.getObjectByName('Mannequin_LegRight') as THREE.Mesh;
-        if (leftLeg) leftLeg.material = darkHakamaMat;
-        if (rightLeg) rightLeg.material = darkHakamaMat;
-        const headMesh = avatarScene.getObjectByName('Mannequin_Head') as THREE.Mesh;
-        if (headMesh) headMesh.material = skinMat;
+      // Procedural Horizon Plate attachment
+      const isHorizonPlate = outfitId === 'outfit_horizon_plate' || outfitId === 'model:horizon_plate' || outfitId === 'proc:horizon_plate';
+      if (isHorizonPlate && chest) {
+        try {
+          const plateMesh = await EquipmentGenerator.createEquipmentMesh('proc:horizon_plate');
+          applyGripTransform(plateMesh, 'proc:horizon_plate', 'outfit');
+          chest.add(plateMesh);
+          currentOutfitMesh = plateMesh;
+        } catch (e) {
+          console.warn('[CharacterMeshBuilder] Failed to attach horizon plate', e);
+        }
       }
 
       mixer = new THREE.AnimationMixer(avatarScene);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Character } from '../../types/character';
+import { Character, AbilityEffectType } from '../../types/character';
 import { allCharacters } from '../../data/charactersData';
 import {
   Sparkles,
@@ -24,7 +24,7 @@ import { audioManager } from '../../audio/audioManager';
 interface CharacterModalProps {
   character: Character | null;
   onClose: () => void;
-  onTriggerAbility: () => void;
+  onTriggerAbility: (effectType?: AbilityEffectType) => void;
   onSelectCharacter?: (char: Character) => void;
 }
 
@@ -285,8 +285,8 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
               </div>
             </div>
 
-            {/* Quick Equipment Slot Badges Flanking the 3D Character */}
-            <div className="absolute top-16 left-3 sm:left-4 z-10 flex flex-col gap-2">
+            {/* Quick Equipment Slot Badges Flanking the 3D Character (Positioned comfortably below the nameplate) */}
+            <div className="absolute top-24 left-3 sm:left-4 z-10 flex flex-col gap-2">
               {SLOT_CONFIG.slice(0, 3).map(({ slot, icon, short }) => {
                 const item = getEquippedItem(slot);
                 const isSelected = activeNavTab === 'inventory' && selectedSlot === slot;
@@ -320,7 +320,7 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
               })}
             </div>
 
-            <div className="absolute top-16 right-3 sm:right-4 z-10 flex flex-col gap-2">
+            <div className="absolute top-24 right-3 sm:right-4 z-10 flex flex-col gap-2">
               {SLOT_CONFIG.slice(3).map(({ slot, icon, short }) => {
                 const item = getEquippedItem(slot);
                 const isSelected = activeNavTab === 'inventory' && selectedSlot === slot;
@@ -372,33 +372,17 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
             {/* ==================================================== */}
             {activeNavTab === 'inventory' && (
               <div className="flex-1 flex flex-col min-h-0 overflow-hidden animate-fade-in">
-                {/* Horizontal Slot Tabs */}
-                <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-ink-950/70 border-b border-paper-800/80 overflow-x-auto scrollbar-none gap-1.5 shrink-0">
-                  {SLOT_CONFIG.map(({ slot, icon, short }) => {
-                    const isSelected = selectedSlot === slot;
-                    const isEquipped = !!getEquippedItem(slot);
-                    return (
-                      <button
-                        key={slot}
-                        onClick={() => {
-                          audioManager.playTap();
-                          setSelectedSlot(slot);
-                          setInspectedItem(null);
-                        }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-serif font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-95 ${
-                          isSelected
-                            ? 'bg-fantasy-gold text-ink-950 shadow-md font-bold'
-                            : 'bg-ink-900 border border-paper-800/70 text-paper-200/70 hover:text-paper-100 hover:bg-ink-850'
-                        }`}
-                      >
-                        <span>{icon}</span>
-                        <span>{short}</span>
-                        {isEquipped && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm" />
-                        )}
-                      </button>
-                    );
-                  })}
+                {/* Active Slot Header Indicator */}
+                <div className="px-3 sm:px-4 py-2 bg-ink-950/70 border-b border-paper-800/80 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{SLOT_CONFIG.find((s) => s.slot === selectedSlot)?.icon}</span>
+                    <span className="text-xs font-serif font-bold text-fantasy-gold">
+                      {SLOT_CONFIG.find((s) => s.slot === selectedSlot)?.label}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-sans text-paper-200/50">
+                    Bấm phím tắt trên ảnh 3D để đổi ô
+                  </span>
                 </div>
 
                 {/* Inspected Item Detail Card */}
@@ -596,48 +580,91 @@ export const CharacterModal: React.FC<CharacterModalProps> = ({
                   </p>
                 </div>
 
-                {/* Signature Spell Big Showcase Card */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-ink-950 via-ink-900 to-amber-950/30 border border-fantasy-gold/60 shadow-xl relative overflow-hidden group">
-                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-fantasy-gold/10 rounded-full blur-xl pointer-events-none" />
+                {/* 1. Active Ability Card */}
+                {currentCharacter.activeAbility && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-ink-950 via-ink-900 to-amber-950/30 border border-fantasy-gold/60 shadow-xl relative overflow-hidden group">
+                    <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-fantasy-gold/10 rounded-full blur-xl pointer-events-none" />
 
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-fantasy-gold/20 border border-fantasy-gold/80 flex items-center justify-center text-2xl shadow-inner">
-                        ✨
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-fantasy-gold/20 border border-fantasy-gold/80 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
+                          {currentCharacter.activeAbility.icon || '⚔️'}
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-serif uppercase tracking-widest text-fantasy-gold font-bold flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Kỹ Năng Chủ Động
+                          </span>
+                          <h4 className="text-base sm:text-lg font-serif font-bold text-paper-100 leading-tight">
+                            {currentCharacter.activeAbility.name}
+                          </h4>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-[10px] font-serif uppercase tracking-widest text-fantasy-gold font-bold">
-                          Tuyệt Kỹ Chủ Động
-                        </span>
-                        <h4 className="text-base sm:text-lg font-serif font-bold text-paper-100 leading-tight">
-                          {currentCharacter.signatureAbility.name}
-                        </h4>
-                      </div>
+
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-sans font-bold bg-ink-950/80 border border-fantasy-gold/60 text-fantasy-gold shadow-sm">
+                        Hồi chiêu: {currentCharacter.activeAbility.cooldown}s
+                      </span>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-sans font-bold bg-ink-950/80 border border-fantasy-gold/60 text-fantasy-gold">
-                      Hồi chiêu: 5s
-                    </span>
+                    <p className="text-xs font-sans text-paper-200/80 mt-3 leading-relaxed bg-ink-950/60 p-3 rounded-xl border border-paper-800/50">
+                      {currentCharacter.activeAbility.description}
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        audioManager.playTap();
+                        onTriggerAbility(currentCharacter.activeAbility.effectType);
+                      }}
+                      className="w-full mt-3 py-2.5 rounded-xl bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-serif font-bold text-sm shadow-lg shadow-fantasy-gold/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Sparkles className="w-4 h-4 text-ink-950 fill-ink-950" />
+                      <span>Thi Triển Kỹ Năng Ngay</span>
+                    </button>
                   </div>
+                )}
 
-                  {/* Spell Details */}
-                  <p className="text-xs font-sans text-paper-200/80 mt-3 leading-relaxed bg-ink-950/60 p-3 rounded-xl border border-paper-800/50">
-                    {currentCharacter.signatureAbility.description}
-                  </p>
+                {/* 2. Ultimate Ability Card */}
+                {currentCharacter.ultimateAbility && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-ink-950 via-purple-950/40 to-amber-950/40 border border-amber-400/80 shadow-2xl shadow-purple-950/30 relative overflow-hidden group">
+                    <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
 
-                  {/* Cast Spell Button */}
-                  <button
-                    onClick={() => {
-                      audioManager.playTap();
-                      onTriggerAbility();
-                    }}
-                    className="w-full mt-3 py-2.5 rounded-xl bg-gradient-to-r from-fantasy-gold via-amber-400 to-fantasy-gold text-ink-950 font-serif font-bold text-sm shadow-lg shadow-fantasy-gold/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-ink-950 fill-ink-950" />
-                    <span>Thi Triển Tuyệt Kỹ Ngay</span>
-                  </button>
-                </div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400/30 to-purple-500/30 border border-amber-400 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">
+                          {currentCharacter.ultimateAbility.icon || '🌟'}
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-serif uppercase tracking-widest text-amber-300 font-bold flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                            Tuyệt Kỹ Tối Thượng (Ultimate)
+                          </span>
+                          <h4 className="text-base sm:text-lg font-serif font-bold text-amber-100 leading-tight">
+                            {currentCharacter.ultimateAbility.name}
+                          </h4>
+                        </div>
+                      </div>
 
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-sans font-bold bg-purple-950/90 border border-amber-400/80 text-amber-300 shadow-sm">
+                        Nộ / Hồi chiêu: {currentCharacter.ultimateAbility.cooldown}s
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-sans text-paper-200/90 mt-3 leading-relaxed bg-ink-950/70 p-3 rounded-xl border border-amber-500/30">
+                      {currentCharacter.ultimateAbility.description}
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        audioManager.playTap();
+                        onTriggerAbility(currentCharacter.ultimateAbility.effectType);
+                      }}
+                      className="w-full mt-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 text-white font-serif font-bold text-sm shadow-lg shadow-purple-500/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-200 fill-amber-200" />
+                      <span>Khai Mở Tuyệt Kỹ Tối Thượng</span>
+                    </button>
+                  </div>
+                )}
                 {/* The 2 Custom Passives from User */}
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between border-b border-paper-800/40 pb-1.5">

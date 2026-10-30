@@ -1,27 +1,15 @@
 import * as THREE from 'three';
 import { TimeOfDay } from '../../components/ui/TopBar';
 
-export interface TimeOfDayLightPreset {
-  fogDensity: number;
-  fogColor: number;
-  sunColor: number;
-  sunIntensity: number;
-  ambientIntensity: number;
-}
-
-const TIME_OF_DAY_PRESETS: Record<TimeOfDay, TimeOfDayLightPreset> = {
-  day:    { fogDensity: 0.016, fogColor: 0x82a6c8, sunColor: 0xfffaee, sunIntensity: 1.35, ambientIntensity: 0.2 },
-  dawn:   { fogDensity: 0.024, fogColor: 0x5a4860, sunColor: 0xffaa77, sunIntensity: 1.05, ambientIntensity: 0.2 },
-  sunset: { fogDensity: 0.022, fogColor: 0x46222c, sunColor: 0xff6022, sunIntensity: 1.3,  ambientIntensity: 0.2 },
-  night:  { fogDensity: 0.028, fogColor: 0x0a101d, sunColor: 0x385588, sunIntensity: 0.35, ambientIntensity: 0.2 },
-};
-
 export class LightingManager {
   private scene: THREE.Scene;
   private sunLight: THREE.DirectionalLight;
   private hemiLight: THREE.HemisphereLight;
   private ambientLight: THREE.AmbientLight;
   private currentTimeOfDay: TimeOfDay = 'day';
+  public getCurrentTimeOfDay(): TimeOfDay {
+    return this.currentTimeOfDay;
+  }
 
   // Point lights
   private campfireLight: THREE.PointLight;
@@ -159,34 +147,5 @@ export class LightingManager {
     const flicker = Math.sin(time * 0.008) * 0.25 + Math.sin(time * 0.023) * 0.15;
     this.campfireLight.intensity = Math.max(0.2, this.campfireLight.intensity + flicker * 0.1);
   }
-
-  // ── Weather System Integration ──
-
-  /** Expose the directional sun light for weather overrides. */
-  public getSunLight(): THREE.DirectionalLight {
-    return this.sunLight;
-  }
-
-  /** Expose the ambient light for weather overrides. */
-  public getAmbientLight(): THREE.AmbientLight {
-    return this.ambientLight;
-  }
-
-  /**
-   * Return the fog/light values the current time-of-day would produce,
-   * without side-effects. Used by WeatherSystem to know what to LERP
-   * toward when transitioning back to 'clear'.
-   */
-  public getTimeOfDayPreset(): TimeOfDayLightPreset {
-    return TIME_OF_DAY_PRESETS[this.currentTimeOfDay];
-  }
-
-  /**
-   * Re-apply the current time-of-day lighting. Called by WeatherSystem
-   * after a transition to 'clear' completes so LightingManager owns
-   * the scene values cleanly again.
-   */
-  public reapplyTimeOfDay(): void {
-    this.setTimeOfDay(this.currentTimeOfDay);
-  }
 }
+

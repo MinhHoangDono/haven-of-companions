@@ -142,11 +142,14 @@ class AudioManager {
       | 'dawn_light'
       | 'swashbuckle_coin'
       | 'tidal_wave'
+      | string
   ) {
     if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;
 
     switch (type) {
+      // 1. Anh Thi
+      case 'active_seed_of_life':
       case 'nature_bloom':
         [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
           setTimeout(() => {
@@ -166,22 +169,107 @@ class AudioManager {
         });
         break;
 
-      case 'aegis_shield':
-        [220, 440, 880].forEach((freq) => {
-          if (!this.ctx) return;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now);
-          gain.gain.setValueAtTime(0.09, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 1.3);
+      case 'ult_forest_awakening':
+        [130.81, 196.0, 261.63, 329.63, 392.0, 523.25].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.09, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.3);
+          }, idx * 70);
         });
         break;
 
+      // 2. Phương Quỳnh
+      case 'active_resonating_arrow':
+      case 'eagle_scout':
+        [880, 1174.66, 1760, 2349.32].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.07, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.55);
+          }, idx * 60);
+        });
+        break;
+
+      case 'ult_hymn_of_wilds':
+        [329.63, 392.0, 493.88, 587.33, 659.25, 783.99, 987.77].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.08, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.5);
+          }, idx * 60);
+        });
+        break;
+
+      // 3. Trâm Anh
+      case 'active_void_brush':
+      case 'lute_hymn':
+        [329.63, 392.0, 493.88, 587.33, 659.25].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.08, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.85);
+          }, idx * 60);
+        });
+        break;
+
+      case 'ult_spatial_masterpiece':
+        [220, 277.18, 329.63, 440, 554.37, 659.25].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.05, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.3);
+          }, idx * 80);
+        });
+        break;
+
+      // 4. Khải Vạn
+      case 'active_firework_orb':
       case 'firework_burst':
         [300, 150, 60].forEach((freq, idx) => {
           setTimeout(() => {
@@ -201,6 +289,62 @@ class AudioManager {
         });
         break;
 
+      case 'ult_celestial_nocturne':
+        [400, 300, 200, 150, 100, 60].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.65);
+          }, idx * 90);
+        });
+        break;
+
+      // 5. Thảo Uyên
+      case 'active_guardian_light':
+      case 'aegis_shield':
+        [220, 440, 880].forEach((freq) => {
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.3);
+        });
+        break;
+
+      case 'ult_dawn_resurgence':
+      case 'dawn_light':
+        [261.63, 329.63, 392.0, 523.25, 659.25, 783.99, 1046.5].forEach((freq) => {
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.07, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.9);
+        });
+        break;
+
+      // 6. Ngọc Hà
+      case 'active_athletic_tempo':
       case 'water_slash':
         [400, 600, 800].forEach((freq, idx) => {
           setTimeout(() => {
@@ -220,17 +364,16 @@ class AudioManager {
         });
         break;
 
-      case 'eagle_scout':
-        // High hunting falcon whistle
-        [880, 1174.66, 1760].forEach((freq, idx) => {
+      case 'ult_infinite_flurry':
+        [90, 120, 150, 180, 240, 320].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             const t = this.ctx.currentTime;
-            osc.type = 'sine';
+            osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.06, t);
+            gain.gain.setValueAtTime(0.12, t);
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
@@ -240,45 +383,48 @@ class AudioManager {
         });
         break;
 
-      case 'lute_hymn':
-        // Strummed medieval harp arpeggio
-        [329.63, 392.0, 493.88, 587.33, 659.25].forEach((freq, idx) => {
+      // 7. Thanh Phương
+      case 'active_resilient_torrent':
+        [220, 330, 440, 550].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             const t = this.ctx.currentTime;
-            osc.type = 'triangle';
+            osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
             gain.gain.setValueAtTime(0.08, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 0.8);
+            osc.stop(t + 0.65);
           }, idx * 60);
         });
         break;
 
-      case 'dawn_light':
-        // Sacred radiant chord
-        [523.25, 659.25, 783.99, 987.77].forEach((freq) => {
-          if (!this.ctx) return;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now);
-          gain.gain.setValueAtTime(0.06, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 1.6);
+      case 'ult_ocean_tsunami':
+        [110, 164.81, 220, 293.66, 440].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.3);
+          }, idx * 80);
         });
         break;
 
+      // 8. Xuân Minh
+      case 'active_fearless_charge':
       case 'swashbuckle_coin':
-        // Metallic coin flip ping
         [1318.51, 1567.98, 2093.0].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
@@ -297,9 +443,28 @@ class AudioManager {
         });
         break;
 
-      case 'tidal_wave':
-        // Low sea surge and tide bell
-        [220, 293.66, 440, 587.33].forEach((freq, idx) => {
+      case 'ult_party_frenzy':
+        [440, 554.37, 659.25, 880, 1108.73, 1318.51].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.09, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.5);
+          }, idx * 45);
+        });
+        break;
+
+      // 9. Lâm Anh Thư
+      case 'active_serene_wave':
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
           setTimeout(() => {
             if (!this.ctx) return;
             const osc = this.ctx.createOscillator();
@@ -308,12 +473,32 @@ class AudioManager {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
             gain.gain.setValueAtTime(0.07, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(t);
-            osc.stop(t + 1.0);
-          }, idx * 80);
+            osc.stop(t + 0.75);
+          }, idx * 75);
+        });
+        break;
+
+      case 'ult_passionate_geyser':
+      case 'tidal_wave':
+        [180, 260, 392, 587.33, 880].forEach((freq, idx) => {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.09, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.3);
+          }, idx * 75);
         });
         break;
     }

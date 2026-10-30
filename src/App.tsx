@@ -2,7 +2,7 @@ import { InspectorBar } from './components/ui/InspectorBar';
 import React, { useCallback, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ThreeIsometricCanvas } from './components/canvas/ThreeIsometricCanvas';
-import { Character, CharacterSignatureAbility } from './types/character';
+import { Character, AbilityEffectType } from './types/character';
 import { InteractiveHit } from './types/threeEngine';
 import { CollectibleItem } from './types/platformer';
 import { allCharacters } from './data/charactersData';
@@ -23,7 +23,7 @@ import { inventoryManager } from './engine/inventory/InventoryManager';
 import { ActiveBuff } from './types/inventory';
 export const App: React.FC = () => {
   const controlsRef = useRef<TouchControls3D | null>(null);
-  const castSpellRef = useRef<((effectType: CharacterSignatureAbility['effectType'], charId: string) => void) | null>(null);
+  const castSpellRef = useRef<((effectType: AbilityEffectType, charId: string) => void) | null>(null);
   const jumpRef = useRef<(() => void) | null>(null);
   const [characters, setCharacters] = useState<Character[]>(allCharacters);
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
     controlsRef.current = controls;
   }, []);
 
-  const handleInitSpellCaster = useCallback((castFn: (effectType: CharacterSignatureAbility['effectType'], charId: string) => void) => {
+  const handleInitSpellCaster = useCallback((castFn: (effectType: AbilityEffectType, charId: string) => void) => {
     castSpellRef.current = castFn;
   }, []);
 
@@ -166,8 +166,7 @@ export const App: React.FC = () => {
 
   const handleToggleWeather = useCallback(() => {
     audioManager.playTap();
-    const cycle: WeatherType[] = ['clear', 'mist', 'rain', 'storm', 'blossom'];
-    setWeather((prev) => cycle[(cycle.indexOf(prev) + 1) % cycle.length]);
+    setWeather((prev) => (prev === 'clear' ? 'mist' : 'clear'));
   }, []);
 
   const handleToggleMute = useCallback(() => {
@@ -176,11 +175,19 @@ export const App: React.FC = () => {
     audioManager.setMuted(nextMuted);
   }, [isMuted]);
 
-  const handleTriggerAbility = useCallback(() => {
+  const handleTriggerAbility = useCallback((customEffectType?: AbilityEffectType) => {
     if (!selectedCharacter) return;
     setIsModalOpen(false);
     setIsCasting(true);
-    const effectType = selectedCharacter.signatureAbility.effectType;
+
+    const isUlt = customEffectType && customEffectType === selectedCharacter.ultimateAbility?.effectType;
+    const ability = isUlt
+      ? selectedCharacter.ultimateAbility
+      : (selectedCharacter.activeAbility || selectedCharacter.signatureAbility);
+
+    const effectType = customEffectType || ability?.effectType || selectedCharacter.signatureAbility?.effectType || 'active_seed_of_life';
+    const abilityName = ability?.name || selectedCharacter.signatureAbility?.name || 'Kỹ Năng';
+
     audioManager.playAbility(effectType);
     // 3D visual particle explosion at character position!
     castSpellRef.current?.(effectType, selectedCharacter.id);
@@ -190,7 +197,8 @@ export const App: React.FC = () => {
     );
 
     // Show spell toast notification!
-    setCelebrationToast(`✨ ${selectedCharacter.nickname} thi triển [${selectedCharacter.signatureAbility.name}]!`);
+    const badge = isUlt ? '🌟 TUYỆT KỸ TỐI THƯỢNG' : '⚡ KỸ NĂNG CHỦ ĐỘNG';
+    setCelebrationToast(`${badge}: ${selectedCharacter.nickname} thi triển [${abilityName}]!`);
     setTimeout(() => {
       setCelebrationToast(null);
       setIsCasting(false);
