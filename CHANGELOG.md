@@ -4,6 +4,8 @@
 ## [v8.5.1] - 2026-10-30
 
 ### Fixed & Optimized
+- **Water Specular Glare Dot Fix (`GodotWaterMaterial.ts`)**: Replaced the broad `pow(ndoth, 24.0)` specular calculation with focused crest glints (`pow(ndoth, 160.0)` modulated by `vWave`), completely eliminating the giant static white glare oval shown in the screenshot.
+- **3D Volumetric Grass Tuft Upgrade (`GodotGrassManager.ts`)**: Upgraded flat 2D single planes to 3D Tri-Quad Star Tufts (3 intersecting quads at $0^\circ, 60^\circ, 120^\circ$ angles), providing full volumetric 3D foliage and eliminating the flat paper appearance from all camera angles. Filtered grass placement strictly to `GRASS` biome terrain with 2,400 dense cluster tufts.
 - **React 60 FPS Re-render Loop**: Removed unused `screenPositions` state updates dispatched in `App.tsx` from `ThreeIsometricCanvas.tsx`'s `requestAnimationFrame` loop, eliminating continuous root component re-renders.
 - **City Builder Demolish Shared Geometry Protection (`CityBuilderController.ts`)**: Prevented `geometry.dispose()` on template instances during building demolition, protecting shared GPU vertex buffers in VRAM from being destroyed.
 - **Godot Water Vertical Wave Displacement (`GodotWaterMaterial.ts`)**: Fixed displacement axis to local $+Z$ (world $+Y$ on rotated plane) and computed `vWorldPos` after vertex displacement, restoring true vertical wave swell and screen-space faceted normals.
