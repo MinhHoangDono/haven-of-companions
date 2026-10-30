@@ -141,25 +141,29 @@ export const CharacterPreview3D: React.FC<CharacterPreview3DProps> = ({ characte
 
     rafId = requestAnimationFrame(animate);
 
-    const handleResize = () => {
+    const updateSize = () => {
       if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
+      const w = container.clientWidth || 360;
+      const h = container.clientHeight || 450;
+      const a = w / h;
+      camera.aspect = a;
+      camera.fov = a < 1 ? 42 : 36;
+      camera.position.set(0, 1.05, a < 1 ? 3.3 : 3.0);
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
 
-    window.addEventListener('resize', handleResize);
-
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(container);
+    window.addEventListener('resize', updateSize);
     return () => {
       unsub();
       cancelAnimationFrame(rafId);
       dom.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
-      window.removeEventListener('resize', handleResize);
-
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateSize);
       if (container.contains(dom)) {
         container.removeChild(dom);
       }
