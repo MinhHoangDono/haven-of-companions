@@ -28,7 +28,7 @@ The application is deployed live with offline PWA support, soft shadow mapping, 
 | **Refinements** | UI/UX & Movement Evolution (`v3.5`) | 3D hero model viewer inside modal with 360° touch rotation, Tap-to-Move & ambient village wandering, left-docked companion list under Haven card, Inter typography for flawless Vietnamese diacritics, modal auto-close on cast, and clean wave normals | **Completed** ✅ |
 | **Remodel & 24x24 Expansion** | KayKit Adventurers, Medieval Village & 24x24 Map | 9 KayKit Adventurer models with class armor & weapon sockets, 24x24 5-step stepped topography with natural transitions, water walkability blocking (`passabilityMap.ts`), declarative prop placement registry (`propLayoutData.ts`), and 30 FPS mobile optimization | **Completed** ✅ |
 | **UI & Modal Architecture** | Modal Responsive Refinement & Spell Dialog Management (`v4.1`) | Full-screen modal on mobile phones, centered card on web/desktop, primary skill cast button repositioned above 360 preview, removed Raise Toast, dialog auto-dismissed during spell cast, and Memory Feature plan validated (`plans/261029-1724-memory-gallery/`) | **Completed** ✅ |
-
+| **Controls & Navigation** | Desktop WASD, Jumping Physics & Coordinate Inspector (`v5.2`) | Screen-relative WASD keyboard navigation, realistic gravity jump arc ($2.8\text{m}$ step clearance), camera follow tracking, in-game 3D Coordinate Inspector HUD, un-inverted mouse drag, and coastal shoreline encampment | **Completed** ✅ |
 ---
 
 ## 3. Technical Architecture
