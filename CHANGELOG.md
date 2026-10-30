@@ -2,6 +2,20 @@
 
 ## [v8.5.0] - 2026-10-30
 
+### Added
+- **Godot Toon Water Shader (`GodotWaterMaterial.ts`)**:
+  - Ported `water_toon.gdshader` and `water.gdshader` from `GodotWaterSource.zip` directly to a high-performance Three.js `ShaderMaterial`.
+  - Dual-layer scrolling wave distortion with counter-propagating velocities and Simplex displacement.
+  - 12-step toon diffuse and specular lighting thresholds with smoothstep gradient transitions.
+  - Procedural wave crest foam and multi-tone depth gradient (aquatic cyan `#2dd4bf` to deep marine `#0a4f6d`).
+- **Godot Instanced Grass & Dither System (`GodotGrassManager.ts`)**:
+  - Ported `grass.gdshader`, `ground.gdshader`, and `dither.gdshaderinc` from `GodotGrass.zip`.
+  - Renders 1,200 instanced grass blades (`THREE.InstancedMesh`) across terrain tiers using `grass_basic_atlas.png`.
+  - 2x2 Texture Atlas quadrant mapping per instance with 4 distinct grass blade silhouettes.
+  - Authentic Bayer 4x4 matrix ordered dithering on alpha cutoff to eliminate WebGL alpha sorting artifacts.
+  - Root-anchored wind sway: tips sway dynamically with global wind vectors while blade roots remain anchored to terrain.
+  - 3-stop spatial noise color gradient (`palette_01`: deep forest `#468232` $\rightarrow$ lush `#75a743` $\rightarrow$ lime `#a8ca58`).
+
 ### Fixed
 - **3D Weapon & Equipment Socket Rigging Bug (`CharacterMeshBuilder.ts`)**:
   - **Root Cause**: GLTFLoader on KayKit rigged character meshes sanitizes dots in bone names (`'handslotr'` / `'handr'` instead of `'handslot.r'` / `'hand.r'`). The previous bone search returned `null` for both `rightHand` and `leftHand`, silently blocking weapons and shields from attaching while headgear and capes worked.
