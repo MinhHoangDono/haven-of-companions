@@ -89,8 +89,6 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'ship-medium.glb', pack: 'environment', pos: [-24.0, 0.1, 11.0], rot: [0, -0.4, 0], scale: 1.4 },
   { asset: 'ship-wreck.glb', pack: 'environment', pos: [-26.0, -0.8, 25.0], rot: [0.15, 0.7, -0.2], scale: 1.6 },
   { asset: 'boat-row-large.glb', pack: 'environment', pos: [-4.8, 0.1, 14.5], rot: [0, 1.57, 0], scale: 1.4 },
-  { asset: 'boat-row-small.glb', pack: 'environment', pos: [-0.5, 0.1, 18.0], rot: [0, -1.2, 0], scale: 1.3 },
-  { asset: 'boat-row-small.glb', pack: 'environment', pos: [-8.5, 0.4, 6.2], rot: [0.08, 0.7, 0], scale: 1.3 },
   { asset: 'boat-row-large.glb', pack: 'environment', pos: [-14.5, 0.4, 7.8], rot: [0, 0.25, 0], scale: 1.4 },
 
   // Pirate Flags & Lookouts
@@ -130,9 +128,6 @@ export const DIORAMA_PROPS: PropInstanceDef[] = [
   { asset: 'rocks-sand-b.glb', pack: 'environment', pos: [-18.5, 0.1, 12.0], scale: 2.2 },
   { asset: 'rocks-sand-c.glb', pack: 'environment', pos: [-22.0, 0.1, 16.0], scale: 2.5 },
   { asset: 'rocks-sand-a.glb', pack: 'environment', pos: [-28.0, 0.1, 22.0], scale: 2.8 },
-
-  // Cozy Narrow Boardwalk Pier Platform Walkway (Scale: 1.0)
-  ...createPierRow(-2.5, 0.5, 5.5, 6),
 
   // ==========================================
   // ZONE 4: OUTER LIGHTHOUSE PROMONTORY (SE)

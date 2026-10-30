@@ -60,7 +60,6 @@ export const App: React.FC = () => {
   const handleSelectCharacter = useCallback((char: Character) => {
     audioManager.playTap();
 
-
     setSelectedCharId(char.id);
 
     // Hop animation
@@ -68,8 +67,8 @@ export const App: React.FC = () => {
       prev.map((c) => (c.id === char.id ? { ...c, hopProgress: 0.01 } : c))
     );
 
-    panToCharacter(char);
-  }, [panToCharacter]);
+    // Camera is NOT relocated when clicking the character in 3D (user keeps their view)
+  }, []);
 
   const handleInteractProp = useCallback((propType: string, _position: THREE.Vector3) => {
     audioManager.playTap();
@@ -221,6 +220,7 @@ export const App: React.FC = () => {
         onOpenDetails={(char) => {
           setSelectedCharId(char.id);
           setIsModalOpen(true);
+          panToCharacter(char); // Relocate camera only when clicking sheet or xem on the list!
         }}
       />
 
