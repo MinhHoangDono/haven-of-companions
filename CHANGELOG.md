@@ -6,6 +6,7 @@
 ### Removed
 - **Godot Grass Shader & Instanced Grass System (`GodotGrassManager.ts`)**: Completely removed the experimental grass shader, instanced mesh, and grass atlas rendering per user request, restoring the clean voxel terrain landscape.
 - **Godot Toon Water Shader (`GodotWaterMaterial.ts`)**: Removed the procedural shader material and associated texture glint / specular white dot artifacts.
+- **Town Square Fountain (`DioramaBuilder.ts`)**: Removed the central town square stone fountain basin, pillar, and water cylinder at coordinates $(X: 5.5, Y: 1.75, Z: -2.5)$ per user request, opening up the central village square.
 
 ### Restored & Enhanced
 - **Physical 3D Ocean Wave Simulation (`ThreeIsometricCanvas.tsx`, `DioramaBuilder.ts`)**:

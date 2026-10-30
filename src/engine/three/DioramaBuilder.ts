@@ -33,12 +33,6 @@ export class DioramaBuilder {
       flatShading: true,
     });
 
-    const matPlazaStone = new THREE.MeshStandardMaterial({
-      color: 0x9e978c,
-      roughness: 0.7,
-      metalness: 0.1,
-    });
-
     const matWoodTimber = new THREE.MeshStandardMaterial({
       color: 0x54361e,
       roughness: 0.7,
@@ -80,25 +74,6 @@ export class DioramaBuilder {
     // Terrain has smooth organic curves (hills, mountains, coastline, promontory)
     // Every block has its own authentic Minecraft tile & texture!
     VoxelTerrainBuilder.buildVoxelTerrain(dioramaGroup);
-
-    // ==========================================
-    // 2. Central Town Square Fountain (Rescaled to 3.2m radius)
-    // ==========================================
-    const fountainGeo = new THREE.CylinderGeometry(3.2, 3.6, 0.6, 24);
-    const fountainMesh = new THREE.Mesh(fountainGeo, matPlazaStone);
-    fountainMesh.position.set(5.5, 1.75, -2.5);
-    fountainMesh.castShadow = true;
-    fountainMesh.receiveShadow = true;
-    dioramaGroup.add(fountainMesh);
-
-    const fountainCenterPillar = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.0, 1.2, 16), matPlazaStone);
-    fountainCenterPillar.position.set(5.5, 2.25, -2.5);
-    fountainCenterPillar.castShadow = true;
-    dioramaGroup.add(fountainCenterPillar);
-
-    const fountainWater = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 2.8, 0.55, 24), matWater);
-    fountainWater.position.set(5.5, 1.8, -2.5);
-    dioramaGroup.add(fountainWater);
 
     // ==========================================
     // 3. Interactive Village Props
