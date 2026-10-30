@@ -382,6 +382,7 @@ export class VoxelTerrainBuilder {
       sandMesh.instanceMatrix.needsUpdate = true;
       sandMesh.castShadow = false; // Sea-level sand receives shadows without self-shadow overdraw
       sandMesh.receiveShadow = true;
+      dioramaGroup.add(sandMesh);
     }
 
     if (stoneTransforms.length > 0) {
